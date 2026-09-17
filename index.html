@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<link rel="manifest" href="manifest.json">
+<title>Condomínio VIVERDI — Garagem</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--text:#17202a;--muted:#6b7280;--green:#16a34a;--greenbg:#dcfce7;--red:#dc2626;--redbg:#fee2e2;--border:#d7dce2;--blue:#2563eb;--reserved:#2563eb;--reservedbg:#dbeafe;--unavailable:#111827;--unavailablebg:#e5e7eb;--ended:#6b7280;--endedbg:#f3f4f6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
+header{background:#111827;color:white;padding:18px 16px;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px #0002}
+h1{font-size:21px;margin:0 0 4px}header p{margin:0;color:#cbd5e1;font-size:13px}
+main{max-width:1000px;margin:auto;padding:14px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+button,input,select{font:inherit}button{border:0;border-radius:10px;padding:10px 13px;background:#e5e7eb;color:#111827;font-weight:650;cursor:pointer}
+button.primary{background:var(--blue);color:#fff}input,select{border:1px solid var(--border);background:white;border-radius:10px;padding:10px 12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
+.stat b{font-size:24px;display:block}.stat span{font-size:12px;color:var(--muted)}
+.legend{background:white;border:1px solid var(--border);border-radius:14px;padding:11px;margin-bottom:14px;font-size:13px;display:flex;gap:18px;flex-wrap:wrap}
+.dot{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:5px}
+.green{background:var(--greenbg);border-color:#86efac}.red{background:var(--redbg);border-color:#fca5a5}.blue{background:var(--reservedbg);border-color:#93c5fd}.black{background:var(--unavailablebg);border-color:#9ca3af}.gray{background:var(--endedbg);border-color:#d1d5db}
+.section{margin:18px 0 8px;font-weight:800;font-size:16px}.grid{display:grid;grid-template-columns:repeat(7,minmax(42px,1fr));gap:7px}
+.spot{min-height:76px;border:2px solid;border-radius:12px;padding:7px;display:flex;flex-direction:column;justify-content:space-between;text-align:left}
+.spot .num{font-size:18px;font-weight:850}.spot .apt{font-size:11px;font-weight:650}.spot .time{font-size:10px;color:#374151}
+.spot.unmapped{opacity:.65}.block-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.block-btn{background:#fff;border:2px solid var(--border);border-radius:12px;padding:11px 12px;font-weight:800}.block-btn.active{background:#111827;color:#fff;border-color:#111827}.block-sub{display:block;font-size:11px;font-weight:500;opacity:.75;margin-top:2px}
+.note{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:11px;margin:12px 0;font-size:12px}
+.status{font-size:12px;color:var(--muted);margin:8px 0 12px}
+.panel{background:white;border:1px solid var(--border);border-radius:14px;padding:14px;margin-top:14px}.tablewrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;border-bottom:1px solid #eee;text-align:left;white-space:nowrap}.small{font-size:12px;color:var(--muted)}
+
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.58);display:none;align-items:flex-end;justify-content:center;z-index:50;padding:0}
+.modal-backdrop.show{display:flex}
+.modal{width:min(620px,100%);background:#fff;border-radius:22px 22px 0 0;padding:20px 18px 24px;box-shadow:0 -8px 35px #0004;max-height:92vh;overflow:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:15px}
+.modal-head h2{margin:0;font-size:22px}.modal-close{background:#f1f5f9;border-radius:50%;width:40px;height:40px;padding:0;font-size:22px}
+.modal-sub{color:var(--muted);font-size:13px;margin-top:3px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:750;color:#374151}
+.field input,.field select{width:100%;padding:12px;border-radius:11px}
+.status-options{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.status-option{border:2px solid var(--border);background:#fff;border-radius:12px;padding:11px;text-align:left;font-weight:750}.status-option.selected{border-color:#2563eb;box-shadow:0 0 0 2px #2563eb22}
+.status-option small{display:block;font-weight:500;color:var(--muted);margin-top:2px}
+
+.view-details{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:14px}
+.detail-row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:14px}
+.detail-row:last-child{border-bottom:0}.detail-label{color:#64748b}.detail-value{font-weight:750;text-align:right}
+
+.modal-actions{display:flex;gap:9px;margin-top:18px}.modal-actions button{flex:1;padding:12px}
+
+@media(max-width:600px){.grid{grid-template-columns:repeat(4,1fr)}.stat{padding:9px}.stat b{font-size:20px}}
+</style>
+</head>
+<body>
+<header><h1>🚗 Condomínio VIVERDI — Garagem</h1><p id="headerBlock">Bloco 01 · Supabase + Realtime</p></header>
+<main>
+<div class="block-switch">
+<button id="block01" class="block-btn active" onclick="selectBlock('01')">Bloco 01<span class="block-sub">Vagas 01–34</span></button>
+<button id="block02" class="block-btn" onclick="selectBlock('02')">Bloco 02<span class="block-sub">Vagas 35–140</span></button>
+</div>
+<div class="toolbar">
+<input id="search" placeholder="Buscar vaga ou apartamento…" style="flex:1;min-width:190px">
+<select id="level"><option value="all">Todos os níveis</option><option value="-1">Subsolo -1</option><option value="-2">Subsolo -2</option></select>
+<button id="loginBtn" class="primary" onclick="openLogin()">🔐 Entrar</button>
+<button id="editBtn" class="primary" onclick="toggleEdit()" style="display:none">⚙️ Editar status</button>
+<button id="logoutBtn" onclick="logout()" style="display:none">Sair</button>
+</div>
+<div id="userStatus" class="status">🔓 Visualização pública · entre para editar sua vaga</div>
+<div id="connection" class="status">Conectando ao banco…</div>
+<div class="stats">
+<div class="stat"><b id="availableCount">0</b><span>Disponíveis agora</span></div>
+<div class="stat"><b id="occupiedCount">0</b><span>Ocupadas agora</span></div>
+<div class="stat"><b id="mappedCount">0</b><span>Vagas cadastradas</span></div>
+</div>
+<div class="legend"><span><i class="dot" style="background:#16a34a"></i>Disponível</span><span><i class="dot" style="background:#dc2626"></i>Ocupada</span><span>🔵 Reservada</span><span>⚫ Não disponível</span><span>⚪ Encerrada</span><span>Toque em uma vaga para ver os detalhes.</span></div>
+<div class="note"><b>Versão 7.0:</b> seleção entre Bloco 01 e Bloco 02, busca por bloco e cores correspondentes aos 5 status. O realtime do Supabase continua ativo. Agora há login por e-mail/senha e controle de edição por perfil.</div>
+<div id="maps"></div>
+<div class="panel"><b>🔎 Consulta por apartamento</b>
+<div class="toolbar" style="margin-top:10px;margin-bottom:0"><input id="aptSearch" placeholder="Ex.: 2401" style="flex:1"><button onclick="findApartment()">Localizar vaga</button></div>
+<div id="aptResult" class="small" style="margin-top:9px"></div></div>
+<div class="panel"><b>📋 Relação apartamento → vaga cadastrada</b>
+<div class="tablewrap" style="margin-top:8px"><table><thead><tr><th>Apartamento</th><th>Vaga</th></tr></thead><tbody id="mappingTable"></tbody></table></div></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://zytesqpdmalnhhbtroho.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_qejNuC0zCPZdZPz9SCnHwQ_I_VgF2Q1";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+let spots = [];
+let editMode = false;
+let selectedBlock = '01';
+
+function setConnection(text, ok=false){
+  const el=document.getElementById('connection');
+  el.textContent=text;
+  el.style.color=ok?'#15803d':'#6b7280';
+}
+
+function normalize(row){
+  const status = row.status || (row.disponivel ? 'disponivel' : 'indisponivel');
+  return {
+    number: row.numero,
+    block: row.numero <= 34 ? '01' : '02',
+    level: row.subsolo,
+    apartment: row.apartamento,
+    status,
+    available: status === 'disponivel',
+    date: row.data_disponivel || '',
+    start: row.hora_inicio || '',
+    end: row.hora_fim || ''
+  };
+}
+
+
+let currentUser = null;
+let currentProfile = null;
+
+function updateAuthUI(){
+  const loginBtn=document.getElementById('loginBtn');
+  const editBtn=document.getElementById('editBtn');
+  const logoutBtn=document.getElementById('logoutBtn');
+  const userStatus=document.getElementById('userStatus');
+
+  if(currentUser && currentProfile){
+    loginBtn.style.display='none';
+    logoutBtn.style.display='inline-block';
+    editBtn.style.display='inline-block';
+    const role=currentProfile.perfil==='admin'?'Administrador':'Morador';
+    userStatus.textContent='🔐 '+role+' · Apto '+currentProfile.apartamento+' · Vaga '+(currentProfile.vaga||'—');
+  }else{
+    loginBtn.style.display='inline-block';
+    logoutBtn.style.display='none';
+    editBtn.style.display='none';
+    editMode=false;
+    userStatus.textContent='🔓 Visualização pública · entre para editar sua vaga';
+  }
+}
+
+async function loadProfile(user){
+  currentUser=user;
+  currentProfile=null;
+  if(user){
+    const {data,error}=await db
+      .from('moradores')
+      .select('id,nome,apartamento,perfil,ativo')
+      .eq('id',user.id)
+      .maybeSingle();
+
+    if(error){
+      console.error(error);
+      alert('Login realizado, mas não foi possível carregar seu cadastro de morador.\n\n'+error.message);
+      await db.auth.signOut();
+      currentUser=null;
+    }else if(!data || !data.ativo){
+      alert('Este usuário não possui um cadastro ativo no VIVERDI.');
+      await db.auth.signOut();
+      currentUser=null;
+    }else{
+      const apt=data.apartamento;
+      const spot=spots.find(s=>s.apartment===apt);
+      currentProfile={...data,vaga:spot?spot.number:null};
+    }
+  }
+  updateAuthUI();
+  render();
+}
+
+async function openLogin(){
+  const email=prompt('E-mail cadastrado no VIVERDI:');
+  if(!email) return;
+  const password=prompt('Senha:');
+  if(!password) return;
+
+  const {data,error}=await db.auth.signInWithPassword({
+    email:email.trim(),
+    password
+  });
+
+  if(error){
+    alert('Não foi possível entrar.\n\n'+error.message);
+    return;
+  }
+  await loadProfile(data.user);
+  alert('Login realizado com sucesso.');
+}
+
+async function logout(){
+  editMode=false;
+  const {error}=await db.auth.signOut();
+  if(error){
+    alert('Erro ao sair.\n\n'+error.message);
+    return;
+  }
+  currentUser=null;
+  currentProfile=null;
+  updateAuthUI();
+  render();
+}
+
+async function loadSpots(){
+  setConnection('Carregando vagas…');
+  const {data,error}=await db.from('vagas').select('numero,subsolo,apartamento,status,disponivel,data_disponivel,hora_inicio,hora_fim,atualizado_em').order('numero');
+  if(error){
+    setConnection('Erro ao carregar o banco: '+error.message);
+    alert('Não foi possível carregar as vagas.\\n\\n'+error.message);
+    return;
+  }
+  spots=data.map(normalize);
+  render();
+  setConnection('🟢 Conectado ao Supabase · atualizações em tempo real ativas', true);
+}
+
+function statusText(s){
+ const labels={
+   disponivel:'🟢 Disponível',
+   reservada:'🔵 Reservada',
+   ocupada:'🔴 Ocupada',
+   indisponivel:'⚫ Indisponível',
+   encerrada:'⚪ Encerrada'
+ };
+ let text=labels[s.status]||'⚫ Indisponível';
+ if(s.date) text+=' · '+formatDate(s.date);
+ if(s.start&&s.end) text+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
+ return text;
+}
+
+function render(){
+ const q=document.getElementById('search').value.trim().toLowerCase();
+ const level=document.getElementById('level').value;
+ const maps=document.getElementById('maps');
+ maps.innerHTML='';
+ const blockSpots=spots.filter(s=>s.block===selectedBlock);
+ const visibleLevels=selectedBlock==='01'?['-1']:['-2'];
+ for(const lev of visibleLevels){
+  if(level!=='all'&&level!==lev)continue;
+  const title=document.createElement('div');title.className='section';title.textContent=lev==='-1'?'Subsolo -1':'Subsolo -2';maps.appendChild(title);
+  const grid=document.createElement('div');grid.className='grid';
+  blockSpots.filter(s=>s.level===lev).forEach(s=>{
+   if(q && !String(s.number).includes(q) && !(s.apartment||'').includes(q))return;
+   const cls=statusClass(s.status);
+   const b=document.createElement('button');b.className='spot '+cls+(!s.apartment?' unmapped':'');
+   b.innerHTML='<span class="num">Vaga '+s.number+'</span><span class="apt">'+(s.apartment?'Apto '+s.apartment:'Não cadastrada')+'</span><span class="time">'+statusText(s)+'</span>';
+   b.onclick=()=>openSpot(s.number);grid.appendChild(b);
+  });
+  maps.appendChild(grid);
+ }
+ const mapped=blockSpots.filter(s=>s.apartment);
+ document.getElementById('mappedCount').textContent=mapped.length;
+ document.getElementById('availableCount').textContent=blockSpots.filter(s=>s.status==='disponivel').length;
+ document.getElementById('occupiedCount').textContent=blockSpots.filter(s=>s.status==='ocupada').length;
+ const tbody=document.getElementById('mappingTable');tbody.innerHTML='';
+ mapped.slice().sort((a,b)=>a.apartment.localeCompare(b.apartment)).forEach(s=>{
+   const tr=document.createElement('tr');tr.innerHTML='<td>'+s.apartment+'</td><td>'+s.number+'</td>';tbody.appendChild(tr)
+ });
+ document.getElementById('headerBlock').textContent='Bloco '+selectedBlock+' · Supabase + Realtime';
+}
+
+function statusClass(st){
+ return ({disponivel:'green',reservada:'blue',ocupada:'red',indisponivel:'black',encerrada:'gray'}[st]||'black');
+}
+
+function selectBlock(block){
+ selectedBlock=block;
+ document.getElementById('block01').classList.toggle('active',block==='01');
+ document.getElementById('block02').classList.toggle('active',block==='02');
+ document.getElementById('level').value='all';
+ document.getElementById('search').value='';
+ render();
+}
+
+function openSpot(num){
+ const s=spots.find(x=>x.number===num && x.block===selectedBlock);
+ if(!s)return;
+ if(!editMode){
+   showModal(s,false);
+   return;
+ }
+ if(!currentUser || !currentProfile){
+   openLogin();
+   return;
+ }
+ const canEdit = currentProfile.perfil === 'admin' || String(currentProfile.apartamento) === String(s.apartment);
+ if(!canEdit){
+   alert('Você só pode editar a vaga vinculada ao seu apartamento.');
+   showModal(s,false);
+   return;
+ }
+ showModal(s,true);
+}
+
+function showModal(s, editing){
+ document.getElementById('modalTitle').textContent='Vaga '+s.number;
+ document.getElementById('modalSub').textContent=s.apartment?'Apartamento '+s.apartment:'Vaga ainda não vinculada a apartamento';
+ document.getElementById('modalStatus').value=s.status||'indisponivel';
+ document.getElementById('modalDate').value=s.date||'';
+ document.getElementById('modalStart').value=s.start||'';
+ document.getElementById('modalEnd').value=s.end||'';
+ document.getElementById('saveModal').style.display=editing?'block':'none';
+ document.getElementById('cancelModal').textContent=editing?'Cancelar':'Fechar';
+ document.getElementById('editFields').style.display=editing?'block':'none';
+ const labels={
+   disponivel:'🟢 Disponível',
+   reservada:'🔵 Reservada',
+   ocupada:'🔴 Ocupada',
+   indisponivel:'⚫ Indisponível',
+   encerrada:'⚪ Encerrada'
+ };
+ let details='<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">'+(labels[s.status]||'⚫ Indisponível')+'</span></div>';
+ if(s.date) details+='<div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">'+formatDate(s.date)+'</span></div>';
+ if(s.start&&s.end) details+='<div class="detail-row"><span class="detail-label">Período</span><span class="detail-value">'+formatTime(s.start)+' às '+formatTime(s.end)+'</span></div>';
+ if(!s.date && !s.start && !s.end && s.status==='indisponivel') details+='<div class="detail-row"><span class="detail-label">Informação</span><span class="detail-value">Não disponível pelo VIVERDI</span></div>';
+ document.getElementById('viewDetails').innerHTML=details;
+ document.getElementById('viewDetails').style.display='block';
+ document.querySelectorAll('.status-option').forEach(b=>b.classList.toggle('selected',b.dataset.status===document.getElementById('modalStatus').value));
+ document.getElementById('modalBackdrop').classList.add('show');
+ if(editing) updateModalFields();
+}
+
+function updateModalFields(){
+ const st=document.getElementById('modalStatus').value;
+ const showPeriod=['disponivel','reservada','ocupada'].includes(st);
+ document.getElementById('periodFields').style.display=showPeriod?'grid':'none';
+}
+
+function closeModal(){document.getElementById('modalBackdrop').classList.remove('show')}
+
+async function saveSpot(){
+ const num=Number(document.getElementById('modalTitle').textContent.replace('Vaga ',''));
+ const s=spots.find(x=>x.number===num && x.block===selectedBlock);
+ const status=document.getElementById('modalStatus').value;
+ const date=document.getElementById('modalDate').value||null;
+ const startTime=document.getElementById('modalStart').value||null;
+ const endTime=document.getElementById('modalEnd').value||null;
+ const available=status==='disponivel';
+ const {data,error}=await db.from('vagas').update({
+   status,
+   disponivel: available,
+   data_disponivel: date,
+   hora_inicio: startTime,
+   hora_fim: endTime,
+   disponivel_a_partir: startTime
+ }).eq('numero',num).select('numero,subsolo,apartamento,status,disponivel,data_disponivel,hora_inicio,hora_fim').single();
+ if(error){alert('Erro ao salvar no Supabase:\n\n'+error.message);return}
+ const updated=normalize(data);
+ const i=spots.findIndex(x=>x.number===num);
+ if(i>=0)spots[i]=updated;
+ render();closeModal();
+}
+
+
+
+function toggleEdit(){
+ if(!currentUser){
+   openLogin();
+   return;
+ }
+ editMode=!editMode;
+ const btn=document.getElementById('editBtn');
+ if(btn) btn.textContent=editMode?'✅ Editando vagas':'⚙️ Editar status';
+ if(editMode) alert('Modo de edição ativado. Toque em uma vaga para alterar seu status e período.');
+}
+
+function statusLabel(st){return ({disponivel:'Disponível',reservada:'Reservada',ocupada:'Ocupada',indisponivel:'Indisponível',encerrada:'Encerrada'}[st]||'Indisponível');}
+
+function findApartment(){
+ const apt=document.getElementById('aptSearch').value.trim(),s=spots.find(x=>x.apartment===apt && x.block===selectedBlock);
+ document.getElementById('aptResult').textContent=s?
+   'Apartamento '+apt+' → Vaga '+s.number+' · '+statusLabel(s.status)+
+   (s.date?' · '+formatDate(s.date):'')+
+   (s.start&&s.end?' · '+formatTime(s.start)+' às '+formatTime(s.end):''):
+   'Apartamento não encontrado no cadastro.';
+}
+
+function formatTime(value){return value?value.slice(0,5):'';}
+
+function formatDate(value){
+ if(!value)return '';
+ const p=value.split('-');
+ return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:value;
+}
+
+document.getElementById('search').addEventListener('input',render);
+document.getElementById('level').addEventListener('change',render);
+
+db.channel('viverdi-vagas-realtime')
+ .on('postgres_changes',{event:'*',schema:'public',table:'vagas'},payload=>{
+   if(payload.eventType==='DELETE'){
+     spots=spots.filter(s=>s.number!==payload.old.numero);
+   }else{
+     const updated=normalize(payload.new);
+     const i=spots.findIndex(s=>s.number===updated.number);
+     if(i>=0)spots[i]=updated; else spots.push(updated);
+   }
+   spots.sort((a,b)=>a.number-b.number);
+   render();
+ })
+ .subscribe((status)=>{
+   if(status==='SUBSCRIBED') setConnection('🟢 Conectado ao Supabase · atualizações em tempo real ativas', true);
+ });
+
+db.auth.getSession().then(({data})=>{
+  loadProfile(data.session ? data.session.user : null);
+});
+db.auth.onAuthStateChange((_event, session)=>{
+  setTimeout(()=>loadProfile(session ? session.user : null), 0);
+});
+
+updateAuthUI();
+loadSpots();
+</script>
+
+<div id="modalBackdrop" class="modal-backdrop" onclick="if(event.target===this)closeModal()">
+ <div class="modal" role="dialog" aria-modal="true">
+  <div class="modal-head">
+   <div><h2 id="modalTitle">Vaga</h2><div id="modalSub" class="modal-sub"></div></div>
+   <button class="modal-close" onclick="closeModal()" aria-label="Fechar">×</button>
+  </div>
+  <div id="viewDetails" class="view-details"></div>
+  <div id="editFields">
+   <div class="field full">
+    <label>STATUS DA VAGA</label>
+    <div class="status-options">
+      <button type="button" class="status-option" data-status="disponivel" onclick="selectStatus('disponivel')">🟢 Disponível<small>Liberada para uso</small></button>
+      <button type="button" class="status-option" data-status="reservada" onclick="selectStatus('reservada')">🔵 Reservada<small>Uso assumido por morador</small></button>
+      <button type="button" class="status-option" data-status="ocupada" onclick="selectStatus('ocupada')">🔴 Ocupada<small>Está sendo utilizada</small></button>
+      <button type="button" class="status-option" data-status="indisponivel" onclick="selectStatus('indisponivel')">⚫ Indisponível<small>Não disponível no VIVERDI</small></button>
+      <button type="button" class="status-option" data-status="encerrada" onclick="selectStatus('encerrada')">⚪ Encerrada<small>Período terminou</small></button>
+    </div>
+    <select id="modalStatus" style="display:none" onchange="updateModalFields()"></select>
+   </div>
+   <div id="periodFields" class="formgrid" style="margin-top:13px">
+    <div class="field"><label>DATA</label><input id="modalDate" type="date"></div>
+    <div></div>
+    <div class="field"><label>HORA INICIAL</label><input id="modalStart" type="time"></div>
+    <div class="field"><label>HORA FINAL</label><input id="modalEnd" type="time"></div>
+   </div>
+  </div>
+  <div class="modal-actions">
+   <button id="cancelModal" onclick="closeModal()">Cancelar</button>
+   <button id="saveModal" class="primary" onclick="saveSpot()">Salvar no VIVERDI</button>
+  </div>
+ </div>
+</div>
+<script>
+function selectStatus(st){
+ document.getElementById('modalStatus').value=st;
+ document.querySelectorAll('.status-option').forEach(b=>b.classList.toggle('selected',b.dataset.status===st));
+ updateModalFields();
+}
+document.getElementById('modalStatus').innerHTML=[
+ ['disponivel','Disponível'],['reservada','Reservada'],['ocupada','Ocupada'],['indisponivel','Indisponível'],['encerrada','Encerrada']
+].map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join('');
+</script>
+
+</body>
+</html>
