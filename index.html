@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#111827">
 <link rel="manifest" href="manifest.json">
-<title>Condomínio VIVERDI — Garagem</title>
+<title>Condomínio VIVERDI — Garagem · Versão Beta 1.2.3</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--text:#17202a;--muted:#6b7280;--green:#16a34a;--greenbg:#dcfce7;--red:#dc2626;--redbg:#fee2e2;--border:#d7dce2;--blue:#2563eb;--reserved:#2563eb;--reservedbg:#dbeafe;--unavailable:#111827;--unavailablebg:#e5e7eb;--ended:#6b7280;--endedbg:#f3f4f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
@@ -35,7 +35,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
 .modal-head h2{margin:0;font-size:22px}.modal-close{background:#f1f5f9;border-radius:50%;width:40px;height:40px;padding:0;font-size:22px}
 .modal-sub{color:var(--muted);font-size:13px;margin-top:3px}
 .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:750;color:#374151}
-.field input,.field select{width:100%;padding:12px;border-radius:11px}
+.field input,.field select{width:100%;padding:12px;border-radius:11px}.modal-check{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700}.modal-check input{width:18px;height:18px}
 .status-options{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.status-option{border:2px solid var(--border);background:#fff;border-radius:12px;padding:11px;text-align:left;font-weight:750}.status-option.selected{border-color:#2563eb;box-shadow:0 0 0 2px #2563eb22}
 .status-option small{display:block;font-weight:500;color:var(--muted);margin-top:2px}
 
@@ -46,6 +46,8 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
 .modal-actions{display:flex;gap:9px;margin-top:18px}.modal-actions button{flex:1;padding:12px}
 
 @media(max-width:600px){.grid{grid-template-columns:repeat(4,1fr)}.stat{padding:9px}.stat b{font-size:20px}}
+
+.my-area{background:#fff;border:2px solid #bfdbfe;border-radius:16px;padding:14px;margin:10px 0 12px;box-shadow:0 2px 8px #0000000b}.my-area-title{font-size:13px;font-weight:850;color:#2563eb;letter-spacing:.3px;margin-bottom:6px}.my-vaga-main{display:flex;justify-content:space-between;gap:12px;align-items:center}.my-vaga-name{font-size:22px;font-weight:850}.my-vaga-meta{color:#6b7280;font-size:13px;margin-top:2px}.my-vaga-status{font-weight:800;margin-top:6px}.my-vaga-actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}.future-search{padding:18px}.future-search h2{margin:0 0 6px;font-size:20px}.future-search .hint{color:#6b7280;margin-bottom:14px}.future-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.future-grid .full{grid-column:1/-1}.future-search label{display:block;font-size:12px;font-weight:800;margin-bottom:5px}.future-search input,.future-search select{width:100%;padding:12px;border:1px solid #d7dce2;border-radius:10px;font-size:16px;background:#fff}.check-row{display:flex;align-items:center;gap:8px;font-weight:700;margin-top:10px}.check-row input{width:18px;height:18px}.future-results{margin-top:15px}.result-item{border:1px solid #d7dce2;border-radius:12px;padding:11px;margin-top:8px;background:#fff}.result-item b{font-size:17px}.result-item small{display:block;color:#6b7280;margin-top:3px}.empty-result{color:#6b7280;padding:10px 0}.modal-actions .primary{display:block}.
 </style>
 </head>
 <body>
@@ -58,9 +60,14 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
 <div class="toolbar">
 <input id="search" placeholder="Buscar vaga ou apartamento…" style="flex:1;min-width:190px">
 <select id="level"><option value="all">Todos os níveis</option><option value="-1">Subsolo -1</option><option value="-2">Subsolo -2</option></select>
+<button id="searchFutureBtn" onclick="openFutureSearch()">🔎 Procurar vaga</button>
 <button id="loginBtn" class="primary" onclick="openLogin()">🔐 Entrar</button>
 <button id="editBtn" class="primary" onclick="toggleEdit()" style="display:none">⚙️ Editar status</button>
 <button id="logoutBtn" onclick="logout()" style="display:none">Sair</button>
+</div>
+<div id="myArea" class="my-area" style="display:none">
+  <div class="my-area-title">👤 MINHA VAGA</div>
+  <div id="myAreaContent"></div>
 </div>
 <div id="userStatus" class="status">🔓 Visualização pública · entre para editar sua vaga</div>
 <div id="connection" class="status">Conectando ao banco…</div>
@@ -70,7 +77,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
 <div class="stat"><b id="mappedCount">0</b><span>Vagas cadastradas</span></div>
 </div>
 <div class="legend"><span><i class="dot" style="background:#16a34a"></i>Disponível</span><span><i class="dot" style="background:#dc2626"></i>Ocupada</span><span>🔵 Reservada</span><span>⚫ Não disponível</span><span>⚪ Encerrada</span><span>Toque em uma vaga para ver os detalhes.</span></div>
-<div class="note"><b>Versão 7.0:</b> seleção entre Bloco 01 e Bloco 02, busca por bloco e cores correspondentes aos 5 status. O realtime do Supabase continua ativo. Agora há login por e-mail/senha e controle de edição por perfil.</div>
+<div class="note"><b>Versão Beta 1.2.3:</b> interface-base da V7.0 preservada. A disponibilidade agora usa períodos completos (data inicial e final), com horário opcional. A busca futura consulta a nova estrutura de liberações. O mapa/grade, blocos, subsolos, legenda, busca, login e realtime permanecem.</div>
 <div id="maps"></div>
 <div class="panel"><b>🔎 Consulta por apartamento</b>
 <div class="toolbar" style="margin-top:10px;margin-bottom:0"><input id="aptSearch" placeholder="Ex.: 2401" style="flex:1"><button onclick="findApartment()">Localizar vaga</button></div>
@@ -105,14 +112,18 @@ function normalize(row){
     status,
     available: status === 'disponivel',
     date: row.data_disponivel || '',
+    dateStart: row.data_disponivel || '',
+    dateEnd: row.data_disponivel || '',
     start: row.hora_inicio || '',
-    end: row.hora_fim || ''
+    end: row.hora_fim || '',
+    anyTime: false
   };
 }
 
 
 let currentUser = null;
 let currentProfile = null;
+let liberacoes = [];
 
 function updateAuthUI(){
   const loginBtn=document.getElementById('loginBtn');
@@ -126,12 +137,14 @@ function updateAuthUI(){
     editBtn.style.display='inline-block';
     const role=currentProfile.perfil==='admin'?'Administrador':'Morador';
     userStatus.textContent='🔐 '+role+' · Apto '+currentProfile.apartamento+' · Vaga '+(currentProfile.vaga||'—');
+    renderMyArea();
   }else{
     loginBtn.style.display='inline-block';
     logoutBtn.style.display='none';
     editBtn.style.display='none';
     editMode=false;
     userStatus.textContent='🔓 Visualização pública · entre para editar sua vaga';
+    document.getElementById('myArea').style.display='none';
   }
 }
 
@@ -201,12 +214,45 @@ async function loadSpots(){
   const {data,error}=await db.from('vagas').select('numero,subsolo,apartamento,status,disponivel,data_disponivel,hora_inicio,hora_fim,atualizado_em').order('numero');
   if(error){
     setConnection('Erro ao carregar o banco: '+error.message);
-    alert('Não foi possível carregar as vagas.\\n\\n'+error.message);
+    alert('Não foi possível carregar as vagas.\n\n'+error.message);
     return;
   }
   spots=data.map(normalize);
+  await loadLiberacoes();
   render();
   setConnection('🟢 Conectado ao Supabase · atualizações em tempo real ativas', true);
+}
+
+async function loadLiberacoes(){
+  const {data,error}=await db.from('liberacoes_vaga')
+    .select('id,vaga_numero,morador_id,data_inicio,data_fim,hora_inicio,hora_fim,qualquer_horario,ativo,criado_em,atualizado_em')
+    .eq('ativo',true)
+    .order('data_inicio',{ascending:true});
+  if(error){
+    console.error(error);
+    setConnection('Erro ao carregar liberações: '+error.message);
+    return;
+  }
+  liberacoes=data||[];
+  applyLiberations();
+}
+
+function applyLiberations(){
+  const today=new Date().toISOString().slice(0,10);
+  spots.forEach(s=>{
+    const ls=liberacoes.filter(l=>Number(l.vaga_numero)===Number(s.number) && l.ativo && l.data_fim>=today);
+    if(ls.length){
+      const l=ls[0];
+      s.date=l.data_inicio||'';
+      s.dateStart=l.data_inicio||'';
+      s.dateEnd=l.data_fim||l.data_inicio||'';
+      s.start=l.hora_inicio||'';
+      s.end=l.hora_fim||'';
+      s.anyTime=!!l.qualquer_horario;
+      if(s.status==='indisponivel') s.status='disponivel';
+      s.available=s.status==='disponivel';
+    }
+  });
 }
 
 function statusText(s){
@@ -221,6 +267,98 @@ function statusText(s){
  if(s.date) text+=' · '+formatDate(s.date);
  if(s.start&&s.end) text+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
  return text;
+}
+
+function renderMyArea(){
+ const box=document.getElementById('myArea'), content=document.getElementById('myAreaContent');
+ if(!currentProfile || !currentProfile.apartamento){box.style.display='none';return}
+ const mine=spots.filter(s=>String(s.apartment)===String(currentProfile.apartamento));
+ box.style.display='block';
+ if(!mine.length){content.innerHTML='<div class="my-vaga-meta">Nenhuma vaga vinculada ao seu apartamento foi encontrada.</div>';return}
+ content.innerHTML=mine.map(s=>{
+   const st=statusLabel(s.status);
+   let period='Sem período de disponibilidade';
+   if(s.dateStart){
+     period=formatDate(s.dateStart);
+     if(s.dateEnd && s.dateEnd!==s.dateStart) period+=' a '+formatDate(s.dateEnd);
+     if(s.anyTime) period+=' · Qualquer horário';
+     else if(s.start&&s.end) period+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
+   }
+   return '<div class="my-vaga" style="margin-bottom:10px"><div class="my-vaga-main"><div><div class="my-vaga-name">Vaga '+s.number+'</div><div class="my-vaga-meta">Apartamento '+s.apartment+'</div><div class="my-vaga-status">'+st+'</div><div class="my-vaga-meta">'+period+'</div></div></div><div class="my-vaga-actions"><button onclick="openMySpot('+s.number+')">⚙️ Configurar minha vaga</button></div></div>';
+ }).join('');
+}
+
+function openMySpot(num){
+ const was=editMode; editMode=true; openSpot(num); editMode=was;
+}
+function openFutureSearch(){
+ document.getElementById('futureDate').value=new Date().toISOString().slice(0,10);
+ document.getElementById('futureStart').value='';
+ document.getElementById('futureEnd').value='';
+ document.getElementById('anyTime').checked=true;
+ document.getElementById('futureBlock').value='';
+ document.getElementById('futureResults').innerHTML='';
+ document.getElementById('futureBackdrop').classList.add('show');
+ toggleFutureTimeFields();
+}
+function closeFutureSearch(){document.getElementById('futureBackdrop').classList.remove('show')}
+function openFutureResult(block,num){
+ closeFutureSearch();
+ selectBlock(block||'01');
+ setTimeout(()=>openSpot(num),50);
+}
+function toggleFutureTimeFields(){
+ const any=document.getElementById('anyTime').checked;
+ document.getElementById('futureTimeFields').style.display=any?'none':'grid';
+}
+async function searchFutureAvailability(){
+ const date=document.getElementById('futureDate').value;
+ const any=document.getElementById('anyTime').checked;
+ const start=document.getElementById('futureStart').value;
+ const end=document.getElementById('futureEnd').value;
+ const block=document.getElementById('futureBlock').value;
+ const box=document.getElementById('futureResults');
+ if(!date){alert('Escolha uma data.');return}
+ if(!any && (!start||!end)){alert('Informe a hora inicial e final ou marque "Qualquer horário".');return}
+ if(!any && start>=end){alert('A hora final deve ser posterior à hora inicial.');return}
+ box.innerHTML='<div class="empty-result">🔎 Procurando vagas disponíveis…</div>';
+ try{
+   const {data,error}=await db.rpc('buscar_vagas_disponiveis',{
+     p_bloco:block||null,
+     p_data_inicio:date,
+     p_data_fim:date,
+     p_hora_inicio:any?null:start||null,
+     p_hora_fim:any?null:end||null
+   });
+   if(error) throw error;
+   let compatible=(data||[]).filter(r=>r.status==='disponivel');
+   // Compatibilidade com a disponibilidade antiga gravada diretamente em vagas.
+   // Isso permite encontrar a Vaga 76 (ou outra vaga antiga) enquanto ela não for
+   // novamente salva pelo novo modelo de período.
+   if(!compatible.length){
+     compatible=spots.filter(s=>{
+       if(!s.apartment || s.status!=='disponivel') return false;
+       if(block && s.block!==block) return false;
+       if(s.date!==date) return false;
+       if(any) return true;
+       return !!s.start && !!s.end && s.start<=start && s.end>=end;
+     }).map(s=>({numero:s.number,apartamento:s.apartment,bloco:s.block,subsolo:s.level,status:s.status,data_inicio:s.date,data_fim:s.date,hora_inicio:s.start||null,hora_fim:s.end||null,qualquer_horario:false}));
+   }
+   if(!compatible.length){
+     box.innerHTML='<div class="empty-result">Nenhuma vaga cadastrada como disponível para esse período.</div>';
+     return;
+   }
+   box.innerHTML='<b>'+compatible.length+' vaga(s) encontrada(s)</b>'+compatible.map(r=>{
+     let p=formatDate(r.data_inicio);
+     if(r.data_fim&&r.data_fim!==r.data_inicio)p+=' a '+formatDate(r.data_fim);
+     if(r.qualquer_horario)p+=' · Qualquer horário';
+     else if(r.hora_inicio&&r.hora_fim)p+=' · '+formatTime(r.hora_inicio)+' às '+formatTime(r.hora_fim);
+     return '<button class="result-item" style="width:100%;text-align:left" onclick="openFutureResult(\''+(r.bloco||'01')+'\','+r.numero+')"><b>🟢 Vaga '+r.numero+'</b><small>Apto '+(r.apartamento||'Não cadastrado')+' · Bloco '+(r.bloco||'—')+' · '+p+'</small></button>';
+   }).join('');
+ }catch(err){
+   console.error(err);
+   box.innerHTML='<div class="empty-result">Não foi possível consultar as vagas futuras.\n\n'+err.message+'</div>';
+ }
 }
 
 function render(){
@@ -291,23 +429,24 @@ function showModal(s, editing){
  document.getElementById('modalTitle').textContent='Vaga '+s.number;
  document.getElementById('modalSub').textContent=s.apartment?'Apartamento '+s.apartment:'Vaga ainda não vinculada a apartamento';
  document.getElementById('modalStatus').value=s.status||'indisponivel';
- document.getElementById('modalDate').value=s.date||'';
+ document.getElementById('modalDateStart').value=s.dateStart||s.date||'';
+ document.getElementById('modalDateEnd').value=s.dateEnd||s.dateStart||s.date||'';
  document.getElementById('modalStart').value=s.start||'';
  document.getElementById('modalEnd').value=s.end||'';
+ document.getElementById('modalAnyTime').checked=!!s.anyTime;
  document.getElementById('saveModal').style.display=editing?'block':'none';
  document.getElementById('cancelModal').textContent=editing?'Cancelar':'Fechar';
  document.getElementById('editFields').style.display=editing?'block':'none';
- const labels={
-   disponivel:'🟢 Disponível',
-   reservada:'🔵 Reservada',
-   ocupada:'🔴 Ocupada',
-   indisponivel:'⚫ Indisponível',
-   encerrada:'⚪ Encerrada'
- };
+ const labels={disponivel:'🟢 Disponível',reservada:'🔵 Reservada',ocupada:'🔴 Ocupada',indisponivel:'⚫ Indisponível',encerrada:'⚪ Encerrada'};
  let details='<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">'+(labels[s.status]||'⚫ Indisponível')+'</span></div>';
- if(s.date) details+='<div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">'+formatDate(s.date)+'</span></div>';
- if(s.start&&s.end) details+='<div class="detail-row"><span class="detail-label">Período</span><span class="detail-value">'+formatTime(s.start)+' às '+formatTime(s.end)+'</span></div>';
- if(!s.date && !s.start && !s.end && s.status==='indisponivel') details+='<div class="detail-row"><span class="detail-label">Informação</span><span class="detail-value">Não disponível pelo VIVERDI</span></div>';
+ if(s.dateStart){
+   let d=formatDate(s.dateStart);
+   if(s.dateEnd&&s.dateEnd!==s.dateStart)d+=' a '+formatDate(s.dateEnd);
+   details+='<div class="detail-row"><span class="detail-label">Período</span><span class="detail-value">'+d+'</span></div>';
+   if(s.anyTime) details+='<div class="detail-row"><span class="detail-label">Horário</span><span class="detail-value">Qualquer horário</span></div>';
+   else if(s.start&&s.end) details+='<div class="detail-row"><span class="detail-label">Horário</span><span class="detail-value">'+formatTime(s.start)+' às '+formatTime(s.end)+'</span></div>';
+ }
+ if(!s.dateStart && s.status==='indisponivel') details+='<div class="detail-row"><span class="detail-label">Informação</span><span class="detail-value">Não disponível pelo VIVERDI</span></div>';
  document.getElementById('viewDetails').innerHTML=details;
  document.getElementById('viewDetails').style.display='block';
  document.querySelectorAll('.status-option').forEach(b=>b.classList.toggle('selected',b.dataset.status===document.getElementById('modalStatus').value));
@@ -319,6 +458,12 @@ function updateModalFields(){
  const st=document.getElementById('modalStatus').value;
  const showPeriod=['disponivel','reservada','ocupada'].includes(st);
  document.getElementById('periodFields').style.display=showPeriod?'grid':'none';
+ if(showPeriod) toggleModalTimeFields();
+}
+
+function toggleModalTimeFields(){
+ const any=document.getElementById('modalAnyTime').checked;
+ document.getElementById('modalTimeFields').style.display=any?'none':'grid';
 }
 
 function closeModal(){document.getElementById('modalBackdrop').classList.remove('show')}
@@ -326,26 +471,59 @@ function closeModal(){document.getElementById('modalBackdrop').classList.remove(
 async function saveSpot(){
  const num=Number(document.getElementById('modalTitle').textContent.replace('Vaga ',''));
  const s=spots.find(x=>x.number===num && x.block===selectedBlock);
+ if(!s || !currentUser || !currentProfile){alert('Faça login para alterar a vaga.');return}
+ const canEdit = currentProfile.perfil === 'admin' || String(currentProfile.apartamento) === String(s.apartment);
+ if(!canEdit){alert('Você só pode editar a vaga vinculada ao seu apartamento.');return}
  const status=document.getElementById('modalStatus').value;
- const date=document.getElementById('modalDate').value||null;
- const startTime=document.getElementById('modalStart').value||null;
- const endTime=document.getElementById('modalEnd').value||null;
+ const dateStart=document.getElementById('modalDateStart').value||null;
+ const dateEnd=document.getElementById('modalDateEnd').value||null;
+ const anyTime=document.getElementById('modalAnyTime').checked;
+ const startTime=anyTime?null:(document.getElementById('modalStart').value||null);
+ const endTime=anyTime?null:(document.getElementById('modalEnd').value||null);
+ const showPeriod=['disponivel','reservada','ocupada'].includes(status);
+ if(showPeriod){
+   if(!dateStart||!dateEnd){alert('Informe a data inicial e a data final.');return}
+   if(dateEnd<dateStart){alert('A data final deve ser igual ou posterior à data inicial.');return}
+   if(!anyTime && (!startTime||!endTime)){alert('Informe a hora inicial e final ou marque "Qualquer horário".');return}
+   if(!anyTime && startTime>=endTime){alert('A hora final deve ser posterior à hora inicial.');return}
+ }
+ if(status==='disponivel'){
+   const {error:deactivateError}=await db.from('liberacoes_vaga').update({ativo:false,atualizado_em:new Date().toISOString()}).eq('vaga_numero',num).eq('morador_id',currentUser.id).eq('ativo',true);
+   if(deactivateError){alert('Erro ao atualizar a liberação anterior:\n\n'+deactivateError.message);return}
+   const {error:insertError}=await db.from('liberacoes_vaga').insert({
+     vaga_numero:num,
+     morador_id:currentUser.id,
+     data_inicio:dateStart,
+     data_fim:dateEnd,
+     hora_inicio:startTime,
+     hora_fim:endTime,
+     qualquer_horario:anyTime,
+     ativo:true
+   });
+   if(insertError){alert('Erro ao salvar a disponibilidade no Supabase:\n\n'+insertError.message);return}
+ }else{
+   const {error:deactivateError}=await db.from('liberacoes_vaga').update({ativo:false,atualizado_em:new Date().toISOString()}).eq('vaga_numero',num).eq('morador_id',currentUser.id).eq('ativo',true);
+   if(deactivateError){alert('Erro ao encerrar a liberação:\n\n'+deactivateError.message);return}
+ }
  const available=status==='disponivel';
  const {data,error}=await db.from('vagas').update({
    status,
    disponivel: available,
-   data_disponivel: date,
-   hora_inicio: startTime,
-   hora_fim: endTime,
-   disponivel_a_partir: startTime
+   data_disponivel: showPeriod?dateStart:null,
+   hora_inicio: showPeriod?startTime:null,
+   hora_fim: showPeriod?endTime:null,
+   disponivel_a_partir: showPeriod?startTime:null
  }).eq('numero',num).select('numero,subsolo,apartamento,status,disponivel,data_disponivel,hora_inicio,hora_fim').single();
  if(error){alert('Erro ao salvar no Supabase:\n\n'+error.message);return}
  const updated=normalize(data);
+ updated.dateStart=showPeriod?dateStart:'';
+ updated.dateEnd=showPeriod?dateEnd:'';
+ updated.anyTime=showPeriod?anyTime:false;
  const i=spots.findIndex(x=>x.number===num);
  if(i>=0)spots[i]=updated;
+ await loadLiberacoes();
  render();closeModal();
 }
-
 
 
 function toggleEdit(){
@@ -397,6 +575,13 @@ db.channel('viverdi-vagas-realtime')
    if(status==='SUBSCRIBED') setConnection('🟢 Conectado ao Supabase · atualizações em tempo real ativas', true);
  });
 
+db.channel('viverdi-liberacoes-realtime')
+ .on('postgres_changes',{event:'*',schema:'public',table:'liberacoes_vaga'},async payload=>{
+   await loadLiberacoes();
+   render();
+ })
+ .subscribe();
+
 db.auth.getSession().then(({data})=>{
   loadProfile(data.session ? data.session.user : null);
 });
@@ -408,6 +593,22 @@ updateAuthUI();
 loadSpots();
 </script>
 
+<div id="futureBackdrop" class="modal-backdrop" onclick="if(event.target===this)closeFutureSearch()">
+ <div class="modal future-search" role="dialog" aria-modal="true">
+  <div class="modal-head"><div><h2>🔎 Procurar vaga</h2><div class="modal-sub">Escolha o dia e, se quiser, informe o horário.</div></div><button class="modal-close" onclick="closeFutureSearch()">×</button></div>
+  <div class="future-grid">
+   <div class="field full"><label>DATA</label><input id="futureDate" type="date"></div>
+   <div class="field full"><label class="check-row"><input id="anyTime" type="checkbox" onchange="toggleFutureTimeFields()"> Qualquer horário</label></div>
+  </div>
+  <div id="futureTimeFields" class="future-grid" style="margin-top:10px">
+   <div class="field"><label>HORA INICIAL</label><input id="futureStart" type="time"></div>
+   <div class="field"><label>HORA FINAL</label><input id="futureEnd" type="time"></div>
+  </div>
+  <div class="field" style="margin-top:10px"><label>BLOCO</label><select id="futureBlock"><option value="">Todos os blocos</option><option value="01">Bloco 01</option><option value="02">Bloco 02</option></select></div>
+  <div class="modal-actions"><button onclick="closeFutureSearch()">Cancelar</button><button class="primary" onclick="searchFutureAvailability()">🔎 Procurar vagas</button></div>
+  <div id="futureResults" class="future-results"></div>
+ </div>
+</div>
 <div id="modalBackdrop" class="modal-backdrop" onclick="if(event.target===this)closeModal()">
  <div class="modal" role="dialog" aria-modal="true">
   <div class="modal-head">
@@ -428,10 +629,13 @@ loadSpots();
     <select id="modalStatus" style="display:none" onchange="updateModalFields()"></select>
    </div>
    <div id="periodFields" class="formgrid" style="margin-top:13px">
-    <div class="field"><label>DATA</label><input id="modalDate" type="date"></div>
-    <div></div>
-    <div class="field"><label>HORA INICIAL</label><input id="modalStart" type="time"></div>
-    <div class="field"><label>HORA FINAL</label><input id="modalEnd" type="time"></div>
+    <div class="field"><label>DATA INICIAL</label><input id="modalDateStart" type="date"></div>
+    <div class="field"><label>DATA FINAL</label><input id="modalDateEnd" type="date"></div>
+    <div class="field full"><label class="modal-check"><input id="modalAnyTime" type="checkbox" onchange="toggleModalTimeFields()"> Qualquer horário</label></div>
+    <div id="modalTimeFields" class="formgrid" style="grid-column:1/-1;margin:0">
+      <div class="field"><label>HORA INICIAL</label><input id="modalStart" type="time"></div>
+      <div class="field"><label>HORA FINAL</label><input id="modalEnd" type="time"></div>
+    </div>
    </div>
   </div>
   <div class="modal-actions">
