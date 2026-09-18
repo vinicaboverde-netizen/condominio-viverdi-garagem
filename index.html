@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#111827">
 <link rel="manifest" href="manifest.json">
-<title>Condomínio VIVERDI — Garagem · Versão Beta 1.2.4</title>
+<title>Condomínio VIVERDI — Gar
+  agem · Versão Beta 1.2.4</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--text:#17202a;--muted:#6b7280;--green:#16a34a;--greenbg:#dcfce7;--red:#dc2626;--redbg:#fee2e2;--border:#d7dce2;--blue:#2563eb;--reserved:#2563eb;--reservedbg:#dbeafe;--unavailable:#111827;--unavailablebg:#e5e7eb;--ended:#6b7280;--endedbg:#f3f4f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
@@ -124,7 +125,86 @@ function normalize(row){
 let currentUser = null;
 let currentProfile = null;
 let liberacoes = [];
+let reservas = [];
 
+  async function loadReservas(){
+  if(!currentUser){
+    reservas=[];
+    return;
+  }
+
+  const {data,error}=await db
+    .from('reservas_vaga')
+    .select('id,vaga_numero,liberacao_id,morador_id,data_inicio,data_fim,hora_inicio,hora_fim,qualquer_horario,status')
+    .eq('morador_id',currentUser.id)
+    .eq('status','ativa');
+
+  if(error){
+    console.error('Erro ao carregar reservas:',error);
+    reservas=[];
+    return;
+  }
+
+  reservas=data||[];
+    }
+async function reservarVaga(){
+  if(!currentUser || !currentProfile){
+    alert('Entre no VIVERDI para reservar uma vaga.');
+    return;
+  }
+
+  const num=window.vagaModalNumero;
+  if(!num){
+    alert('Não foi possível identificar a vaga.');
+    return;
+  }
+
+  const spot=spots.find(s=>Number(s.number)===Number(num));
+  if(!spot){
+    alert('Vaga não encontrada.');
+    return;
+  }
+
+  const liberacao=liberacoes.find(l=>
+    Number(l.vaga_numero)===Number(num) &&
+    l.ativo &&
+    l.data_fim>=new Date().toISOString().slice(0,10)
+  );
+
+  if(!liberacao){
+    alert('Esta vaga não possui uma liberação ativa para reserva.');
+    return;
+  }
+
+  if(String(liberacao.morador_id)===String(currentUser.id)){
+    alert('Você não pode reservar a sua própria vaga liberada.');
+    return;
+  }
+
+  const {error}=await db
+    .from('reservas_vaga')
+    .insert({
+      vaga_numero:num,
+      liberacao_id:liberacao.id,
+      morador_id:currentUser.id,
+      data_inicio:liberacao.data_inicio,
+      data_fim:liberacao.data_fim,
+      hora_inicio:liberacao.hora_inicio,
+      hora_fim:liberacao.hora_fim,
+      qualquer_horario:liberacao.qualquer_horario,
+      status:'ativa'
+    });
+
+  if(error){
+    console.error(error);
+    alert('Não foi possível reservar a vaga.\n\n'+error.message);
+    return;
+  }
+
+  await loadReservas();
+  closeModal();
+  alert('🔵 Vaga reservada com sucesso!');
+     }
 function updateAuthUI(){
   const loginBtn=document.getElementById('loginBtn');
   const editBtn=document.getElementById('editBtn');
@@ -174,6 +254,7 @@ async function loadProfile(user){
     }
   }
   updateAuthUI();
+ await loadReservas();
   render();
 }
 
@@ -426,7 +507,8 @@ function openSpot(num){
 }
 
 function showModal(s, editing){
- document.getElementById('modalTitle').textContent='Vaga '+s.number;
+window.vagaModalNumero=s.number;
+  document.getElementById('modalTitle').textContent='Vaga '+s.number;
  document.getElementById('modalSub').textContent=s.apartment?'Apartamento '+s.apartment:'Vaga ainda não vinculada a apartamento';
  document.getElementById('modalStatus').value=s.status||'indisponivel';
  document.getElementById('modalDateStart').value=s.dateStart||s.date||'';
@@ -436,6 +518,28 @@ function showModal(s, editing){
  document.getElementById('modalAnyTime').checked=!!s.anyTime;
  document.getElementById('saveModal').style.display=editing?'block':'none';
  document.getElementById('cancelModal').textContent=editing?'Cancelar':'Fechar';
+    const reserveBtn=document.getElementById('reserveModal');
+  const myReservation=reservas.find(r=>
+    Number(r.vaga_numero)===Number(s.number) &&
+    r.status==='ativa'
+  );
+  const release=liberacoes.find(l=>
+    Number(l.vaga_numero)===Number(s.number) &&
+    l.ativo &&
+    l.data_fim>=new Date().toISOString().slice(0,10)
+  );
+
+  if(reserveBtn){
+    const canReserve=
+      !editing &&
+      !!currentUser &&
+      !!currentProfile &&
+      !!release &&
+      String(release.morador_id)!==String(currentUser.id) &&
+      !myReservation;
+
+    reserveBtn.style.display=canReserve?'block':'none';
+  }
  document.getElementById('editFields').style.display=editing?'block':'none';
  const labels={disponivel:'🟢 Disponível',reservada:'🔵 Reservada',ocupada:'🔴 Ocupada',indisponivel:'⚫ Indisponível',encerrada:'⚪ Encerrada'};
  let details='<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">'+(labels[s.status]||'⚫ Indisponível')+'</span></div>';
@@ -640,6 +744,7 @@ loadSpots();
   </div>
   <div class="modal-actions">
    <button id="cancelModal" onclick="closeModal()">Cancelar</button>
+    <button id="reserveModal" class="primary" style="display:none" onclick="reservarVaga()">🔵 Reservar</button>
    <button id="saveModal" class="primary" onclick="saveSpot()">Salvar no VIVERDI</button>
   </div>
  </div>
