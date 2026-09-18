@@ -205,7 +205,44 @@ async function reservarVaga(){
   closeModal();
   alert('🔵 Vaga reservada com sucesso!');
      }
-function updateAuthUI(){
+async function cancelarReserva(){
+  if(!currentUser){
+    alert('Entre no VIVERDI para gerenciar sua reserva.');
+    return;
+  }
+
+  const num=window.vagaModalNumero;
+  const minhaReserva=reservas.find(r=>
+    Number(r.vaga_numero)===Number(num) &&
+    r.status==='ativa'
+  );
+
+  if(!minhaReserva){
+    alert('Você não possui uma reserva ativa para esta vaga.');
+    return;
+  }
+
+  if(!confirm('Deseja realmente liberar esta reserva?')){
+    return;
+  }
+
+  const {error}=await db
+    .from('reservas_vaga')
+    .delete()
+    .eq('id',minhaReserva.id);
+
+  if(error){
+    console.error(error);
+    alert('Não foi possível liberar a reserva.\n\n'+error.message);
+    return;
+  }
+
+  await loadReservas();
+  render();
+  closeModal();
+  alert('↩️ Sua reserva foi liberada com sucesso!');
+}
+  function updateAuthUI(){
   const loginBtn=document.getElementById('loginBtn');
   const editBtn=document.getElementById('editBtn');
   const logoutBtn=document.getElementById('logoutBtn');
