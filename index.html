@@ -122,10 +122,10 @@ function normalize(row){
 }
 
 
-let currentUser = null;
 let currentProfile = null;
 let liberacoes = [];
 let reservas = [];
+let reservaCriteria = null;
 
   async function loadReservas(){
   if(!currentUser){
@@ -180,18 +180,26 @@ async function reservarVaga(){
     alert('Você não pode reservar a sua própria vaga liberada.');
     return;
   }
-
+const criteria=(reservaCriteria && Number(reservaCriteria.vaga_numero)===Number(num))
+    ? reservaCriteria
+    : {
+        data_inicio:liberacao.data_inicio,
+        data_fim:liberacao.data_fim,
+        hora_inicio:liberacao.hora_inicio,
+        hora_fim:liberacao.hora_fim,
+        qualquer_horario:liberacao.qualquer_horario
+      };
   const {error}=await db
     .from('reservas_vaga')
     .insert({
       vaga_numero:num,
       liberacao_id:liberacao.id,
       morador_id:currentUser.id,
-      data_inicio:liberacao.data_inicio,
-      data_fim:liberacao.data_fim,
-      hora_inicio:liberacao.hora_inicio,
-      hora_fim:liberacao.hora_fim,
-      qualquer_horario:liberacao.qualquer_horario,
+      data_inicio:criteria.data_inicio,
+data_fim:criteria.data_fim,
+hora_inicio:criteria.hora_inicio,
+hora_fim:criteria.hora_fim,
+qualquer_horario:criteria.qualquer_horario,
       status:'ativa'
     });
 
@@ -202,8 +210,9 @@ async function reservarVaga(){
   }
 
   await loadReservas();
-  closeModal();
-  alert('🔵 Vaga reservada com sucesso!');
+reservaCriteria=null;
+closeModal();
+alert('🔵 Vaga reservada com sucesso!');
      }
 async function cancelarReserva(){
   if(!currentUser){
@@ -410,6 +419,7 @@ function openMySpot(num){
  const was=editMode; editMode=true; openSpot(num); editMode=was;
 }
 function openFutureSearch(){
+  reservaCriteria=null
  document.getElementById('futureDate').value=new Date().toISOString().slice(0,10);
  document.getElementById('futureStart').value='';
  document.getElementById('futureEnd').value='';
@@ -421,9 +431,24 @@ function openFutureSearch(){
 }
 function closeFutureSearch(){document.getElementById('futureBackdrop').classList.remove('show')}
 function openFutureResult(block,num){
+ const data=document.getElementById('futureDate').value;
+ const any=document.getElementById('anyTime').checked;
+ const start=document.getElementById('futureStart').value;
+ const end=document.getElementById('futureEnd').value;
+
+ reservaCriteria={
+   data_inicio:data,
+   data_fim:data,
+   hora_inicio:any?null:start||null,
+   hora_fim:any?null:end||null,
+   qualquer_horario:any,
+   vaga_numero:Number(num)
+ };
+
  closeFutureSearch();
  selectBlock(block||'01');
- setTimeout(()=>openSpot(num),50);
+ setTimeout(()=>openSpot(num,true),50);
+}
 }
 function toggleFutureTimeFields(){
  const any=document.getElementById('anyTime').checked;
@@ -439,6 +464,15 @@ async function searchFutureAvailability(){
  if(!date){alert('Escolha uma data.');return}
  if(!any && (!start||!end)){alert('Informe a hora inicial e final ou marque "Qualquer horário".');return}
  if(!any && start>=end){alert('A hora final deve ser posterior à hora inicial.');return}
+  reservaCriteria={
+  data_inicio:date,
+  data_fim:date,
+  hora_inicio:any?null:start||null,
+  hora_fim:any?null:end||null,
+  qualquer_horario:any,
+  vaga_numero:null
+};
+  
  box.innerHTML='<div class="empty-result">🔎 Procurando vagas disponíveis…</div>';
  try{
    const {data,error}=await db.rpc('buscar_vagas_disponiveis',{
@@ -523,8 +557,9 @@ function selectBlock(block){
  render();
 }
 
-function openSpot(num){
- const s=spots.find(x=>x.number===num && x.block===selectedBlock);
+function openSpot(num,fromFuture=false){
+if(!fromFuture) reservaCriteria=null;
+const s=spots.find(x=>x.number===num && x.block===selectedBlock);
  if(!s)return;
  if(!editMode){
    showModal(s,false);
@@ -556,6 +591,7 @@ window.vagaModalNumero=s.number;
  document.getElementById('saveModal').style.display=editing?'block':'none';
  document.getElementById('cancelModal').textContent=editing?'Cancelar':'Fechar';
     const reserveBtn=document.getElementById('reserveModal');
+  const cancelReservationBtn=document.getElementById('cancelReservationModal');
   const myReservation=reservas.find(r=>
     Number(r.vaga_numero)===Number(s.number) &&
     r.status==='ativa'
@@ -576,6 +612,9 @@ window.vagaModalNumero=s.number;
       !myReservation;
 
     reserveBtn.style.display=canReserve?'block':'none';
+  }
+  if(cancelReservationBtn){
+  cancelReservationBtn.style.display=(!editing && !!myReservation)?'block':'none';
   }
  document.getElementById('editFields').style.display=editing?'block':'none';
  const labels={disponivel:'🟢 Disponível',reservada:'🔵 Reservada',ocupada:'🔴 Ocupada',indisponivel:'⚫ Indisponível',encerrada:'⚪ Encerrada'};
