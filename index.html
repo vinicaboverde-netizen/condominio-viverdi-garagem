@@ -747,6 +747,8 @@ function render(){
    const tr=document.createElement('tr');tr.innerHTML='<td>'+s.apartment+'</td><td>'+s.number+'</td>';tbody.appendChild(tr)
  });
  document.getElementById('headerBlock').textContent='Bloco '+selectedBlock+' · Supabase + Realtime';
+renderMyArea();
+renderMyReservations();
 }
 
 function statusClass(st){
