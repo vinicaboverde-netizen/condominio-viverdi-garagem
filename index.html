@@ -168,7 +168,7 @@ async function reservarVaga(){
   const liberacao=liberacoes.find(l=>
     Number(l.vaga_numero)===Number(num) &&
     l.ativo &&
-    l.data_fim>=new Date().toISOString().slice(0,10)
+    l.data_fim>=todayLocal()
   );
 
   if(!liberacao){
@@ -365,7 +365,7 @@ async function loadLiberacoes(){
 }
 
 function applyLiberations(){
-  const today=new Date().toISOString().slice(0,10);
+  const today=todayLocal()
   spots.forEach(s=>{
     const ls=liberacoes.filter(l=>Number(l.vaga_numero)===Number(s.number) && l.ativo && l.data_fim>=today);
     if(ls.length){
@@ -420,7 +420,7 @@ function openMySpot(num){
 }
 function openFutureSearch(){
   reservaCriteria=null
- document.getElementById('futureDate').value=new Date().toISOString().slice(0,10);
+ document.getElementById('futureDate').value=todayLocal();
  document.getElementById('futureStart').value='';
  document.getElementById('futureEnd').value='';
  document.getElementById('anyTime').checked=true;
