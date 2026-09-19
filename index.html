@@ -125,6 +125,7 @@ let currentUser = null;
 let currentProfile = null;
 let liberacoes = [];
 let reservas = [];
+let reservasPublicas = [];
 let reservaCriteria = null;
   function todayLocal(){
   const d = new Date();
@@ -584,8 +585,22 @@ const s=spots.find(x=>x.number===num && x.block===selectedBlock);
  }
  showModal(s,true);
 }
+async function loadReservasPublicas(vagaNumero){
+  const {data,error}=await db.rpc('buscar_reservas_vaga_publicas',{
+    p_vaga_numero:Number(vagaNumero)
+  });
 
-function showModal(s, editing){
+  if(error){
+    console.error('Erro ao carregar reservas públicas:',error);
+    reservasPublicas=[];
+    return;
+  }
+
+  reservasPublicas=data||[];
+  }
+
+async function showModal(s, editing){
+  await loadReservasPublicas(s.number);
 window.vagaModalNumero=s.number;
   document.getElementById('modalTitle').textContent='Vaga '+s.number;
  document.getElementById('modalSub').textContent=s.apartment?'Apartamento '+s.apartment:'Vaga ainda não vinculada a apartamento';
@@ -626,6 +641,17 @@ window.vagaModalNumero=s.number;
  document.getElementById('editFields').style.display=editing?'block':'none';
  const labels={disponivel:'🟢 Disponível',reservada:'🔵 Reservada',ocupada:'🔴 Ocupada',indisponivel:'⚫ Indisponível',encerrada:'⚪ Encerrada'};
  let details='<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">'+(labels[s.status]||'⚫ Indisponível')+'</span></div>';
+  if(reservasPublicas.length){
+  details+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid #e5e7eb"><b>🔵 Reservas existentes</b>';
+  reservasPublicas.forEach(r=>{
+    let periodo=formatDate(r.data_inicio);
+    if(r.data_fim&&r.data_fim!==r.data_inicio) periodo+=' a '+formatDate(r.data_fim);
+    if(r.qualquer_horario) periodo+=' · Qualquer horário';
+    else if(r.hora_inicio&&r.hora_fim) periodo+=' · '+formatTime(r.hora_inicio)+' às '+formatTime(r.hora_fim);
+    details+='<div style="margin-top:8px;font-size:13px">Reservado por <b>Apto '+(r.apartamento||'—')+'</b><br>'+periodo+'</div>';
+  });
+  details+='</div>';
+  }
  if(s.dateStart){
    let d=formatDate(s.dateStart);
    if(s.dateEnd&&s.dateEnd!==s.dateStart)d+=' a '+formatDate(s.dateEnd);
