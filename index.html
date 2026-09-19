@@ -545,6 +545,81 @@ function renderMyReservations(){
     showModal(spot,false);
   },50);
   }
+  async function toggleMinhaVaga(num){
+  if(!currentUser || !currentProfile){
+    openLogin();
+    return;
+  }
+
+  const spot=spots.find(
+    s=>Number(s.number)===Number(num)
+  );
+
+  if(!spot){
+    alert('Vaga não encontrada.');
+    return;
+  }
+
+  const canEdit =
+    currentProfile.perfil === 'admin' ||
+    String(currentProfile.apartamento) === String(spot.apartment);
+
+  if(!canEdit){
+    alert('Você só pode alterar a vaga vinculada ao seu apartamento.');
+    return;
+  }
+
+  const novaAtiva=spot.ativa === false;
+
+  if(!novaAtiva){
+    await loadReservasPublicas(num);
+
+    if(reservasPublicas.length){
+      alert(
+        'Esta vaga possui reservas ativas. '+
+        'A vaga não pode ser desativada enquanto existirem reservas.'
+      );
+      return;
+    }
+
+    const confirmar=confirm(
+      'Deseja desativar esta vaga?\n\n' +
+      'Ela deixará de ficar disponível para novas liberações e reservas.'
+    );
+
+    if(!confirmar) return;
+  }
+
+  const {data,error}=await db
+    .from('vagas')
+    .update({ativa:novaAtiva})
+    .eq('numero',num)
+    .select('numero,subsolo,apartamento,status,disponivel,ativa,data_disponivel,hora_inicio,hora_fim')
+    .single();
+
+  if(error){
+    alert(
+      'Não foi possível alterar a situação da vaga.\n\n' +
+      error.message
+    );
+    return;
+  }
+
+  const updated=normalize(data);
+
+  const i=spots.findIndex(
+    x=>Number(x.number)===Number(num)
+  );
+
+  if(i>=0){
+    spots[i]={
+      ...spots[i],
+      ...updated
+    };
+  }
+
+  render();
+}
 function openMySpot(num){
  const was=editMode; editMode=true; openSpot(num); editMode=was;
 }
