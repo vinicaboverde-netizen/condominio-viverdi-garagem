@@ -483,6 +483,18 @@ function renderMyReservations(){
     `;
   }).join('');
                             }
+  function openReservationDetails(num){
+  const spot = spots.find(s => Number(s.number) === Number(num));
+
+  if(!spot) return;
+
+  reservaCriteria = null;
+  selectBlock(spot.block);
+
+  setTimeout(() => {
+    showModal(spot,false);
+  },50);
+  }
 function openMySpot(num){
  const was=editMode; editMode=true; openSpot(num); editMode=was;
 }
