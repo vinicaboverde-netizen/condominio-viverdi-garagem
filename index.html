@@ -111,6 +111,7 @@ function normalize(row){
     level: row.subsolo,
     apartment: row.apartamento,
     status,
+    ativa: row.ativa !== false,
     available: status === 'disponivel',
     date: row.data_disponivel || '',
     dateStart: row.data_disponivel || '',
@@ -348,7 +349,7 @@ async function logout(){
 
 async function loadSpots(){
   setConnection('Carregando vagas…');
-  const {data,error}=await db.from('vagas').select('numero,subsolo,apartamento,status,disponivel,data_disponivel,hora_inicio,hora_fim,atualizado_em').order('numero');
+  const {data,error}=await db.from('vagas').select('numero,subsolo,apartamento,status,disponivel,ativa,data_disponivel,hora_inicio,hora_fim,atualizado_em').order('numero');
   if(error){
     setConnection('Erro ao carregar o banco: '+error.message);
     alert('Não foi possível carregar as vagas.\n\n'+error.message);
@@ -407,22 +408,71 @@ function statusText(s){
 }
 
 function renderMyArea(){
- const box=document.getElementById('myArea'), content=document.getElementById('myAreaContent');
- if(!currentProfile || !currentProfile.apartamento){box.style.display='none';return}
- const mine=spots.filter(s=>String(s.apartment)===String(currentProfile.apartamento));
- box.style.display='block';
- if(!mine.length){content.innerHTML='<div class="my-vaga-meta">Nenhuma vaga vinculada ao seu apartamento foi encontrada.</div>';return}
- content.innerHTML=mine.map(s=>{
-   const st=statusLabel(s.status);
-   let period='Sem período de disponibilidade';
-   if(s.dateStart){
-     period=formatDate(s.dateStart);
-     if(s.dateEnd && s.dateEnd!==s.dateStart) period+=' a '+formatDate(s.dateEnd);
-     if(s.anyTime) period+=' · Qualquer horário';
-     else if(s.start&&s.end) period+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
-   }
-   return '<div class="my-vaga" style="margin-bottom:10px"><div class="my-vaga-main"><div><div class="my-vaga-name">Vaga '+s.number+'</div><div class="my-vaga-meta">Apartamento '+s.apartment+'</div><div class="my-vaga-status">'+st+'</div><div class="my-vaga-meta">'+period+'</div></div></div><div class="my-vaga-actions"><button onclick="openMySpot('+s.number+')">⚙️ Configurar minha vaga</button></div></div>';
- }).join('');
+  const box=document.getElementById('myArea');
+  const content=document.getElementById('myAreaContent');
+
+  if(!currentProfile || !currentProfile.apartamento){
+    box.style.display='none';
+    return;
+  }
+
+  const mine=spots.filter(
+    s=>String(s.apartment)===String(currentProfile.apartamento)
+  );
+
+  box.style.display='block';
+
+  if(!mine.length){
+    content.innerHTML='<div class="my-vaga-meta">Nenhuma vaga vinculada ao seu apartamento foi encontrada.</div>';
+    return;
+  }
+
+  content.innerHTML=mine.map(s=>{
+    const ativa=s.ativa !== false;
+
+    const st=ativa
+      ? '🟢 Vaga ativa'
+      : '⚫ Vaga inativa';
+
+    let period='Sem período de disponibilidade';
+
+    if(s.dateStart){
+      period=formatDate(s.dateStart);
+
+      if(s.dateEnd && s.dateEnd!==s.dateStart){
+        period+=' a '+formatDate(s.dateEnd);
+      }
+
+      if(s.anyTime){
+        period+=' · Qualquer horário';
+      }else if(s.start&&s.end){
+        period+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
+      }
+    }
+
+    return `
+      <div class="my-vaga" style="margin-bottom:10px">
+        <div class="my-vaga-main">
+          <div>
+            <div class="my-vaga-name">Vaga ${s.number}</div>
+            <div class="my-vaga-meta">Apartamento ${s.apartment}</div>
+            <div class="my-vaga-status">${st}</div>
+            <div class="my-vaga-meta">${period}</div>
+          </div>
+        </div>
+
+        <div class="my-vaga-actions">
+          <button onclick="toggleMinhaVaga(${s.number})">
+            ${ativa ? '⚫ Desativar vaga' : '🟢 Ativar vaga'}
+          </button>
+
+          <button onclick="openMySpot(${s.number})">
+            ⚙️ Configurar minha vaga
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 function renderMyReservations(){
   const box = document.getElementById('myReservationsArea');
