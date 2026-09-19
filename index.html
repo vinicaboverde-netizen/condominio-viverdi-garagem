@@ -126,6 +126,13 @@ let currentProfile = null;
 let liberacoes = [];
 let reservas = [];
 let reservaCriteria = null;
+  function todayLocal(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+    }
 
   async function loadReservas(){
   if(!currentUser){
@@ -599,7 +606,7 @@ window.vagaModalNumero=s.number;
   const release=liberacoes.find(l=>
     Number(l.vaga_numero)===Number(s.number) &&
     l.ativo &&
-    l.data_fim>=new Date().toISOString().slice(0,10)
+  l.data_fim>=todayLocal()
   );
 
   if(reserveBtn){
