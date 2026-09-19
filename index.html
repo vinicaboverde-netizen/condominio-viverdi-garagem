@@ -268,7 +268,8 @@ async function cancelarReserva(){
   if(currentUser && currentProfile){
     loginBtn.style.display='none';
     logoutBtn.style.display='inline-block';
-    editBtn.style.display='inline-block';
+    editBtn.style.display='inlin
+      e-block';
     const role=currentProfile.perfil==='admin'?'Administrador':'Morador';
     userStatus.textContent='🔐 '+role+' · Apto '+currentProfile.apartamento+' · Vaga '+(currentProfile.vaga||'—');
     renderMyArea();
@@ -328,6 +329,7 @@ async function openLogin(){
     return;
   }
   await loadProfile(data.user);
+  
   alert('Login realizado com sucesso.');
 }
 
@@ -652,6 +654,21 @@ window.vagaModalNumero=s.number;
   });
   details+='</div>';
   }
+    if(!editing && reservaCriteria && Number(reservaCriteria.vaga_numero)===Number(s.number)){
+    let periodoReserva='';
+    if(reservaCriteria.data_inicio){
+      periodoReserva=formatDate(reservaCriteria.data_inicio);
+      if(reservaCriteria.data_fim && reservaCriteria.data_fim!==reservaCriteria.data_inicio){
+        periodoReserva+=' a '+formatDate(reservaCriteria.data_fim);
+      }
+    }
+    if(reservaCriteria.qualquer_horario){
+      periodoReserva+=' · Qualquer horário';
+    }else if(reservaCriteria.hora_inicio && reservaCriteria.hora_fim){
+      periodoReserva+=' · '+formatTime(reservaCriteria.hora_inicio)+' às '+formatTime(reservaCriteria.hora_fim);
+    }
+    details+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid #e5e7eb"><b>🟢 Seu período de reserva</b><div style="margin-top:6px;font-size:13px">'+periodoReserva+'</div></div>';
+    }
  if(s.dateStart){
    let d=formatDate(s.dateStart);
    if(s.dateEnd&&s.dateEnd!==s.dateStart)d+=' a '+formatDate(s.dateEnd);
