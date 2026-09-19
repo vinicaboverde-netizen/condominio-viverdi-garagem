@@ -268,8 +268,7 @@ async function cancelarReserva(){
   if(currentUser && currentProfile){
     loginBtn.style.display='none';
     logoutBtn.style.display='inline-block';
-    editBtn.style.display='inlin
-      e-block';
+    editBtn.style.display='inline-block';
     const role=currentProfile.perfil==='admin'?'Administrador':'Morador';
     userStatus.textContent='🔐 '+role+' · Apto '+currentProfile.apartamento+' · Vaga '+(currentProfile.vaga||'—');
     renderMyArea();
