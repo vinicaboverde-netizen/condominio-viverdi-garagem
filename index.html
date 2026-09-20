@@ -2160,7 +2160,8 @@ if(ownerEditing){
         '</div>'+
       '</div>';
   }
- document.getElementById('viewDetails').style.display='block';
+ document.getElementById('viewDetails').innerHTML=details;
+  document.getElementById('viewDetails').style.display='block';
  document.querySelectorAll('.status-option').forEach(b=>b.classList.toggle('selected',b.dataset.status===document.getElementById('modalStatus').value));
  document.getElementById('modalBackdrop').classList.add('show');
  if(editing) updateModalFields();
