@@ -29,17 +29,17 @@ button.primary{background:var(--blue);color:#fff}input,select{border:1px solid v
   color:#6b7280;
 }
 
-.spot.unavailable::after{
+  .spot.unavailable::after{
   content:'';
   position:absolute;
-  inset:7px;
+  inset:12px;
   pointer-events:none;
-  opacity:.42;
+  opacity:.24;
   background:
-    linear-gradient(45deg,transparent 47%,#6b7280 48%,#6b7280 52%,transparent 53%),
-    linear-gradient(-45deg,transparent 47%,#6b7280 48%,#6b7280 52%,transparent 53%);
+    linear-gradient(45deg,transparent 49%,#6b7280 49.5%,#6b7280 50.5%,transparent 51%),
+    linear-gradient(-45deg,transparent 49%,#6b7280 49.5%,#6b7280 50.5%,transparent 51%);
   border-radius:8px;
-}
+  }
 
 .spot.unavailable > *{
   position:relative;
@@ -629,7 +629,17 @@ function renderMyReservations(){
 
   const {data,error}=await db
     .from('vagas')
-    .update({ativa:novaAtiva})
+    .update(
+  novaAtiva
+    ? {
+        ativa:true,
+        status:'disponivel',
+        disponivel:true
+      }
+    : {
+        ativa:false
+      }
+)
     .eq('numero',num)
     .select('numero,subsolo,apartamento,status,disponivel,ativa,data_disponivel,hora_inicio,hora_fim')
     .single();
