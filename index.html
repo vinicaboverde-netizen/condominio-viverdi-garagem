@@ -1673,13 +1673,48 @@ window.vagaModalNumero=s.number;
   );
 
   if(reserveBtn){
+
+    const releaseReservations=
+      reservasPublicasTodas.filter(r=>
+        Number(r.vaga_numero)===Number(s.number)
+    );
+
+    const releaseAgenda=release
+      ? calculateAgenda(
+          release,
+          releaseReservations
+        )
+      : null;
+
     const canReserve=
       !editing &&
       !!currentUser &&
       !!currentProfile &&
       !!release &&
-      String(release.morador_id)!==String(currentUser.id) &&
-      !myReservation;
+      String(release.morador_id)!==
+        String(currentUser.id) &&
+      !myReservation &&
+      !(releaseAgenda && releaseAgenda.full);
+
+    reserveBtn.style.display=
+      canReserve
+        ? 'block'
+        : 'none';
+  }
+
+  const confirmReserveBtn=
+    document.getElementById('confirmReserveModal');
+
+  if(confirmReserveBtn){
+    confirmReserveBtn.style.display='none';
+  }
+
+  const reserveFields=
+    document.getElementById('reserveFields');
+
+  if(reserveFields){
+    reserveFields.style.display='none';
+  }
 
     reserveBtn.style.display=canReserve?'block':'none';
   }
@@ -1768,7 +1803,35 @@ function toggleModalTimeFields(){
  document.getElementById('modalTimeFields').style.display=any?'none':'grid';
 }
 
-function closeModal(){document.getElementById('modalBackdrop').classList.remove('show')}
+function closeModal(){
+
+  document.getElementById('modalBackdrop')
+    .classList
+    .remove('show');
+
+  const reserveFields=
+    document.getElementById('reserveFields');
+
+  const reserveBtn=
+    document.getElementById('reserveModal');
+
+  const confirmBtn=
+    document.getElementById('confirmReserveModal');
+
+  if(reserveFields){
+    reserveFields.style.display='none';
+  }
+
+  if(reserveBtn){
+    reserveBtn.style.display='none';
+  }
+
+  if(confirmBtn){
+    confirmBtn.style.display='none';
+  }
+
+  reservaCriteria=null;
+}
 
 async function saveSpot(){
  const num=Number(document.getElementById('modalTitle').textContent.replace('Vaga ',''));
