@@ -241,6 +241,8 @@ let reservaCriteria = null;
     return;
   }
 
+  const today=todayLocal();
+
   const {data,error}=await db
     .from('reservas_vaga')
     .select('id,vaga_numero,liberacao_id,morador_id,data_inicio,data_fim,hora_inicio,hora_fim,qualquer_horario,status')
@@ -253,9 +255,12 @@ let reservaCriteria = null;
     return;
   }
 
-  reservas=data||[];
-renderMyReservations();
-    }
+  reservas=(data||[]).filter(r =>
+    r.data_fim >= today
+  );
+
+  renderMyReservations();
+  }
 async function reservarVaga(){
   if(!currentUser || !currentProfile){
     alert('Entre no VIVERDI para reservar uma vaga.');
@@ -530,14 +535,26 @@ function statusText(s){
     disponivel:'🟢 Disponível',
     reservada:'🔵 Reservada',
     ocupada:'🔴 Ocupada',
-    inindisponivel:'✕ Indisponível',
-encerrada:'✕ Indisponível'
+    indisponivel:'✕ Indisponível',
+    encerrada:'⚪ Encerrada'
   };
 
   let text=labels[s.status]||'✕ Indisponível';
 
-  if(s.date) text+=' · '+formatDate(s.date);
-  if(s.start&&s.end) text+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
+  if(
+    s.status!=='encerrada' &&
+    s.date
+  ){
+    text+=' · '+formatDate(s.date);
+  }
+
+  if(
+    s.status!=='encerrada' &&
+    s.start &&
+    s.end
+  ){
+    text+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
+  }
 
   return text;
 }
@@ -949,8 +966,12 @@ async function loadReservasPublicas(vagaNumero){
     return;
   }
 
-  reservasPublicas=data||[];
-  }
+  const today=todayLocal();
+
+  reservasPublicas=(data||[]).filter(r =>
+    r.data_fim >= today
+  );
+}
 
 async function showModal(s, editing){
   await loadReservasPublicas(s.number);
