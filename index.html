@@ -1712,19 +1712,17 @@ window.vagaModalNumero=s.number;
   const reserveFields=
     document.getElementById('reserveFields');
 
-  if(reserveFields){
-    reserveFields.style.display='none';
-  }
-
     if(reserveFields){
     reserveFields.style.display='none';
   }
 
   if(cancelReservationBtn){
-  
-  if(cancelReservationBtn){
-  cancelReservationBtn.style.display=(!editing && !!myReservation)?'block':'none';
+    cancelReservationBtn.style.display=
+      (!editing && !!myReservation)
+        ? 'block'
+        : 'none';
   }
+  
  const isOwner =
   !!currentProfile &&
   String(currentProfile.apartamento) === String(s.apartment);
