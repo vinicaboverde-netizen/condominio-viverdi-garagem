@@ -86,6 +86,63 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
 @media(max-width:600px){.grid{grid-template-columns:repeat(4,1fr)}.stat{padding:9px}.stat b{font-size:20px}}
 
 .my-area{background:#fff;border:2px solid #bfdbfe;border-radius:16px;padding:14px;margin:10px 0 12px;box-shadow:0 2px 8px #0000000b}.my-area-title{font-size:13px;font-weight:850;color:#2563eb;letter-spacing:.3px;margin-bottom:6px}.my-vaga-main{display:flex;justify-content:space-between;gap:12px;align-items:center}.my-vaga-name{font-size:22px;font-weight:850}.my-vaga-meta{color:#6b7280;font-size:13px;margin-top:2px}.my-vaga-status{font-weight:800;margin-top:6px}.my-vaga-actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}.future-search{padding:18px}.future-search h2{margin:0 0 6px;font-size:20px}.future-search .hint{color:#6b7280;margin-bottom:14px}.future-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.future-grid .full{grid-column:1/-1}.future-search label{display:block;font-size:12px;font-weight:800;margin-bottom:5px}.future-search input,.future-search select{width:100%;padding:12px;border:1px solid #d7dce2;border-radius:10px;font-size:16px;background:#fff}.check-row{display:flex;align-items:center;gap:8px;font-weight:700;margin-top:10px}.check-row input{width:18px;height:18px}.future-results{margin-top:15px}.result-item{border:1px solid #d7dce2;border-radius:12px;padding:11px;margin-top:8px;background:#fff}.result-item b{font-size:17px}.result-item small{display:block;color:#6b7280;margin-top:3px}.empty-result{color:#6b7280;padding:10px 0}.modal-actions .primary{display:block}.
+  .stat-clickable{
+  border:1px solid #d1d5db;
+  cursor:pointer;
+  text-align:left;
+  font:inherit;
+  width:100%;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+
+.stat-clickable:active{
+  transform:scale(.98);
+}
+
+.stat-clickable:hover{
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+  .available-now-list{
+  display:grid;
+  gap:10px;
+}
+
+.available-now-item{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 16px;
+  border:1px solid #d1d5db;
+  border-radius:14px;
+  background:#f0fdf4;
+  color:#111827;
+  text-align:left;
+  cursor:pointer;
+}
+
+.available-now-item strong{
+  display:block;
+  font-size:18px;
+}
+
+.available-now-item span{
+  display:block;
+  margin-top:3px;
+  font-size:14px;
+}
+
+.available-now-item small{
+  display:block;
+  margin-top:4px;
+  color:#6b7280;
+}
+
+.available-now-arrow{
+  font-size:28px;
+  color:#16a34a;
+  }
 </style>
 </head>
 <body>
@@ -110,7 +167,10 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
 <div id="userStatus" class="status">🔓 Visualização pública · entre para editar sua vaga</div>
 <div id="connection" class="status">Conectando ao banco…</div>
 <div class="stats">
-<div class="stat"><b id="availableCount">0</b><span>Disponíveis agora</span></div>
+<button class="stat stat-clickable" id="availableStat" onclick="openAvailableNow()">
+  <b id="availableCount">0</b>
+  <span>Disponíveis agora</span>
+</button>
 <div class="stat"><b id="occupiedCount">0</b><span>Ocupadas agora</span></div>
 <div class="stat"><b id="mappedCount">0</b><span>Vagas cadastradas</span></div>
 </div>
@@ -902,7 +962,32 @@ window.vagaModalNumero=s.number;
   if(cancelReservationBtn){
   cancelReservationBtn.style.display=(!editing && !!myReservation)?'block':'none';
   }
- document.getElementById('editFields').style.display=editing?'block':'none';
+ const isOwner =
+  !!currentProfile &&
+  String(currentProfile.apartamento) === String(s.apartment);
+
+const isAdmin =
+  !!currentProfile &&
+  currentProfile.perfil === 'admin';
+
+const ownerEditing = editing && isOwner && !isAdmin;
+
+document.getElementById('editFields').style.display=editing?'block':'none';
+
+const statusField = document.querySelector('#editFields .status-options');
+const statusLabelField = document.querySelector('#editFields .field.full > label');
+
+if(statusField){
+  statusField.style.display = ownerEditing ? 'none' : 'grid';
+}
+
+if(statusLabelField){
+  statusLabelField.style.display = ownerEditing ? 'none' : 'block';
+}
+
+if(ownerEditing){
+  document.getElementById('modalStatus').value='disponivel';
+}
  const labels={disponivel:'🟢 Disponível',reservada:'🔵 Reservada',ocupada:'🔴 Ocupada',indisponivel:'⚫ Indisponível',encerrada:'⚪ Encerrada'};
  let details='<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">'+(labels[s.status]||'⚫ Indisponível')+'</span></div>';
   if(reservasPublicas.length){
@@ -966,7 +1051,18 @@ async function saveSpot(){
  if(!s || !currentUser || !currentProfile){alert('Faça login para alterar a vaga.');return}
  const canEdit = currentProfile.perfil === 'admin' || String(currentProfile.apartamento) === String(s.apartment);
  if(!canEdit){alert('Você só pode editar a vaga vinculada ao seu apartamento.');return}
- const status=document.getElementById('modalStatus').value;
+ const isOwner =
+  !!currentProfile &&
+  String(currentProfile.apartamento) === String(s.apartment);
+
+const isAdmin =
+  !!currentProfile &&
+  currentProfile.perfil === 'admin';
+
+const status =
+  (isOwner && !isAdmin)
+    ? 'disponivel'
+    : document.getElementById('modalStatus').value;
  const dateStart=document.getElementById('modalDateStart').value||null;
  const dateEnd=document.getElementById('modalDateEnd').value||null;
  const anyTime=document.getElementById('modalAnyTime').checked;
@@ -1138,7 +1234,112 @@ loadSpots();
   </div>
  </div>
 </div>
+  <div id="availableBackdrop" class="modal-backdrop" onclick="if(event.target===this)closeAvailableNow()">
+  <div class="modal" role="dialog" aria-modal="true">
+
+    <div class="modal-head">
+      <div>
+        <h2>🟢 Vagas disponíveis agora</h2>
+        <div id="availableNowSub" class="modal-sub">
+          Vagas disponíveis no bloco selecionado
+        </div>
+      </div>
+
+      <button class="modal-close" onclick="closeAvailableNow()" aria-label="Fechar">×</button>
+    </div>
+
+    <div id="availableNowList" class="available-now-list"></div>
+
+  </div>
+  </div>
 <script>
+  function openAvailableNow(){
+
+  const list=document.getElementById('availableNowList');
+  const sub=document.getElementById('availableNowSub');
+
+  const available=spots
+    .filter(s =>
+      s.block===selectedBlock &&
+      s.status==='disponivel' &&
+      s.ativa !== false &&
+      s.apartment
+    )
+    .sort((a,b)=>Number(a.number)-Number(b.number));
+
+  sub.textContent =
+    'Bloco '+selectedBlock+
+    ' · '+available.length+
+    (available.length===1?' vaga disponível':' vagas disponíveis');
+
+  if(!available.length){
+    list.innerHTML=`
+      <div class="empty-result">
+        Nenhuma vaga disponível neste momento.
+      </div>
+    `;
+
+    document.getElementById('availableBackdrop').classList.add('show');
+    return;
+  }
+
+  list.innerHTML=available.map(s=>{
+
+    let periodo='Disponível agora';
+
+    if(s.date){
+      periodo=formatDate(s.date);
+
+      if(s.dateEnd && s.dateEnd!==s.dateStart){
+        periodo+=' a '+formatDate(s.dateEnd);
+      }
+
+      if(s.anyTime){
+        periodo+=' · Qualquer horário';
+      }else if(s.start && s.end){
+        periodo+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
+      }
+    }
+
+    return `
+      <button class="available-now-item" onclick="openAvailableSpot(${s.number})">
+        <div>
+          <strong>Vaga ${s.number}</strong>
+          <span>Apto ${s.apartment}</span>
+          <small>${periodo}</small>
+        </div>
+
+        <div class="available-now-arrow">›</div>
+      </button>
+    `;
+
+  }).join('');
+
+  document.getElementById('availableBackdrop').classList.add('show');
+}
+
+function closeAvailableNow(){
+  document.getElementById('availableBackdrop').classList.remove('show');
+}
+
+function openAvailableSpot(num){
+
+  const s=spots.find(
+    x=>Number(x.number)===Number(num) &&
+       x.block===selectedBlock
+  );
+
+  if(!s)return;
+
+  closeAvailableNow();
+
+  const previousEditMode=editMode;
+  editMode=false;
+
+  showModal(s,false);
+
+  editMode=previousEditMode;
+}
 function selectStatus(st){
  document.getElementById('modalStatus').value=st;
  document.querySelectorAll('.status-option').forEach(b=>b.classList.toggle('selected',b.dataset.status===st));
