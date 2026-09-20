@@ -132,9 +132,9 @@ function setConnection(text, ok=false){
 }
 
 function normalize(row){
-  const status = (row.status === 'indisponivel' && row.disponivel === true)
+  const status = row.disponivel === true
     ? 'disponivel'
-    : (row.status || (row.disponivel ? 'disponivel' : 'indisponivel'));
+    : (row.status || 'indisponivel');
   return {
     number: row.numero,
     block: row.numero <= 34 ? '01' : '02',
@@ -788,8 +788,15 @@ renderMyArea();
 renderMyReservations();
 }
 
-function statusClass(st){
- return ({disponivel:'green',reservada:'blue',ocupada:'red',indisponivel:'gray',encerrada:'gray'}[st]||'gray');
+ function statusClass(st){
+ return ({
+   disponivel:'green',
+   reservada:'blue',
+   ocupada:'red',
+   indisponivel:'unavailable',
+   encerrada:'gray'
+ }[st]||'gray');
+ }
 }
 
 function selectBlock(block){
