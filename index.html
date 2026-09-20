@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#111827">
 <link rel="manifest" href="manifest.json">
-<title>Condomínio VIVERDI — Garagem · Versão Beta 1.2.4</title>
+<title>Condomínio VIVERDI — Gar
+  agem · Versão Beta 1.2.4</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--text:#17202a;--muted:#6b7280;--green:#16a34a;--greenbg:#dcfce7;--red:#dc2626;--redbg:#fee2e2;--border:#d7dce2;--blue:#2563eb;--reserved:#2563eb;--reservedbg:#dbeafe;--unavailable:#111827;--unavailablebg:#e5e7eb;--ended:#6b7280;--endedbg:#f3f4f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
@@ -18,10 +19,79 @@ button.primary{background:var(--blue);color:#fff}input,select{border:1px solid v
 .stat b{font-size:24px;display:block}.stat span{font-size:12px;color:var(--muted)}
 .legend{background:white;border:1px solid var(--border);border-radius:14px;padding:11px;margin-bottom:14px;font-size:13px;display:flex;gap:18px;flex-wrap:wrap}
 .dot{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:5px}
-.green{background:var(--greenbg);border-color:#86efac}.red{background:var(--redbg);border-color:#fca5a5}.blue{background:var(--reservedbg);border-color:#93c5fd}.black{background:var(--unavailablebg);border-color:#9ca3af}.gray{background:var(--endedbg);border-color:#d1d5db}
+.green{background:var(--greenbg);border-color:#16a34a}.red{background:var(--redbg);border-color:#dc2626}.blue{background:var(--reservedbg);border-color:#2563eb}.black{background:var(--unavailablebg);border-color:#9ca3af}.gray{background:var(--endedbg);border-color:#d1d5db}.orange{background:#ffedd5;border-color:#f97316}
+
+.spot.unavailable{
+  position:relative;
+  overflow:hidden;
+  background:#f1f3f5;
+  border-color:#d1d5db;
+  color:#6b7280;
+}
+
+  .spot.unavailable::after{
+  content:'';
+  position:absolute;
+  inset:12px;
+  pointer-events:none;
+  opacity:.24;
+  background:
+    linear-gradient(45deg,transparent 49%,#6b7280 49.5%,#6b7280 50.5%,transparent 51%),
+    linear-gradient(-45deg,transparent 49%,#6b7280 49.5%,#6b7280 50.5%,transparent 51%);
+  border-radius:8px;
+  }
+
+.spot.unavailable > *{
+  position:relative;
+  z-index:2;
+}
+
+.spot.green.inactive{
+  background:#f1f3f5;
+  border-color:#aeb5bd;
+  color:#6b7280;
+}
+
+.spot.green.inactive .num,
+.spot.green.inactive .apt,
+.spot.green.inactive .time{
+  color:#6b7280;
+}
 .section{margin:18px 0 8px;font-weight:800;font-size:16px}.grid{display:grid;grid-template-columns:repeat(7,minmax(42px,1fr));gap:7px}
 .spot{min-height:76px;border:2px solid;border-radius:12px;padding:7px;display:flex;flex-direction:column;justify-content:space-between;text-align:left}
-.spot .num{font-size:18px;font-weight:850}.spot .apt{font-size:11px;font-weight:650}.spot .time{font-size:10px;color:#374151}
+.spot .time{
+  font-size:10px;
+  color:#374151;
+  line-height:1.25;
+  white-space:normal;
+}
+
+.map-reservation,
+.map-free{
+  display:flex;
+  align-items:flex-start;
+  gap:5px;
+  margin-top:3px;
+  line-height:1.15;
+}
+
+.map-reservation div,
+.map-free div{
+  min-width:0;
+}
+
+.map-reservation small,
+.map-free small{
+  display:block;
+  font-size:9px;
+  color:#4b5563;
+  margin-top:1px;
+}
+
+.map-reservation b,
+.map-free b{
+  font-size:10px;
+}
 .spot.unmapped{opacity:.65}.block-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.block-btn{background:#fff;border:2px solid var(--border);border-radius:12px;padding:11px 12px;font-weight:800}.block-btn.active{background:#111827;color:#fff;border-color:#111827}.block-sub{display:block;font-size:11px;font-weight:500;opacity:.75;margin-top:2px}
 .note{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:11px;margin:12px 0;font-size:12px}
 .status{font-size:12px;color:var(--muted);margin:8px 0 12px}
@@ -42,7 +112,86 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
 .view-details{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:14px}
 .detail-row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:14px}
 .detail-row:last-child{border-bottom:0}.detail-label{color:#64748b}.detail-value{font-weight:750;text-align:right}
+.reservation-section{
+  margin-top:14px;
+  padding:13px;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  border-radius:14px;
+}
 
+.reservation-section:first-child{
+  margin-top:0;
+}
+
+.reservation-section-title{
+  font-size:13px;
+  font-weight:850;
+  letter-spacing:.2px;
+  margin-bottom:7px;
+}
+
+.reservation-section-label{
+  color:#64748b;
+  font-size:12px;
+  margin-bottom:4px;
+}
+
+.reservation-main-period{
+  font-size:18px;
+  font-weight:850;
+}
+
+.reservation-main-time{
+  font-size:16px;
+  font-weight:750;
+  margin-top:3px;
+}
+
+.reservation-item{
+  background:#fff;
+  border:1px solid #dbe3ec;
+  border-radius:11px;
+  padding:9px 10px;
+  margin-top:7px;
+}
+
+.reservation-item-head{
+  font-size:14px;
+}
+
+.reservation-item-date{
+  color:#64748b;
+  font-size:12px;
+  margin-top:2px;
+}
+
+.reservation-item-time{
+  font-size:14px;
+  font-weight:800;
+  margin-top:3px;
+}
+
+.free-section{
+  background:#f0fdf4;
+  border-color:#bbf7d0;
+}
+
+.free-item{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  background:#fff;
+  border:1px solid #bbf7d0;
+  border-radius:10px;
+  padding:8px 10px;
+  margin-top:7px;
+  font-size:13px;
+}
+
+.free-item span{
+  font-weight:800;
+}
 .modal-actions{display:flex;gap:9px;margin-top:18px}.modal-actions button{flex:1;padding:12px}
 
 @media(max-width:600px){.grid{grid-template-columns:repeat(4,1fr)}.stat{padding:9px}.stat b{font-size:20px}}
@@ -56,6 +205,119 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
   margin:10px 0 12px;
   box-shadow:0 2px 8px #0000000b;
 }
+
+.my-reservations-title{
+  font-size:13px;
+  font-weight:850;
+  color:#2563eb;
+  letter-spacing:.3px;
+  margin-bottom:9px;
+}
+
+.my-reservation-card{
+  background:#f8fafc;
+  border:1px solid #dbe3ec;
+  border-radius:13px;
+  padding:12px;
+  margin-bottom:9px;
+}
+
+.my-reservation-card:last-child{
+  margin-bottom:0;
+}
+
+.my-reservation-main{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+}
+
+.my-reservation-title{
+  font-size:19px;
+  font-weight:850;
+}
+
+.my-reservation-meta{
+  color:#64748b;
+  font-size:13px;
+  margin-top:3px;
+}
+
+.my-reservation-status{
+  color:#2563eb;
+  font-weight:800;
+  margin-top:6px;
+}
+
+.my-reservation-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.my-reservation-actions button{
+  flex:1;
+  min-width:130px;
+}
+  .stat-clickable{
+  border:1px solid #d1d5db;
+  cursor:pointer;
+  text-align:left;
+  font:inherit;
+  width:100%;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+
+.stat-clickable:active{
+  transform:scale(.98);
+}
+
+.stat-clickable:hover{
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+  .available-now-list{
+  display:grid;
+  gap:10px;
+}
+
+.available-now-item{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 16px;
+  border:1px solid #d1d5db;
+  border-radius:14px;
+  background:#f0fdf4;
+  color:#111827;
+  text-align:left;
+  cursor:pointer;
+}
+
+.available-now-item strong{
+  display:block;
+  font-size:18px;
+}
+
+.available-now-item span{
+  display:block;
+  margin-top:3px;
+  font-size:14px;
+}
+
+.available-now-item small{
+  display:block;
+  margin-top:4px;
+  color:#6b7280;
+}
+
+.available-now-arrow{
+  font-size:28px;
+  color:#16a34a;
+  }
 </style>
 </head>
 <body>
@@ -77,14 +339,21 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
   <div class="my-area-title">👤 MINHA VAGA</div>
   <div id="myAreaContent"></div>
 </div>
+  <div id="myReservationsArea" class="my-reservations" style="display:none">
+  <div class="my-reservations-title">🔵 MINHAS RESERVAS</div>
+  <div id="myReservationsContent"></div>
+</div>
 <div id="userStatus" class="status">🔓 Visualização pública · entre para editar sua vaga</div>
 <div id="connection" class="status">Conectando ao banco…</div>
 <div class="stats">
-<div class="stat"><b id="availableCount">0</b><span>Disponíveis agora</span></div>
+<button class="stat stat-clickable" id="availableStat" onclick="openAvailableNow()">
+  <b id="availableCount">0</b>
+  <span>Disponíveis agora</span>
+</button>
 <div class="stat"><b id="occupiedCount">0</b><span>Ocupadas agora</span></div>
 <div class="stat"><b id="mappedCount">0</b><span>Vagas cadastradas</span></div>
 </div>
-<div class="legend"><span><i class="dot" style="background:#16a34a"></i>Disponível</span><span><i class="dot" style="background:#dc2626"></i>Ocupada</span><span>🔵 Reservada</span><span>⚫ Não disponível</span><span>⚪ Encerrada</span><span>Toque em uma vaga para ver os detalhes.</span></div>
+<div class="legend"><span><i class="dot" style="background:#16a34a"></i>Disponível</span><span><i class="dot" style="background:#dc2626"></i>Ocupada</span><span>🔵 Reservada</span><span>⚫ Inativa</span><span>⚪ Não disponível</span><span>Toque em uma vaga para ver os detalhes.</span></div>
 <div class="note"><b>Versão Beta 1.2.4:</b> interface-base da V7.0 preservada. A disponibilidade agora usa períodos completos (data inicial e final), com horário opcional. A busca futura consulta a nova estrutura de liberações. O mapa/grade, blocos, subsolos, legenda, busca, login e realtime permanecem.</div>
 <div id="maps"></div>
 <div class="panel"><b>🔎 Consulta por apartamento</b>
@@ -111,13 +380,16 @@ function setConnection(text, ok=false){
 }
 
 function normalize(row){
-  const status = row.status || (row.disponivel ? 'disponivel' : 'indisponivel');
+  const status = row.disponivel === true
+    ? 'disponivel'
+    : (row.status || 'indisponivel');
   return {
     number: row.numero,
     block: row.numero <= 34 ? '01' : '02',
     level: row.subsolo,
     apartment: row.apartamento,
     status,
+    ativa: row.ativa !== false,
     available: status === 'disponivel',
     date: row.data_disponivel || '',
     dateStart: row.data_disponivel || '',
@@ -128,12 +400,370 @@ function normalize(row){
   };
 }
 
-
 let currentUser = null;
 let currentProfile = null;
 let liberacoes = [];
+let reservas = [];
+let reservasPublicas = [];
+let reservasPublicasTodas = [];
+let reservaCriteria = null;
+  function todayLocal(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+    }
 
-function updateAuthUI(){
+  async function loadReservas(){
+  if(!currentUser){
+    reservas=[];
+    return;
+  }
+
+  const today=todayLocal();
+
+  const {data,error}=await db
+    .from('reservas_vaga')
+    .select('id,vaga_numero,liberacao_id,morador_id,data_inicio,data_fim,hora_inicio,hora_fim,qualquer_horario,status')
+    .eq('morador_id',currentUser.id)
+    .eq('status','ativa');
+
+  if(error){
+    console.error('Erro ao carregar reservas:',error);
+    reservas=[];
+    return;
+  }
+
+  reservas=(data||[]).filter(r =>
+    r.data_fim >= today
+  );
+
+  renderMyReservations();
+}
+
+async function loadReservasPublicasTodas(){
+  const {data,error}=await db
+    .rpc('buscar_reservas_vaga_publicas_todas');
+
+  if(error){
+    console.error(
+      'Erro ao carregar reservas públicas:',
+      error
+    );
+    reservasPublicasTodas=[];
+    return;
+  }
+
+  reservasPublicasTodas=data||[];
+}
+
+async function toggleReserveTimeFields(){
+  const any=document.getElementById('reserveAnyTime').checked;
+
+  document.getElementById('reserveTimeFields').style.display=
+    any ? 'none' : 'grid';
+}
+
+function prepareReservation(){
+
+  if(!currentUser || !currentProfile){
+    alert('Entre no VIVERDI para reservar uma vaga.');
+    return;
+  }
+
+  const num=window.vagaModalNumero;
+
+  if(!num){
+    alert('Não foi possível identificar a vaga.');
+    return;
+  }
+
+  const release=liberacoes.find(l=>
+    Number(l.vaga_numero)===Number(num) &&
+    l.ativo &&
+    l.data_fim>=todayLocal()
+  );
+
+  if(!release){
+    alert(
+      'Esta vaga não possui uma liberação ativa para reserva.'
+    );
+    return;
+  }
+
+  if(
+    String(release.morador_id)===
+    String(currentUser.id)
+  ){
+    alert(
+      'Você não pode reservar a sua própria vaga liberada.'
+    );
+    return;
+  }
+
+  const reservations=reservasPublicasTodas.filter(r=>
+    Number(r.vaga_numero)===Number(num)
+  );
+
+  const agenda=calculateAgenda(
+    release,
+    reservations
+  );
+
+  if(agenda.full){
+    alert(
+      'Esta vaga está com todos os horários ocupados.'
+    );
+    return;
+  }
+
+  document.getElementById('reserveFields').style.display='block';
+  document.getElementById('reserveModal').style.display='none';
+  document.getElementById('confirmReserveModal').style.display='block';
+  document.getElementById('saveModal').style.display='none';
+
+  document.getElementById('reserveDateStart').value=
+    release.data_inicio;
+
+  document.getElementById('reserveDateEnd').value=
+    release.data_fim;
+
+  document.getElementById('reserveAnyTime').checked=
+    !!release.qualquer_horario;
+
+  document.getElementById('reserveStart').value=
+    release.hora_inicio || '';
+
+  document.getElementById('reserveEnd').value=
+    release.hora_fim || '';
+
+  const limite=
+    'Disponível de '+
+    formatDate(release.data_inicio)+
+    ' a '+
+    formatDate(release.data_fim)+
+    (
+      release.qualquer_horario
+        ? ' · Qualquer horário'
+        : ' · '+
+          formatTime(release.hora_inicio)+
+          ' às '+
+          formatTime(release.hora_fim)
+    );
+
+  document.getElementById('reserveLimit').textContent=
+    limite;
+
+  toggleReserveTimeFields();
+}
+
+async function reservarVaga(){
+
+  if(!currentUser || !currentProfile){
+    alert('Entre no VIVERDI para reservar uma vaga.');
+    return;
+  }
+
+  const num=window.vagaModalNumero;
+
+  if(!num){
+    alert('Não foi possível identificar a vaga.');
+    return;
+  }
+
+  const liberacao=liberacoes.find(l=>
+    Number(l.vaga_numero)===Number(num) &&
+    l.ativo &&
+    l.data_fim>=todayLocal()
+  );
+
+  if(!liberacao){
+    alert(
+      'Esta vaga não possui uma liberação ativa para reserva.'
+    );
+    return;
+  }
+
+  if(
+    String(liberacao.morador_id)===
+    String(currentUser.id)
+  ){
+    alert(
+      'Você não pode reservar a sua própria vaga liberada.'
+    );
+    return;
+  }
+
+  const dataStart=
+    document.getElementById('reserveDateStart').value;
+
+  const dataEnd=
+    document.getElementById('reserveDateEnd').value;
+
+  const anyTime=
+    document.getElementById('reserveAnyTime').checked;
+
+  const startTime=
+    anyTime
+      ? null
+      : (
+        document.getElementById('reserveStart').value ||
+        null
+      );
+
+  const endTime=
+    anyTime
+      ? null
+      : (
+        document.getElementById('reserveEnd').value ||
+        null
+      );
+
+  if(!dataStart || !dataEnd){
+    alert(
+      'Informe a data inicial e a data final da reserva.'
+    );
+    return;
+  }
+
+  if(dataEnd<dataStart){
+    alert(
+      'A data final deve ser igual ou posterior à data inicial.'
+    );
+    return;
+  }
+
+  if(
+    dataStart<liberacao.data_inicio ||
+    dataEnd>liberacao.data_fim
+  ){
+    alert(
+      'O período escolhido precisa estar dentro do período liberado pelo proprietário.'
+    );
+    return;
+  }
+
+  if(
+    !anyTime &&
+    (!startTime || !endTime)
+  ){
+    alert(
+      'Informe a hora inicial e final ou marque "Qualquer horário".'
+    );
+    return;
+  }
+
+  if(
+    !anyTime &&
+    startTime>=endTime
+  ){
+    alert(
+      'A hora final deve ser posterior à hora inicial.'
+    );
+    return;
+  }
+
+  if(!anyTime){
+
+    if(
+      liberacao.hora_inicio &&
+      startTime<liberacao.hora_inicio
+    ){
+      alert(
+        'A hora inicial está antes do horário liberado.'
+      );
+      return;
+    }
+
+    if(
+      liberacao.hora_fim &&
+      endTime>liberacao.hora_fim
+    ){
+      alert(
+        'A hora final está depois do horário liberado.'
+      );
+      return;
+    }
+  }
+
+  const {error}=await db
+    .from('reservas_vaga')
+    .insert({
+      vaga_numero:num,
+      liberacao_id:liberacao.id,
+      morador_id:currentUser.id,
+      data_inicio:dataStart,
+      data_fim:dataEnd,
+      hora_inicio:startTime,
+      hora_fim:endTime,
+      qualquer_horario:anyTime,
+      status:'ativa'
+    });
+
+  if(error){
+    console.error(error);
+
+    alert(
+      'Não foi possível reservar a vaga.\n\n'+
+      error.message
+    );
+
+    return;
+  }
+
+  await loadReservas();
+  await loadReservasPublicasTodas();
+
+  reservaCriteria=null;
+
+  render();
+
+  closeModal();
+
+  alert(
+    '🔵 Vaga reservada com sucesso!'
+  );
+  }
+async function cancelarReserva(){
+  if(!currentUser){
+    alert('Entre no VIVERDI para gerenciar sua reserva.');
+    return;
+  }
+
+  const num=window.vagaModalNumero;
+  const minhaReserva=reservas.find(r=>
+    Number(r.vaga_numero)===Number(num) &&
+    r.status==='ativa'
+  );
+
+  if(!minhaReserva){
+    alert('Você não possui uma reserva ativa para esta vaga.');
+    return;
+  }
+
+  if(!confirm('Deseja realmente liberar esta reserva?')){
+    return;
+  }
+
+  const {error}=await db
+    .from('reservas_vaga')
+    .delete()
+    .eq('id',minhaReserva.id);
+
+  if(error){
+    console.error(error);
+    alert('Não foi possível liberar a reserva.\n\n'+error.message);
+    return;
+  }
+
+    await loadReservas();
+  await loadReservasPublicasTodas();
+  render();
+  closeModal();
+  alert('↩️ Sua reserva foi liberada com sucesso!');
+}
+  function updateAuthUI(){
   const loginBtn=document.getElementById('loginBtn');
   const editBtn=document.getElementById('editBtn');
   const logoutBtn=document.getElementById('logoutBtn');
@@ -182,6 +812,7 @@ async function loadProfile(user){
     }
   }
   updateAuthUI();
+ await loadReservas();
   render();
 }
 
@@ -201,6 +832,7 @@ async function openLogin(){
     return;
   }
   await loadProfile(data.user);
+  
   alert('Login realizado com sucesso.');
 }
 
@@ -219,14 +851,15 @@ async function logout(){
 
 async function loadSpots(){
   setConnection('Carregando vagas…');
-  const {data,error}=await db.from('vagas').select('numero,subsolo,apartamento,status,disponivel,data_disponivel,hora_inicio,hora_fim,atualizado_em').order('numero');
+  const {data,error}=await db.from('vagas').select('numero,subsolo,apartamento,status,disponivel,ativa,data_disponivel,hora_inicio,hora_fim,atualizado_em').order('numero');
   if(error){
     setConnection('Erro ao carregar o banco: '+error.message);
     alert('Não foi possível carregar as vagas.\n\n'+error.message);
     return;
   }
-  spots=data.map(normalize);
+    spots=data.map(normalize);
   await loadLiberacoes();
+  await loadReservasPublicasTodas();
   render();
   setConnection('🟢 Conectado ao Supabase · atualizações em tempo real ativas', true);
 }
@@ -246,37 +879,697 @@ async function loadLiberacoes(){
 }
 
 function applyLiberations(){
-  const today=new Date().toISOString().slice(0,10);
+  const today=todayLocal();
+
   spots.forEach(s=>{
-    const ls=liberacoes.filter(l=>Number(l.vaga_numero)===Number(s.number) && l.ativo && l.data_fim>=today);
-    if(ls.length){
-      const l=ls[0];
-      s.date=l.data_inicio||'';
-      s.dateStart=l.data_inicio||'';
-      s.dateEnd=l.data_fim||l.data_inicio||'';
-      s.start=l.hora_inicio||'';
-      s.end=l.hora_fim||'';
-      s.anyTime=!!l.qualquer_horario;
-      if(s.status==='indisponivel') s.status='disponivel';
+    const ls=liberacoes.filter(l=>
+      Number(l.vaga_numero)===Number(s.number) &&
+      l.ativo
+    );
+
+    const atual=ls
+      .filter(l=>l.data_fim>=today)
+      .sort((a,b)=>a.data_inicio.localeCompare(b.data_inicio))[0];
+
+    if(atual){
+      s.date=atual.data_inicio||'';
+      s.dateStart=atual.data_inicio||'';
+      s.dateEnd=atual.data_fim||atual.data_inicio||'';
+      s.start=atual.hora_inicio||'';
+      s.end=atual.hora_fim||'';
+      s.anyTime=!!atual.qualquer_horario;
+
+      if(s.status==='indisponivel' || s.status==='encerrada'){
+        s.status='disponivel';
+      }
+
       s.available=s.status==='disponivel';
+      return;
+    }
+
+    const vencida=ls
+      .filter(l=>l.data_fim<today)
+      .sort((a,b)=>b.data_fim.localeCompare(a.data_fim))[0];
+
+    if(vencida){
+      s.date='';
+      s.dateStart='';
+      s.dateEnd='';
+      s.start='';
+      s.end='';
+      s.anyTime=false;
+
+      s.status='encerrada';
+      s.available=false;
     }
   });
 }
 
-function statusText(s){
- const labels={
-   disponivel:'🟢 Disponível',
-   reservada:'🔵 Reservada',
-   ocupada:'🔴 Ocupada',
-   indisponivel:'⚫ Indisponível',
-   encerrada:'⚪ Encerrada'
- };
- let text=labels[s.status]||'⚫ Indisponível';
- if(s.date) text+=' · '+formatDate(s.date);
- if(s.start&&s.end) text+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
- return text;
+function activeReleaseForSpot(s){
+  const today=todayLocal();
+
+  return liberacoes
+    .filter(l=>
+      Number(l.vaga_numero)===Number(s.number) &&
+      l.ativo &&
+      l.data_fim>=today
+    )
+    .sort((a,b)=>a.data_inicio.localeCompare(b.data_inicio))[0] || null;
 }
 
+function reservationsForSpot(s){
+  return reservasPublicasTodas.filter(r=>
+    Number(r.vaga_numero)===Number(s.number)
+  );
+}
+
+function timeToMinutes(value){
+  if(!value)return null;
+
+  const parts=String(value).slice(0,5).split(':');
+
+  if(parts.length!==2)return null;
+
+  return Number(parts[0])*60+Number(parts[1]);
+}
+
+function minutesToTime(value){
+  const h=Math.floor(value/60);
+  const m=value%60;
+
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+}
+
+function nextDateLocal(value){
+  const parts=value.split('-');
+
+  const d=new Date(
+    Number(parts[0]),
+    Number(parts[1])-1,
+    Number(parts[2])
+  );
+
+  d.setDate(d.getDate()+1);
+
+  return [
+    d.getFullYear(),
+    String(d.getMonth()+1).padStart(2,'0'),
+    String(d.getDate()).padStart(2,'0')
+  ].join('-');
+}
+
+function reservationsCoveringDate(reservations,date){
+  return reservations.filter(r=>
+    r.data_inicio<=date &&
+    r.data_fim>=date
+  );
+}
+
+function reservationIntervalForDate(r,date){
+  if(r.qualquer_horario){
+    return [0,1440];
+  }
+
+  const start=timeToMinutes(r.hora_inicio);
+  const end=timeToMinutes(r.hora_fim);
+
+  if(start===null || end===null){
+    return [0,1440];
+  }
+
+  return [start,end];
+}
+
+function calculateAgenda(release,reservations){
+  const freeIntervals=[];
+  let totalMinutes=0;
+  let reservedMinutes=0;
+  let hasReservations=false;
+
+  let date=release.data_inicio;
+
+  while(date<=release.data_fim){
+
+    const releaseStart=
+      release.qualquer_horario
+        ? 0
+        : timeToMinutes(release.hora_inicio);
+
+    const releaseEnd=
+      release.qualquer_horario
+        ? 1440
+        : timeToMinutes(release.hora_fim);
+
+    const start=
+      releaseStart===null ? 0 : releaseStart;
+
+    const end=
+      releaseEnd===null ? 1440 : releaseEnd;
+
+    if(end>start){
+
+      totalMinutes+=end-start;
+
+      const intervals=reservationsCoveringDate(
+        reservations,
+        date
+      )
+      .map(r=>{
+        const range=reservationIntervalForDate(r,date);
+
+        return [
+          Math.max(start,range[0]),
+          Math.min(end,range[1])
+        ];
+      })
+      .filter(x=>x[1]>x[0])
+      .sort((a,b)=>a[0]-b[0]);
+
+      if(intervals.length){
+        hasReservations=true;
+      }
+
+      const merged=[];
+
+      intervals.forEach(interval=>{
+        const last=merged[merged.length-1];
+
+        if(!last || interval[0]>last[1]){
+          merged.push([...interval]);
+        }else{
+          last[1]=Math.max(last[1],interval[1]);
+        }
+      });
+
+      merged.forEach(interval=>{
+        reservedMinutes+=interval[1]-interval[0];
+      });
+
+      let cursor=start;
+
+      merged.forEach(interval=>{
+        if(interval[0]>cursor){
+          freeIntervals.push({
+            date,
+            start:cursor,
+            end:interval[0]
+          });
+        }
+
+        cursor=Math.max(cursor,interval[1]);
+      });
+
+      if(cursor<end){
+        freeIntervals.push({
+          date,
+          start:cursor,
+          end
+        });
+      }
+    }
+
+    if(date===release.data_fim)break;
+
+    date=nextDateLocal(date);
+  }
+
+  return {
+    totalMinutes,
+    reservedMinutes,
+    freeMinutes:Math.max(0,totalMinutes-reservedMinutes),
+    full:
+      totalMinutes>0 &&
+      reservedMinutes>=totalMinutes,
+    hasReservations,
+    freeIntervals
+  };
+}
+
+function reservationIsNow(r){
+  const today=todayLocal();
+
+  if(today<r.data_inicio || today>r.data_fim){
+    return false;
+  }
+
+  if(r.qualquer_horario){
+    return true;
+  }
+
+  const start=timeToMinutes(r.hora_inicio);
+  const end=timeToMinutes(r.hora_fim);
+
+  if(start===null || end===null){
+    return true;
+  }
+
+  const now=new Date();
+
+  const nowMinutes=
+    now.getHours()*60+
+    now.getMinutes();
+
+  return nowMinutes>=start && nowMinutes<end;
+}
+
+function mapInfo(s){
+
+  if(s.ativa===false){
+    return {
+      className:'gray inactive',
+      text:'● Inativa',
+      availableNow:false,
+      occupiedNow:false
+    };
+  }
+
+  const release=activeReleaseForSpot(s);
+
+  if(!release){
+
+    if(s.status==='encerrada'){
+      return {
+        className:'gray',
+        text:'⚪ Encerrada',
+        availableNow:false,
+        occupiedNow:false
+      };
+    }
+
+    if(s.status==='indisponivel'){
+      return {
+        className:'unavailable',
+        text:'✕ Indisponível',
+        availableNow:false,
+        occupiedNow:false
+      };
+    }
+
+    if(s.status==='ocupada'){
+      return {
+        className:'orange',
+        text:'🟠 Em uso',
+        availableNow:false,
+        occupiedNow:true
+      };
+    }
+
+    return {
+      className:statusClass(s.status),
+      text:statusTextBase(s),
+      availableNow:false,
+      occupiedNow:false
+    };
+  }
+
+  const reservations=reservationsForSpot(s);
+
+  const agenda=calculateAgenda(
+    release,
+    reservations
+  );
+
+  const currentReservation=
+    reservations.find(reservationIsNow);
+
+  if(currentReservation){
+
+    return {
+      className:'orange',
+      text:'🟠 Em uso · Apto '+(currentReservation.apartamento||'—'),
+      availableNow:false,
+      occupiedNow:true,
+      agenda,
+      release
+    };
+  }
+
+  if(agenda.full){
+
+    return {
+      className:'red full',
+      text:'🔴 Vaga cheia · Todos os horários ocupados',
+      availableNow:false,
+      occupiedNow:false,
+      agenda,
+      release
+    };
+  }
+
+  if(agenda.hasReservations){
+
+    const parts=[];
+    const htmlParts=[];
+
+    reservations.forEach(r=>{
+
+      let periodo='';
+
+      if(r.hora_inicio&&r.hora_fim){
+        periodo=
+          formatTime(r.hora_inicio)+
+          ' às '+
+          formatTime(r.hora_fim);
+      }else{
+        periodo='Qualquer horário';
+      }
+
+      parts.push(
+        '🔵 Apto '+(r.apartamento||'—')+
+        ' · '+periodo
+      );
+
+      htmlParts.push(
+  '<div class="map-reservation">'+
+    '<span>🔵</span>'+
+    '<div>'+
+      '<b>'+
+        (
+          r.qualquer_horario
+            ? 'Qualquer horário'
+            : formatTime(r.hora_inicio)+
+              '–'+
+              formatTime(r.hora_fim)
+        )+
+      '</b>'+
+      '<small>Apto '+(r.apartamento||'—')+'</small>'+
+    '</div>'+
+  '</div>'
+);
+});
+    if(agenda.freeIntervals.length){
+
+      const free=agenda.freeIntervals
+        .slice(0,3);
+
+      free.forEach(i=>{
+
+        htmlParts.push(
+          '<div class="map-free">'+
+            '<span>🟢</span>'+
+            '<div>'+
+              '<b>'+
+                formatTime(minutesToTime(i.start))+
+                '–'+
+                formatTime(minutesToTime(i.end))+
+              '</b>'+
+              '<small>Livre</small>'+
+            '</div>'+
+          '</div>'
+        );
+      });
+
+      parts.push(
+        ...free.map(i=>
+          '🟢 Livre '+
+          formatTime(minutesToTime(i.start))+
+          '–'+
+          formatTime(minutesToTime(i.end))
+        )
+      );
+    }
+
+    return {
+      className:'green',
+      text:parts.join(' · '),
+      html:htmlParts.join(''),
+      availableNow:
+        todayLocal()>=release.data_inicio &&
+        todayLocal()<=release.data_fim &&
+        agenda.freeMinutes>0,
+      occupiedNow:false,
+      agenda,
+      release
+    };
+  }
+  return {
+    className:'green',
+    text:
+      '🟢 Disponível'+
+      (
+        release.data_inicio
+          ? ' · '+formatDate(release.data_inicio)
+          : ''
+      ),
+    availableNow:
+      todayLocal()>=release.data_inicio &&
+      todayLocal()<=release.data_fim,
+    occupiedNow:false,
+    agenda,
+    release
+  };
+}
+
+function statusTextBase(s){
+  if(s.ativa===false){
+    return '● Inativa';
+  }
+
+  const labels={
+    disponivel:'🟢 Disponível',
+    reservada:'🔵 Reservada',
+    ocupada:'🔴 Ocupada',
+    indisponivel:'✕ Indisponível',
+    encerrada:'⚪ Encerrada'
+  };
+
+  let text=labels[s.status]||'✕ Indisponível';
+
+  if(s.date){
+    text+=' · '+formatDate(s.date);
+  }
+
+  if(s.start&&s.end){
+    text+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
+  }
+
+  return text;
+}
+
+function statusText(s){
+  return mapInfo(s).text;
+        }
+  
+function renderMyArea(){
+  const box=document.getElementById('myArea');
+  const content=document.getElementById('myAreaContent');
+
+  if(!currentProfile || !currentProfile.apartamento){
+    box.style.display='none';
+    return;
+  }
+
+  const mine=spots.filter(
+    s=>String(s.apartment)===String(currentProfile.apartamento)
+  );
+
+  box.style.display='block';
+
+  if(!mine.length){
+    content.innerHTML='<div class="my-vaga-meta">Nenhuma vaga vinculada ao seu apartamento foi encontrada.</div>';
+    return;
+  }
+
+  content.innerHTML=mine.map(s=>{
+    const ativa=s.ativa !== false;
+
+    const st=ativa
+      ? '🟢 Vaga ativa'
+      : '⚫ Vaga inativa';
+
+    let period='Sem período de disponibilidade';
+
+    if(s.dateStart){
+      period=formatDate(s.dateStart);
+
+      if(s.dateEnd && s.dateEnd!==s.dateStart){
+        period+=' a '+formatDate(s.dateEnd);
+      }
+
+      if(s.anyTime){
+        period+=' · Qualquer horário';
+      }else if(s.start&&s.end){
+        period+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
+      }
+    }
+
+    return `
+      <div class="my-vaga" style="margin-bottom:10px">
+        <div class="my-vaga-main">
+          <div>
+            <div class="my-vaga-name">Vaga ${s.number}</div>
+            <div class="my-vaga-meta">Apartamento ${s.apartment}</div>
+            <div class="my-vaga-status">${st}</div>
+            <div class="my-vaga-meta">${period}</div>
+          </div>
+        </div>
+
+        <div class="my-vaga-actions">
+          <button onclick="toggleMinhaVaga(${s.number})">
+            ${ativa ? '⚫ Desativar vaga' : '🟢 Ativar vaga'}
+          </button>
+
+          <button onclick="openMySpot(${s.number})">
+            ⚙️ Configurar minha vaga
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+function renderMyReservations(){
+  const box = document.getElementById('myReservationsArea');
+  const content = document.getElementById('myReservationsContent');
+
+  if(!box || !content) return;
+
+  if(!currentUser){
+    box.style.display = 'none';
+    content.innerHTML = '';
+    return;
+  }
+
+  const active = reservas.filter(r => r.status === 'ativa');
+
+  if(!active.length){
+    box.style.display = 'none';
+    content.innerHTML = '';
+    return;
+  }
+
+  box.style.display = 'block';
+
+  content.innerHTML = active.map(r => {
+    const spot = spots.find(s => Number(s.number) === Number(r.vaga_numero));
+
+    let periodo = formatDate(r.data_inicio);
+
+    if(r.data_fim && r.data_fim !== r.data_inicio){
+      periodo += ' a ' + formatDate(r.data_fim);
+    }
+
+    if(r.qualquer_horario){
+      periodo += ' · Qualquer horário';
+    }else if(r.hora_inicio && r.hora_fim){
+      periodo += ' · ' + formatTime(r.hora_inicio) + ' às ' + formatTime(r.hora_fim);
+    }
+
+    return `
+      <div class="my-vaga" style="margin-bottom:10px">
+        <div class="my-vaga-main">
+          <div>
+            <div class="my-vaga-name">Vaga ${r.vaga_numero}</div>
+            <div class="my-vaga-meta">
+              Apto proprietário ${spot?.apartment || '—'}
+            </div>
+            <div class="my-vaga-status">🔵 Reserva ativa</div>
+            <div class="my-vaga-meta">${periodo}</div>
+          </div>
+        </div>
+
+        <div class="my-vaga-actions">
+          <button onclick="openReservationDetails(${r.vaga_numero})">
+            Ver detalhes
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+                            }
+  function openReservationDetails(num){
+  const spot = spots.find(s => Number(s.number) === Number(num));
+
+  if(!spot) return;
+
+  reservaCriteria = null;
+  selectBlock(spot.block);
+
+  setTimeout(() => {
+    showModal(spot,false);
+  },50);
+  }
+  async function toggleMinhaVaga(num){
+  if(!currentUser || !currentProfile){
+    openLogin();
+    return;
+  }
+
+  const spot=spots.find(
+    s=>Number(s.number)===Number(num)
+  );
+
+  if(!spot){
+    alert('Vaga não encontrada.');
+    return;
+  }
+
+  const canEdit =
+    currentProfile.perfil === 'admin' ||
+    String(currentProfile.apartamento) === String(spot.apartment);
+
+  if(!canEdit){
+    alert('Você só pode alterar a vaga vinculada ao seu apartamento.');
+    return;
+  }
+
+  const novaAtiva=spot.ativa === false;
+
+  if(!novaAtiva){
+    await loadReservasPublicas(num);
+
+    if(reservasPublicas.length){
+      alert(
+        'Esta vaga possui reservas ativas. '+
+        'A vaga não pode ser desativada enquanto existirem reservas.'
+      );
+      return;
+    }
+
+    const confirmar=confirm(
+      'Deseja desativar esta vaga?\n\n' +
+      'Ela deixará de ficar disponível para novas liberações e reservas.'
+    );
+
+    if(!confirmar) return;
+  }
+
+  const {data,error}=await db
+    .from('vagas')
+    .update(
+      novaAtiva
+        ? {
+            ativa:true,
+            status:'disponivel',
+            disponivel:true
+          }
+        : {
+            ativa:false
+          }
+    )
+    .eq('numero',num)
+    .select('numero,subsolo,apartamento,status,disponivel,ativa,data_disponivel,hora_inicio,hora_fim')
+    .single();
+
+  if(error){
+    alert(
+      'Não foi possível alterar a situação da vaga.\n\n' +
+      error.message
+    );
+    return;
+  }
+
+  const updated=normalize(data);
+
+  const i=spots.findIndex(
+    x=>Number(x.number)===Number(num)
+  );
+
+  if(i>=0){
+    spots[i]={
+      ...spots[i],
+      ...updated
+    };
+  }
 function renderMyArea(){
  const box=document.getElementById('myArea'), content=document.getElementById('myAreaContent');
  if(!currentProfile || !currentProfile.apartamento){box.style.display='none';return}
@@ -296,11 +1589,15 @@ function renderMyArea(){
  }).join('');
 }
 
+  await loadLiberacoes();
+  render();
+  }
 function openMySpot(num){
  const was=editMode; editMode=true; openSpot(num); editMode=was;
 }
 function openFutureSearch(){
- document.getElementById('futureDate').value=new Date().toISOString().slice(0,10);
+  reservaCriteria=null
+ document.getElementById('futureDate').value=todayLocal();
  document.getElementById('futureStart').value='';
  document.getElementById('futureEnd').value='';
  document.getElementById('anyTime').checked=true;
@@ -311,10 +1608,25 @@ function openFutureSearch(){
 }
 function closeFutureSearch(){document.getElementById('futureBackdrop').classList.remove('show')}
 function openFutureResult(block,num){
+ const data=document.getElementById('futureDate').value;
+ const any=document.getElementById('anyTime').checked;
+ const start=document.getElementById('futureStart').value;
+ const end=document.getElementById('futureEnd').value;
+
+ reservaCriteria={
+   data_inicio:data,
+   data_fim:data,
+   hora_inicio:any?null:start||null,
+   hora_fim:any?null:end||null,
+   qualquer_horario:any,
+   vaga_numero:Number(num)
+ };
+
  closeFutureSearch();
  selectBlock(block||'01');
- setTimeout(()=>openSpot(num),50);
+ setTimeout(()=>openSpot(num,true),50);
 }
+
 function toggleFutureTimeFields(){
  const any=document.getElementById('anyTime').checked;
  document.getElementById('futureTimeFields').style.display=any?'none':'grid';
@@ -329,6 +1641,15 @@ async function searchFutureAvailability(){
  if(!date){alert('Escolha uma data.');return}
  if(!any && (!start||!end)){alert('Informe a hora inicial e final ou marque "Qualquer horário".');return}
  if(!any && start>=end){alert('A hora final deve ser posterior à hora inicial.');return}
+  reservaCriteria={
+  data_inicio:date,
+  data_fim:date,
+  hora_inicio:any?null:start||null,
+  hora_fim:any?null:end||null,
+  qualquer_horario:any,
+  vaga_numero:null
+};
+  
  box.innerHTML='<div class="empty-result">🔎 Procurando vagas disponíveis…</div>';
  try{
    const {data,error}=await db.rpc('buscar_vagas_disponiveis',{
@@ -373,36 +1694,134 @@ function render(){
  const q=document.getElementById('search').value.trim().toLowerCase();
  const level=document.getElementById('level').value;
  const maps=document.getElementById('maps');
+
  maps.innerHTML='';
- const blockSpots=spots.filter(s=>s.block===selectedBlock);
- const visibleLevels=selectedBlock==='01'?['-1']:['-2'];
+
+ const blockSpots=spots.filter(
+   s=>s.block===selectedBlock
+ );
+
+ const visibleLevels=
+   selectedBlock==='01'
+     ? ['-1']
+     : ['-2'];
+
+ let availableNowCount=0;
+ let occupiedNowCount=0;
+
  for(const lev of visibleLevels){
+
   if(level!=='all'&&level!==lev)continue;
-  const title=document.createElement('div');title.className='section';title.textContent=lev==='-1'?'Subsolo -1':'Subsolo -2';maps.appendChild(title);
-  const grid=document.createElement('div');grid.className='grid';
-  blockSpots.filter(s=>s.level===lev).forEach(s=>{
-   if(q && !String(s.number).includes(q) && !(s.apartment||'').includes(q))return;
-   const cls=statusClass(s.status);
-   const b=document.createElement('button');b.className='spot '+cls+(!s.apartment?' unmapped':'');
-   b.innerHTML='<span class="num">Vaga '+s.number+'</span><span class="apt">'+(s.apartment?'Apto '+s.apartment:'Não cadastrada')+'</span><span class="time">'+statusText(s)+'</span>';
-   b.onclick=()=>openSpot(s.number);grid.appendChild(b);
-  });
+
+  const title=document.createElement('div');
+  title.className='section';
+  title.textContent=
+    lev==='-1'
+      ? 'Subsolo -1'
+      : 'Subsolo -2';
+
+  maps.appendChild(title);
+
+  const grid=document.createElement('div');
+  grid.className='grid';
+
+  blockSpots
+    .filter(s=>s.level===lev)
+    .forEach(s=>{
+
+      if(
+        q &&
+        !String(s.number).includes(q) &&
+        !(s.apartment||'').includes(q)
+      ){
+        return;
+      }
+
+      const info=mapInfo(s);
+
+      if(info.availableNow){
+        availableNowCount++;
+      }
+
+      if(info.occupiedNow){
+        occupiedNowCount++;
+      }
+
+      const b=document.createElement('button');
+
+      b.className=
+        'spot '+
+        info.className+
+        (!s.apartment?' unmapped':'');
+
+      b.innerHTML=
+  '<span class="num">Vaga '+s.number+'</span>'+
+  '<span class="apt">'+
+    (s.apartment
+      ? 'Apto '+s.apartment
+      : 'Não cadastrada')+
+  '</span>'+
+  '<span class="time">'+
+    (info.html || info.text)+
+  '</span>';
+
+      b.onclick=()=>openSpot(s.number);
+
+      grid.appendChild(b);
+    });
+
   maps.appendChild(grid);
  }
- const mapped=blockSpots.filter(s=>s.apartment);
- document.getElementById('mappedCount').textContent=mapped.length;
- document.getElementById('availableCount').textContent=blockSpots.filter(s=>s.status==='disponivel').length;
- document.getElementById('occupiedCount').textContent=blockSpots.filter(s=>s.status==='ocupada').length;
- const tbody=document.getElementById('mappingTable');tbody.innerHTML='';
- mapped.slice().sort((a,b)=>a.apartment.localeCompare(b.apartment)).forEach(s=>{
-   const tr=document.createElement('tr');tr.innerHTML='<td>'+s.apartment+'</td><td>'+s.number+'</td>';tbody.appendChild(tr)
- });
- document.getElementById('headerBlock').textContent='Bloco '+selectedBlock+' · Supabase + Realtime';
+
+ const mapped=blockSpots.filter(
+   s=>s.apartment
+ );
+
+ document.getElementById('mappedCount').textContent=
+   mapped.length;
+
+ document.getElementById('availableCount').textContent=
+   availableNowCount;
+
+ document.getElementById('occupiedCount').textContent=
+   occupiedNowCount;
+
+ const tbody=document.getElementById('mappingTable');
+
+ tbody.innerHTML='';
+
+ mapped
+   .slice()
+   .sort((a,b)=>
+     a.apartment.localeCompare(b.apartment)
+   )
+   .forEach(s=>{
+     const tr=document.createElement('tr');
+
+     tr.innerHTML=
+       '<td>'+s.apartment+'</td>'+
+       '<td>'+s.number+'</td>';
+
+     tbody.appendChild(tr);
+   });
+
+ document.getElementById('headerBlock').textContent=
+   'Bloco '+selectedBlock+
+   ' · Supabase + Realtime';
+
+ renderMyArea();
+ renderMyReservations();
 }
 
-function statusClass(st){
- return ({disponivel:'green',reservada:'blue',ocupada:'red',indisponivel:'black',encerrada:'gray'}[st]||'black');
-}
+ function statusClass(st){
+  return ({
+    disponivel:'green',
+    reservada:'blue',
+    ocupada:'red',
+    indisponivel:'unavailable',
+    encerrada:'gray'
+  }[st]||'gray');
+ }
 
 function selectBlock(block){
  selectedBlock=block;
@@ -413,8 +1832,9 @@ function selectBlock(block){
  render();
 }
 
-function openSpot(num){
- const s=spots.find(x=>x.number===num && x.block===selectedBlock);
+function openSpot(num,fromFuture=false){
+if(!fromFuture) reservaCriteria=null;
+const s=spots.find(x=>x.number===num && x.block===selectedBlock);
  if(!s)return;
  if(!editMode){
    showModal(s,false);
@@ -432,9 +1852,28 @@ function openSpot(num){
  }
  showModal(s,true);
 }
+async function loadReservasPublicas(vagaNumero){
+  const {data,error}=await db.rpc('buscar_reservas_vaga_publicas',{
+    p_vaga_numero:Number(vagaNumero)
+  });
 
-function showModal(s, editing){
- document.getElementById('modalTitle').textContent='Vaga '+s.number;
+  if(error){
+    console.error('Erro ao carregar reservas públicas:',error);
+    reservasPublicas=[];
+    return;
+  }
+
+  const today=todayLocal();
+
+  reservasPublicas=(data||[]).filter(r =>
+    r.data_fim >= today
+  );
+}
+
+async function showModal(s, editing){
+  await loadReservasPublicas(s.number);
+window.vagaModalNumero=s.number;
+  document.getElementById('modalTitle').textContent='Vaga '+s.number;
  document.getElementById('modalSub').textContent=s.apartment?'Apartamento '+s.apartment:'Vaga ainda não vinculada a apartamento';
  document.getElementById('modalStatus').value=s.status||'indisponivel';
  document.getElementById('modalDateStart').value=s.dateStart||s.date||'';
@@ -444,19 +1883,303 @@ function showModal(s, editing){
  document.getElementById('modalAnyTime').checked=!!s.anyTime;
  document.getElementById('saveModal').style.display=editing?'block':'none';
  document.getElementById('cancelModal').textContent=editing?'Cancelar':'Fechar';
- document.getElementById('editFields').style.display=editing?'block':'none';
- const labels={disponivel:'🟢 Disponível',reservada:'🔵 Reservada',ocupada:'🔴 Ocupada',indisponivel:'⚫ Indisponível',encerrada:'⚪ Encerrada'};
- let details='<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">'+(labels[s.status]||'⚫ Indisponível')+'</span></div>';
- if(s.dateStart){
-   let d=formatDate(s.dateStart);
-   if(s.dateEnd&&s.dateEnd!==s.dateStart)d+=' a '+formatDate(s.dateEnd);
-   details+='<div class="detail-row"><span class="detail-label">Período</span><span class="detail-value">'+d+'</span></div>';
-   if(s.anyTime) details+='<div class="detail-row"><span class="detail-label">Horário</span><span class="detail-value">Qualquer horário</span></div>';
-   else if(s.start&&s.end) details+='<div class="detail-row"><span class="detail-label">Horário</span><span class="detail-value">'+formatTime(s.start)+' às '+formatTime(s.end)+'</span></div>';
- }
- if(!s.dateStart && s.status==='indisponivel') details+='<div class="detail-row"><span class="detail-label">Informação</span><span class="detail-value">Não disponível pelo VIVERDI</span></div>';
+    const reserveBtn=document.getElementById('reserveModal');
+  const cancelReservationBtn=document.getElementById('cancelReservationModal');
+  const myReservation=reservas.find(r=>
+    Number(r.vaga_numero)===Number(s.number) &&
+    r.status==='ativa'
+  );
+  const release=liberacoes.find(l=>
+    Number(l.vaga_numero)===Number(s.number) &&
+    l.ativo &&
+  l.data_fim>=todayLocal()
+  );
+
+  if(reserveBtn){
+
+    const releaseReservations=
+      reservasPublicasTodas.filter(r=>
+        Number(r.vaga_numero)===Number(s.number)
+    );
+
+    const releaseAgenda=release
+      ? calculateAgenda(
+          release,
+          releaseReservations
+        )
+      : null;
+
+    const canReserve=
+      !editing &&
+      !!currentUser &&
+      !!currentProfile &&
+      !!release &&
+      String(release.morador_id)!==
+        String(currentUser.id) &&
+      !myReservation &&
+      !(releaseAgenda && releaseAgenda.full);
+
+    reserveBtn.style.display=
+      canReserve
+        ? 'block'
+        : 'none';
+  }
+
+  const confirmReserveBtn=
+    document.getElementById('confirmReserveModal');
+
+  if(confirmReserveBtn){
+    confirmReserveBtn.style.display='none';
+  }
+
+  const reserveFields=
+    document.getElementById('reserveFields');
+
+    if(reserveFields){
+    reserveFields.style.display='none';
+  }
+
+  if(cancelReservationBtn){
+    cancelReservationBtn.style.display=
+      (!editing && !!myReservation)
+        ? 'block'
+        : 'none';
+  }
+  
+ const isOwner =
+  !!currentProfile &&
+  String(currentProfile.apartamento) === String(s.apartment);
+
+const isAdmin =
+  !!currentProfile &&
+  currentProfile.perfil === 'admin';
+
+const ownerEditing = editing && isOwner && !isAdmin;
+
+document.getElementById('editFields').style.display=editing?'block':'none';
+
+const statusField = document.querySelector('#editFields .status-options');
+const statusLabelField = document.querySelector('#editFields .field.full > label');
+
+if(statusField){
+  statusField.style.display = ownerEditing ? 'none' : 'grid';
+}
+
+if(statusLabelField){
+  statusLabelField.style.display = ownerEditing ? 'none' : 'block';
+}
+
+if(ownerEditing){
+  document.getElementById('modalStatus').value='disponivel';
+}
+   let details='';
+
+  if(release){
+
+    const agenda=calculateAgenda(
+      release,
+      reservasPublicas
+    );
+
+    details+=
+      '<div class="reservation-section available-section">'+
+        '<div class="reservation-section-title">🟢 DISPONÍVEL</div>'+
+        '<div class="reservation-section-label">Disponibilizada pelo proprietário</div>'+
+        '<div class="reservation-main-period">'+
+          formatDate(release.data_inicio)+
+          (
+            release.data_fim &&
+            release.data_fim!==release.data_inicio
+              ? ' a '+formatDate(release.data_fim)
+              : ''
+          )+
+        '</div>'+
+        '<div class="reservation-main-time">'+
+          (
+            release.qualquer_horario
+              ? 'Qualquer horário'
+              : formatTime(release.hora_inicio)+
+                ' às '+
+                formatTime(release.hora_fim)
+          )+
+        '</div>'+
+      '</div>';
+
+    if(reservasPublicas.length){
+
+      details+=
+        '<div class="reservation-section">'+
+          '<div class="reservation-section-title">🔵 RESERVAS EXISTENTES</div>';
+
+      reservasPublicas.forEach(r=>{
+
+        let periodo=
+          formatDate(r.data_inicio);
+
+        if(
+          r.data_fim &&
+          r.data_fim!==r.data_inicio
+        ){
+          periodo+=' a '+formatDate(r.data_fim);
+        }
+
+        let horario=
+          r.qualquer_horario
+            ? 'Qualquer horário'
+            : formatTime(r.hora_inicio)+
+              ' às '+
+              formatTime(r.hora_fim);
+
+        details+=
+          '<div class="reservation-item">'+
+            '<div class="reservation-item-head">'+
+              '<b>Apto '+(r.apartamento||'—')+'</b>'+
+            '</div>'+
+            '<div class="reservation-item-date">'+
+              periodo+
+            '</div>'+
+            '<div class="reservation-item-time">'+
+              horario+
+            '</div>'+
+          '</div>';
+      });
+
+      details+='</div>';
+    }
+
+    if(agenda.freeIntervals.length){
+
+      details+=
+        '<div class="reservation-section free-section">'+
+          '<div class="reservation-section-title">🟢 HORÁRIO AINDA LIVRE</div>';
+
+      agenda.freeIntervals
+        .slice(0,6)
+        .forEach(i=>{
+
+          details+=
+            '<div class="free-item">'+
+              '<b>'+
+                formatDate(i.date)+
+              '</b>'+
+              '<span>'+
+                formatTime(minutesToTime(i.start))+
+                ' às '+
+                formatTime(minutesToTime(i.end))+
+              '</span>'+
+            '</div>';
+        });
+
+      details+='</div>';
+    }
+
+  }else{
+
+    const labels={
+      disponivel:'🟢 Disponível',
+      reservada:'🔵 Reservada',
+      ocupada:'🔴 Ocupada',
+      indisponivel:'⚫ Indisponível',
+      encerrada:'⚪ Encerrada'
+    };
+
+    details=
+      '<div class="detail-row">'+
+        '<span class="detail-label">Status</span>'+
+        '<span class="detail-value">'+
+          (labels[s.status]||'⚫ Indisponível')+
+        '</span>'+
+      '</div>';
+
+    if(s.dateStart){
+
+      let d=formatDate(s.dateStart);
+
+      if(
+        s.dateEnd &&
+        s.dateEnd!==s.dateStart
+      ){
+        d+=' a '+formatDate(s.dateEnd);
+      }
+
+      details+=
+        '<div class="detail-row">'+
+          '<span class="detail-label">Período</span>'+
+          '<span class="detail-value">'+d+'</span>'+
+        '</div>';
+
+      if(s.anyTime){
+
+        details+=
+          '<div class="detail-row">'+
+            '<span class="detail-label">Horário</span>'+
+            '<span class="detail-value">Qualquer horário</span>'+
+          '</div>';
+
+      }else if(s.start&&s.end){
+
+        details+=
+          '<div class="detail-row">'+
+            '<span class="detail-label">Horário</span>'+
+            '<span class="detail-value">'+
+              formatTime(s.start)+
+              ' às '+
+              formatTime(s.end)+
+            '</span>'+
+          '</div>';
+      }
+    }
+  }
+
+  if(
+    !editing &&
+    reservaCriteria &&
+    Number(reservaCriteria.vaga_numero)===Number(s.number)
+  ){
+
+    let periodoReserva='';
+
+    if(reservaCriteria.data_inicio){
+
+      periodoReserva=
+        formatDate(reservaCriteria.data_inicio);
+
+      if(
+        reservaCriteria.data_fim &&
+        reservaCriteria.data_fim!==reservaCriteria.data_inicio
+      ){
+        periodoReserva+=
+          ' a '+
+          formatDate(reservaCriteria.data_fim);
+      }
+    }
+
+    if(reservaCriteria.qualquer_horario){
+
+      periodoReserva+=' · Qualquer horário';
+
+    }else if(
+      reservaCriteria.hora_inicio &&
+      reservaCriteria.hora_fim
+    ){
+
+      periodoReserva+=
+        ' · '+
+        formatTime(reservaCriteria.hora_inicio)+
+        ' às '+
+        formatTime(reservaCriteria.hora_fim);
+    }
+
+    details+=
+      '<div class="reservation-section">'+
+        '<div class="reservation-section-title">🟢 SEU PERÍODO DE RESERVA</div>'+
+        '<div class="reservation-item">'+
+          periodoReserva+
+        '</div>'+
+      '</div>';
+  }
  document.getElementById('viewDetails').innerHTML=details;
- document.getElementById('viewDetails').style.display='block';
+  document.getElementById('viewDetails').style.display='block';
  document.querySelectorAll('.status-option').forEach(b=>b.classList.toggle('selected',b.dataset.status===document.getElementById('modalStatus').value));
  document.getElementById('modalBackdrop').classList.add('show');
  if(editing) updateModalFields();
@@ -474,7 +2197,35 @@ function toggleModalTimeFields(){
  document.getElementById('modalTimeFields').style.display=any?'none':'grid';
 }
 
-function closeModal(){document.getElementById('modalBackdrop').classList.remove('show')}
+function closeModal(){
+
+  document.getElementById('modalBackdrop')
+    .classList
+    .remove('show');
+
+  const reserveFields=
+    document.getElementById('reserveFields');
+
+  const reserveBtn=
+    document.getElementById('reserveModal');
+
+  const confirmBtn=
+    document.getElementById('confirmReserveModal');
+
+  if(reserveFields){
+    reserveFields.style.display='none';
+  }
+
+  if(reserveBtn){
+    reserveBtn.style.display='none';
+  }
+
+  if(confirmBtn){
+    confirmBtn.style.display='none';
+  }
+
+  reservaCriteria=null;
+}
 
 async function saveSpot(){
  const num=Number(document.getElementById('modalTitle').textContent.replace('Vaga ',''));
@@ -482,7 +2233,18 @@ async function saveSpot(){
  if(!s || !currentUser || !currentProfile){alert('Faça login para alterar a vaga.');return}
  const canEdit = currentProfile.perfil === 'admin' || String(currentProfile.apartamento) === String(s.apartment);
  if(!canEdit){alert('Você só pode editar a vaga vinculada ao seu apartamento.');return}
- const status=document.getElementById('modalStatus').value;
+ const isOwner =
+  !!currentProfile &&
+  String(currentProfile.apartamento) === String(s.apartment);
+
+const isAdmin =
+  !!currentProfile &&
+  currentProfile.perfil === 'admin';
+
+const status =
+  (isOwner && !isAdmin)
+    ? 'disponivel'
+    : document.getElementById('modalStatus').value;
  const dateStart=document.getElementById('modalDateStart').value||null;
  const dateEnd=document.getElementById('modalDateEnd').value||null;
  const anyTime=document.getElementById('modalAnyTime').checked;
@@ -521,7 +2283,7 @@ async function saveSpot(){
    hora_inicio: showPeriod?startTime:null,
    hora_fim: showPeriod?endTime:null,
    disponivel_a_partir: showPeriod?startTime:null
- }).eq('numero',num).select('numero,subsolo,apartamento,status,disponivel,data_disponivel,hora_inicio,hora_fim').single();
+ }).eq('numero',num).select('numero,subsolo,apartamento,status,disponivel,ativa,data_disponivel,hora_inicio,hora_fim').single();
  if(error){alert('Erro ao salvar no Supabase:\n\n'+error.message);return}
  const updated=normalize(data);
  updated.dateStart=showPeriod?dateStart:'';
@@ -568,24 +2330,51 @@ document.getElementById('search').addEventListener('input',render);
 document.getElementById('level').addEventListener('change',render);
 
 db.channel('viverdi-vagas-realtime')
- .on('postgres_changes',{event:'*',schema:'public',table:'vagas'},payload=>{
+ .on('postgres_changes',{event:'*',schema:'public',table:'vagas'},async payload=>{
    if(payload.eventType==='DELETE'){
      spots=spots.filter(s=>s.number!==payload.old.numero);
    }else{
      const updated=normalize(payload.new);
      const i=spots.findIndex(s=>s.number===updated.number);
-     if(i>=0)spots[i]=updated; else spots.push(updated);
+
+     if(i>=0){
+       spots[i]={
+         ...spots[i],
+         ...updated
+       };
+     }else{
+       spots.push(updated);
+     }
    }
+
    spots.sort((a,b)=>a.number-b.number);
+
+   await loadLiberacoes();
    render();
  })
  .subscribe((status)=>{
-   if(status==='SUBSCRIBED') setConnection('🟢 Conectado ao Supabase · atualizações em tempo real ativas', true);
+   if(status==='SUBSCRIBED'){
+     setConnection(
+       '🟢 Conectado ao Supabase · atualizações em tempo real ativas',
+       true
+     );
+   }
  });
 
 db.channel('viverdi-liberacoes-realtime')
  .on('postgres_changes',{event:'*',schema:'public',table:'liberacoes_vaga'},async payload=>{
    await loadLiberacoes();
+   render();
+ })
+ .subscribe();
+  db.channel('viverdi-reservas-realtime')
+ .on('postgres_changes',{event:'*',schema:'public',table:'reservas_vaga'},async payload=>{
+   await loadReservasPublicasTodas();
+
+   if(currentUser){
+     await loadReservas();
+   }
+
    render();
  })
  .subscribe();
@@ -646,13 +2435,205 @@ loadSpots();
     </div>
    </div>
   </div>
+     <div id="reserveFields" style="display:none">
+    <div class="view-details" style="margin-top:14px">
+      <b>🔵 Escolha o período da sua reserva</b>
+      <div id="reserveLimit" class="small" style="margin-top:5px"></div>
+    </div>
+
+    <div class="formgrid">
+      <div class="field">
+        <label>DATA INICIAL</label>
+        <input id="reserveDateStart" type="date">
+      </div>
+
+      <div class="field">
+        <label>DATA FINAL</label>
+        <input id="reserveDateEnd" type="date">
+      </div>
+
+      <div class="field full">
+        <label class="modal-check">
+          <input
+            id="reserveAnyTime"
+            type="checkbox"
+            onchange="toggleReserveTimeFields()"
+          >
+          Qualquer horário
+        </label>
+      </div>
+
+      <div
+        id="reserveTimeFields"
+        class="formgrid"
+        style="grid-column:1/-1;margin:0"
+      >
+        <div class="field">
+          <label>HORA INICIAL</label>
+          <input id="reserveStart" type="time">
+        </div>
+
+        <div class="field">
+          <label>HORA FINAL</label>
+          <input id="reserveEnd" type="time">
+        </div>
+      </div>
+    </div>
+     </div>
   <div class="modal-actions">
    <button id="cancelModal" onclick="closeModal()">Cancelar</button>
+    <button
+  id="reserveModal"
+  class="primary"
+  style="display:none"
+  onclick="prepareReservation()"
+>
+  🔵 Reservar
+</button>
+
+<button
+  id="confirmReserveModal"
+  class="primary"
+  style="display:none"
+  onclick="reservarVaga()"
+>
+  ✅ Confirmar reserva
+</button>
+    <button id="cancelReservationModal" style="display:none" onclick="cancelarReserva()">↩️ Liberar minha reserva</button>
    <button id="saveModal" class="primary" onclick="saveSpot()">Salvar no VIVERDI</button>
   </div>
  </div>
 </div>
+  <div id="availableBackdrop" class="modal-backdrop" onclick="if(event.target===this)closeAvailableNow()">
+  <div class="modal" role="dialog" aria-modal="true">
+
+    <div class="modal-head">
+      <div>
+        <h2>🟢 Vagas disponíveis agora</h2>
+        <div id="availableNowSub" class="modal-sub">
+          Vagas disponíveis no bloco selecionado
+        </div>
+      </div>
+
+      <button class="modal-close" onclick="closeAvailableNow()" aria-label="Fechar">×</button>
+    </div>
+
+    <div id="availableNowList" class="available-now-list"></div>
+
+  </div>
+  </div>
 <script>
+  function openAvailableNow(){
+
+  const list=document.getElementById('availableNowList');
+  const sub=document.getElementById('availableNowSub');
+
+  const available=spots
+    .filter(s=>{
+      if(s.block!==selectedBlock) return false;
+      if(!s.apartment) return false;
+
+      const info=mapInfo(s);
+
+      return info.availableNow;
+    })
+    .sort((a,b)=>Number(a.number)-Number(b.number));
+
+  sub.textContent =
+    'Bloco '+selectedBlock+
+    ' · '+available.length+
+    (available.length===1
+      ? ' vaga disponível'
+      : ' vagas disponíveis');
+
+  if(!available.length){
+    list.innerHTML=`
+      <div class="empty-result">
+        Nenhuma vaga disponível neste momento.
+      </div>
+    `;
+
+    document.getElementById('availableBackdrop').classList.add('show');
+    return;
+  }
+
+  list.innerHTML=available.map(s=>{
+
+    const info=mapInfo(s);
+
+    let periodo='Disponível agora';
+
+    if(info.release){
+
+      const release=info.release;
+
+      if(release.data_inicio){
+
+        periodo=formatDate(release.data_inicio);
+
+        if(
+          release.data_fim &&
+          release.data_fim!==release.data_inicio
+        ){
+          periodo+=' a '+formatDate(release.data_fim);
+        }
+      }
+
+      if(release.qualquer_horario){
+
+        periodo+=' · Qualquer horário';
+
+      }else if(release.hora_inicio && release.hora_fim){
+
+        periodo+=' · '+
+          formatTime(release.hora_inicio)+
+          ' às '+
+          formatTime(release.hora_fim);
+      }
+    }
+
+    return `
+      <button
+        class="available-now-item"
+        onclick="openAvailableSpot(${s.number})"
+      >
+        <div>
+          <strong>Vaga ${s.number}</strong>
+          <span>Apto ${s.apartment}</span>
+          <small>${periodo}</small>
+        </div>
+
+        <div class="available-now-arrow">›</div>
+      </button>
+    `;
+
+  }).join('');
+
+  document.getElementById('availableBackdrop').classList.add('show');
+  }
+
+function closeAvailableNow(){
+  document.getElementById('availableBackdrop').classList.remove('show');
+}
+
+function openAvailableSpot(num){
+
+  const s=spots.find(
+    x=>Number(x.number)===Number(num) &&
+       x.block===selectedBlock
+  );
+
+  if(!s)return;
+
+  closeAvailableNow();
+
+  const previousEditMode=editMode;
+  editMode=false;
+
+  showModal(s,false);
+
+  editMode=previousEditMode;
+}
 function selectStatus(st){
  document.getElementById('modalStatus').value=st;
  document.querySelectorAll('.status-option').forEach(b=>b.classList.toggle('selected',b.dataset.status===st));
