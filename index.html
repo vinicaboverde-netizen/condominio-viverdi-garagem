@@ -261,7 +261,24 @@ let reservaCriteria = null;
   );
 
   renderMyReservations();
+}
+
+async function loadReservasPublicasTodas(){
+  const {data,error}=await db
+    .rpc('buscar_reservas_vaga_publicas_todas');
+
+  if(error){
+    console.error(
+      'Erro ao carregar reservas públicas:',
+      error
+    );
+    reservasPublicasTodas=[];
+    return;
   }
+
+  reservasPublicasTodas=data||[];
+}
+
 async function reservarVaga(){
   if(!currentUser || !currentProfile){
     alert('Entre no VIVERDI para reservar uma vaga.');
