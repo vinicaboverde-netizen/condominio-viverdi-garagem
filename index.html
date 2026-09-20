@@ -1600,15 +1600,15 @@ function render(){
         (!s.apartment?' unmapped':'');
 
       b.innerHTML=
-        '<span class="num">Vaga '+s.number+'</span>'+
-        '<span class="apt">'+
-          (s.apartment
-            ? 'Apto '+s.apartment
-            : 'Não cadastrada')+
-        '</span>'+
-        '<span class="time">'+
-          info.text+
-        '</span>';
+  '<span class="num">Vaga '+s.number+'</span>'+
+  '<span class="apt">'+
+    (s.apartment
+      ? 'Apto '+s.apartment
+      : 'Não cadastrada')+
+  '</span>'+
+  '<span class="time">'+
+    (info.html || info.text)+
+  '</span>';
 
       b.onclick=()=>openSpot(s.number);
 
