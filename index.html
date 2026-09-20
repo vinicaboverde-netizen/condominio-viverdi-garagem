@@ -940,7 +940,7 @@ async function saveSpot(){
    hora_inicio: showPeriod?startTime:null,
    hora_fim: showPeriod?endTime:null,
    disponivel_a_partir: showPeriod?startTime:null
- }).eq('numero',num).select('numero,subsolo,apartamento,status,disponivel,data_disponivel,hora_inicio,hora_fim').single();
+ }).eq('numero',num).select('numero,subsolo,apartamento,status,disponivel,ativa,data_disponivel,hora_inicio,hora_fim').single();
  if(error){alert('Erro ao salvar no Supabase:\n\n'+error.message);return}
  const updated=normalize(data);
  updated.dateStart=showPeriod?dateStart:'';
