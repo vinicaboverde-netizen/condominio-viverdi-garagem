@@ -408,18 +408,7 @@ function statusText(s){
  if(s.start&&s.end) text+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
  return text;
 }
-   disponivel:'🟢 Disponível',
-   reservada:'🔵 Reservada',
-   ocupada:'🔴 Ocupada',
-   indisponivel:'⚫ Indisponível',
-   encerrada:'⚪ Encerrada'
- };
- let text=labels[s.status]||'⚫ Indisponível';
- if(s.date) text+=' · '+formatDate(s.date);
- if(s.start&&s.end) text+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
- return text;
-}
-
+  
 function renderMyArea(){
   const box=document.getElementById('myArea');
   const content=document.getElementById('myAreaContent');
