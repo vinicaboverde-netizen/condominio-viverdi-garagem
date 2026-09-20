@@ -1872,44 +1872,212 @@ if(statusLabelField){
 if(ownerEditing){
   document.getElementById('modalStatus').value='disponivel';
 }
- const labels={disponivel:'🟢 Disponível',reservada:'🔵 Reservada',ocupada:'🔴 Ocupada',indisponivel:'⚫ Indisponível',encerrada:'⚪ Encerrada'};
- let details='<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">'+(labels[s.status]||'⚫ Indisponível')+'</span></div>';
-  if(reservasPublicas.length){
-  details+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid #e5e7eb"><b>🔵 Reservas existentes</b>';
-  reservasPublicas.forEach(r=>{
-    let periodo=formatDate(r.data_inicio);
-    if(r.data_fim&&r.data_fim!==r.data_inicio) periodo+=' a '+formatDate(r.data_fim);
-    if(r.qualquer_horario) periodo+=' · Qualquer horário';
-    else if(r.hora_inicio&&r.hora_fim) periodo+=' · '+formatTime(r.hora_inicio)+' às '+formatTime(r.hora_fim);
-    details+='<div style="margin-top:8px;font-size:13px">Reservado por <b>Apto '+(r.apartamento||'—')+'</b><br>'+periodo+'</div>';
-  });
-  details+='</div>';
-  }
-    if(!editing && reservaCriteria && Number(reservaCriteria.vaga_numero)===Number(s.number)){
-    let periodoReserva='';
-    if(reservaCriteria.data_inicio){
-      periodoReserva=formatDate(reservaCriteria.data_inicio);
-      if(reservaCriteria.data_fim && reservaCriteria.data_fim!==reservaCriteria.data_inicio){
-        periodoReserva+=' a '+formatDate(reservaCriteria.data_fim);
+   let details='';
+
+  if(release){
+
+    const agenda=calculateAgenda(
+      release,
+      reservasPublicas
+    );
+
+    details+=
+      '<div class="reservation-section available-section">'+
+        '<div class="reservation-section-title">🟢 DISPONÍVEL</div>'+
+        '<div class="reservation-section-label">Disponibilizada pelo proprietário</div>'+
+        '<div class="reservation-main-period">'+
+          formatDate(release.data_inicio)+
+          (
+            release.data_fim &&
+            release.data_fim!==release.data_inicio
+              ? ' a '+formatDate(release.data_fim)
+              : ''
+          )+
+        '</div>'+
+        '<div class="reservation-main-time">'+
+          (
+            release.qualquer_horario
+              ? 'Qualquer horário'
+              : formatTime(release.hora_inicio)+
+                ' às '+
+                formatTime(release.hora_fim)
+          )+
+        '</div>'+
+      '</div>';
+
+    if(reservasPublicas.length){
+
+      details+=
+        '<div class="reservation-section">'+
+          '<div class="reservation-section-title">🔵 RESERVAS EXISTENTES</div>';
+
+      reservasPublicas.forEach(r=>{
+
+        let periodo=
+          formatDate(r.data_inicio);
+
+        if(
+          r.data_fim &&
+          r.data_fim!==r.data_inicio
+        ){
+          periodo+=' a '+formatDate(r.data_fim);
+        }
+
+        let horario=
+          r.qualquer_horario
+            ? 'Qualquer horário'
+            : formatTime(r.hora_inicio)+
+              ' às '+
+              formatTime(r.hora_fim);
+
+        details+=
+          '<div class="reservation-item">'+
+            '<div class="reservation-item-head">'+
+              '<b>Apto '+(r.apartamento||'—')+'</b>'+
+            '</div>'+
+            '<div class="reservation-item-date">'+
+              periodo+
+            '</div>'+
+            '<div class="reservation-item-time">'+
+              horario+
+            '</div>'+
+          '</div>';
+      });
+
+      details+='</div>';
+    }
+
+    if(agenda.freeIntervals.length){
+
+      details+=
+        '<div class="reservation-section free-section">'+
+          '<div class="reservation-section-title">🟢 HORÁRIO AINDA LIVRE</div>';
+
+      agenda.freeIntervals
+        .slice(0,6)
+        .forEach(i=>{
+
+          details+=
+            '<div class="free-item">'+
+              '<b>'+
+                formatDate(i.date)+
+              '</b>'+
+              '<span>'+
+                formatTime(minutesToTime(i.start))+
+                ' às '+
+                formatTime(minutesToTime(i.end))+
+              '</span>'+
+            '</div>';
+        });
+
+      details+='</div>';
+    }
+
+  }else{
+
+    const labels={
+      disponivel:'🟢 Disponível',
+      reservada:'🔵 Reservada',
+      ocupada:'🔴 Ocupada',
+      indisponivel:'⚫ Indisponível',
+      encerrada:'⚪ Encerrada'
+    };
+
+    details=
+      '<div class="detail-row">'+
+        '<span class="detail-label">Status</span>'+
+        '<span class="detail-value">'+
+          (labels[s.status]||'⚫ Indisponível')+
+        '</span>'+
+      '</div>';
+
+    if(s.dateStart){
+
+      let d=formatDate(s.dateStart);
+
+      if(
+        s.dateEnd &&
+        s.dateEnd!==s.dateStart
+      ){
+        d+=' a '+formatDate(s.dateEnd);
+      }
+
+      details+=
+        '<div class="detail-row">'+
+          '<span class="detail-label">Período</span>'+
+          '<span class="detail-value">'+d+'</span>'+
+        '</div>';
+
+      if(s.anyTime){
+
+        details+=
+          '<div class="detail-row">'+
+            '<span class="detail-label">Horário</span>'+
+            '<span class="detail-value">Qualquer horário</span>'+
+          '</div>';
+
+      }else if(s.start&&s.end){
+
+        details+=
+          '<div class="detail-row">'+
+            '<span class="detail-label">Horário</span>'+
+            '<span class="detail-value">'+
+              formatTime(s.start)+
+              ' às '+
+              formatTime(s.end)+
+            '</span>'+
+          '</div>';
       }
     }
+  }
+
+  if(
+    !editing &&
+    reservaCriteria &&
+    Number(reservaCriteria.vaga_numero)===Number(s.number)
+  ){
+
+    let periodoReserva='';
+
+    if(reservaCriteria.data_inicio){
+
+      periodoReserva=
+        formatDate(reservaCriteria.data_inicio);
+
+      if(
+        reservaCriteria.data_fim &&
+        reservaCriteria.data_fim!==reservaCriteria.data_inicio
+      ){
+        periodoReserva+=
+          ' a '+
+          formatDate(reservaCriteria.data_fim);
+      }
+    }
+
     if(reservaCriteria.qualquer_horario){
+
       periodoReserva+=' · Qualquer horário';
-    }else if(reservaCriteria.hora_inicio && reservaCriteria.hora_fim){
-      periodoReserva+=' · '+formatTime(reservaCriteria.hora_inicio)+' às '+formatTime(reservaCriteria.hora_fim);
+
+    }else if(
+      reservaCriteria.hora_inicio &&
+      reservaCriteria.hora_fim
+    ){
+
+      periodoReserva+=
+        ' · '+
+        formatTime(reservaCriteria.hora_inicio)+
+        ' às '+
+        formatTime(reservaCriteria.hora_fim);
     }
-    details+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid #e5e7eb"><b>🟢 Seu período de reserva</b><div style="margin-top:6px;font-size:13px">'+periodoReserva+'</div></div>';
-    }
- if(s.dateStart){
-   let d=formatDate(s.dateStart);
-   if(s.dateEnd&&s.dateEnd!==s.dateStart)d+=' a '+formatDate(s.dateEnd);
-   details+='<div class="detail-row"><span class="detail-label">Período</span><span class="detail-value">'+d+'</span></div>';
-   if(s.anyTime) details+='<div class="detail-row"><span class="detail-label">Horário</span><span class="detail-value">Qualquer horário</span></div>';
-   else if(s.start&&s.end) details+='<div class="detail-row"><span class="detail-label">Horário</span><span class="detail-value">'+formatTime(s.start)+' às '+formatTime(s.end)+'</span></div>';
- }
- if(!s.dateStart && s.status==='indisponivel') details+='<div class="detail-row"><span class="detail-label">Informação</span><span class="detail-value">Não disponível pelo VIVERDI</span></div>';
-  if(!s.dateStart && s.status==='encerrada') details+='<div class="detail-row"><span class="detail-label">Informação</span><span class="detail-value">O período de disponibilidade terminou.</span></div>';
- document.getElementById('viewDetails').innerHTML=details;
+
+    details+=
+      '<div class="reservation-section">'+
+        '<div class="reservation-section-title">🟢 SEU PERÍODO DE RESERVA</div>'+
+        '<div class="reservation-item">'+
+          periodoReserva+
+        '</div>'+
+      '</div>';
+  }
  document.getElementById('viewDetails').style.display='block';
  document.querySelectorAll('.status-option').forEach(b=>b.classList.toggle('selected',b.dataset.status===document.getElementById('modalStatus').value));
  document.getElementById('modalBackdrop').classList.add('show');
