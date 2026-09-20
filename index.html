@@ -475,19 +475,48 @@ async function loadLiberacoes(){
 }
 
 function applyLiberations(){
-  const today=todayLocal()
+  const today=todayLocal();
+
   spots.forEach(s=>{
-    const ls=liberacoes.filter(l=>Number(l.vaga_numero)===Number(s.number) && l.ativo && l.data_fim>=today);
-    if(ls.length){
-      const l=ls[0];
-      s.date=l.data_inicio||'';
-      s.dateStart=l.data_inicio||'';
-      s.dateEnd=l.data_fim||l.data_inicio||'';
-      s.start=l.hora_inicio||'';
-      s.end=l.hora_fim||'';
-      s.anyTime=!!l.qualquer_horario;
-      if(s.status==='indisponivel') s.status='disponivel';
+    const ls=liberacoes.filter(l=>
+      Number(l.vaga_numero)===Number(s.number) &&
+      l.ativo
+    );
+
+    const atual=ls
+      .filter(l=>l.data_fim>=today)
+      .sort((a,b)=>a.data_inicio.localeCompare(b.data_inicio))[0];
+
+    if(atual){
+      s.date=atual.data_inicio||'';
+      s.dateStart=atual.data_inicio||'';
+      s.dateEnd=atual.data_fim||atual.data_inicio||'';
+      s.start=atual.hora_inicio||'';
+      s.end=atual.hora_fim||'';
+      s.anyTime=!!atual.qualquer_horario;
+
+      if(s.status==='indisponivel' || s.status==='encerrada'){
+        s.status='disponivel';
+      }
+
       s.available=s.status==='disponivel';
+      return;
+    }
+
+    const vencida=ls
+      .filter(l=>l.data_fim<today)
+      .sort((a,b)=>b.data_fim.localeCompare(a.data_fim))[0];
+
+    if(vencida){
+      s.date='';
+      s.dateStart='';
+      s.dateEnd='';
+      s.start='';
+      s.end='';
+      s.anyTime=false;
+
+      s.status='encerrada';
+      s.available=false;
     }
   });
 }
