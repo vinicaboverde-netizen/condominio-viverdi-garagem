@@ -441,8 +441,8 @@ function statusText(s){
     disponivel:'🟢 Disponível',
     reservada:'🔵 Reservada',
     ocupada:'🔴 Ocupada',
-    indisponivel:'✕ Indisponível',
-    encerrada:'⚪ Encerrada'
+    inindisponivel:'✕ Indisponível',
+encerrada:'✕ Indisponível'
   };
 
   let text=labels[s.status]||'✕ Indisponível';
@@ -796,7 +796,10 @@ function render(){
  }
  const mapped=blockSpots.filter(s=>s.apartment);
  document.getElementById('mappedCount').textContent=mapped.length;
- document.getElementById('availableCount').textContent=blockSpots.filter(s=>s.status==='disponivel').length;
+ document.getElementById('availableCount').textContent=
+  blockSpots.filter(
+    s=>s.status==='disponivel' && s.ativa !== false
+  ).length;
  document.getElementById('occupiedCount').textContent=blockSpots.filter(s=>s.status==='ocupada').length;
  const tbody=document.getElementById('mappingTable');tbody.innerHTML='';
  mapped.slice().sort((a,b)=>a.apartment.localeCompare(b.apartment)).forEach(s=>{
@@ -813,7 +816,7 @@ renderMyReservations();
    reservada:'blue',
    ocupada:'red',
    indisponivel:'unavailable',
-   encerrada:'gray'
+encerrada:'unavailable'
  }[st]||'gray');
  }
 
