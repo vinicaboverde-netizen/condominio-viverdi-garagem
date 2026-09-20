@@ -19,7 +19,7 @@ button.primary{background:var(--blue);color:#fff}input,select{border:1px solid v
 .stat b{font-size:24px;display:block}.stat span{font-size:12px;color:var(--muted)}
 .legend{background:white;border:1px solid var(--border);border-radius:14px;padding:11px;margin-bottom:14px;font-size:13px;display:flex;gap:18px;flex-wrap:wrap}
 .dot{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:5px}
-.green{background:var(--greenbg);border-color:#16a34a}.red{background:var(--redbg);border-color:#dc2626}.blue{background:var(--reservedbg);border-color:#2563eb}.black{background:var(--unavailablebg);border-color:#9ca3af}.gray{background:var(--endedbg);border-color:#d1d5db}
+.green{background:var(--greenbg);border-color:#16a34a}.red{background:var(--redbg);border-color:#dc2626}.blue{background:var(--reservedbg);border-color:#2563eb}.black{background:var(--unavailablebg);border-color:#9ca3af}.gray{background:var(--endedbg);border-color:#d1d5db}.orange{background:#ffedd5;border-color:#f97316}
 
 .spot.unavailable{
   position:relative;
@@ -546,8 +546,377 @@ function applyLiberations(){
   });
 }
 
-function statusText(s){
-  if(s.ativa === false){
+function activeReleaseForSpot(s){
+  const today=todayLocal();
+
+  return liberacoes
+    .filter(l=>
+      Number(l.vaga_numero)===Number(s.number) &&
+      l.ativo &&
+      l.data_fim>=today
+    )
+    .sort((a,b)=>a.data_inicio.localeCompare(b.data_inicio))[0] || null;
+}
+
+function reservationsForSpot(s){
+  return reservasPublicasTodas.filter(r=>
+    Number(r.vaga_numero)===Number(s.number)
+  );
+}
+
+function timeToMinutes(value){
+  if(!value)return null;
+
+  const parts=String(value).slice(0,5).split(':');
+
+  if(parts.length!==2)return null;
+
+  return Number(parts[0])*60+Number(parts[1]);
+}
+
+function minutesToTime(value){
+  const h=Math.floor(value/60);
+  const m=value%60;
+
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+}
+
+function nextDateLocal(value){
+  const parts=value.split('-');
+
+  const d=new Date(
+    Number(parts[0]),
+    Number(parts[1])-1,
+    Number(parts[2])
+  );
+
+  d.setDate(d.getDate()+1);
+
+  return [
+    d.getFullYear(),
+    String(d.getMonth()+1).padStart(2,'0'),
+    String(d.getDate()).padStart(2,'0')
+  ].join('-');
+}
+
+function reservationsCoveringDate(reservations,date){
+  return reservations.filter(r=>
+    r.data_inicio<=date &&
+    r.data_fim>=date
+  );
+}
+
+function reservationIntervalForDate(r,date){
+  if(r.qualquer_horario){
+    return [0,1440];
+  }
+
+  const start=timeToMinutes(r.hora_inicio);
+  const end=timeToMinutes(r.hora_fim);
+
+  if(start===null || end===null){
+    return [0,1440];
+  }
+
+  return [start,end];
+}
+
+function calculateAgenda(release,reservations){
+  const freeIntervals=[];
+  let totalMinutes=0;
+  let reservedMinutes=0;
+  let hasReservations=false;
+
+  let date=release.data_inicio;
+
+  while(date<=release.data_fim){
+
+    const releaseStart=
+      release.qualquer_horario
+        ? 0
+        : timeToMinutes(release.hora_inicio);
+
+    const releaseEnd=
+      release.qualquer_horario
+        ? 1440
+        : timeToMinutes(release.hora_fim);
+
+    const start=
+      releaseStart===null ? 0 : releaseStart;
+
+    const end=
+      releaseEnd===null ? 1440 : releaseEnd;
+
+    if(end>start){
+
+      totalMinutes+=end-start;
+
+      const intervals=reservationsCoveringDate(
+        reservations,
+        date
+      )
+      .map(r=>{
+        const range=reservationIntervalForDate(r,date);
+
+        return [
+          Math.max(start,range[0]),
+          Math.min(end,range[1])
+        ];
+      })
+      .filter(x=>x[1]>x[0])
+      .sort((a,b)=>a[0]-b[0]);
+
+      if(intervals.length){
+        hasReservations=true;
+      }
+
+      const merged=[];
+
+      intervals.forEach(interval=>{
+        const last=merged[merged.length-1];
+
+        if(!last || interval[0]>last[1]){
+          merged.push([...interval]);
+        }else{
+          last[1]=Math.max(last[1],interval[1]);
+        }
+      });
+
+      merged.forEach(interval=>{
+        reservedMinutes+=interval[1]-interval[0];
+      });
+
+      let cursor=start;
+
+      merged.forEach(interval=>{
+        if(interval[0]>cursor){
+          freeIntervals.push({
+            date,
+            start:cursor,
+            end:interval[0]
+          });
+        }
+
+        cursor=Math.max(cursor,interval[1]);
+      });
+
+      if(cursor<end){
+        freeIntervals.push({
+          date,
+          start:cursor,
+          end
+        });
+      }
+    }
+
+    if(date===release.data_fim)break;
+
+    date=nextDateLocal(date);
+  }
+
+  return {
+    totalMinutes,
+    reservedMinutes,
+    freeMinutes:Math.max(0,totalMinutes-reservedMinutes),
+    full:
+      totalMinutes>0 &&
+      reservedMinutes>=totalMinutes,
+    hasReservations,
+    freeIntervals
+  };
+}
+
+function reservationIsNow(r){
+  const today=todayLocal();
+
+  if(today<r.data_inicio || today>r.data_fim){
+    return false;
+  }
+
+  if(r.qualquer_horario){
+    return true;
+  }
+
+  const start=timeToMinutes(r.hora_inicio);
+  const end=timeToMinutes(r.hora_fim);
+
+  if(start===null || end===null){
+    return true;
+  }
+
+  const now=new Date();
+
+  const nowMinutes=
+    now.getHours()*60+
+    now.getMinutes();
+
+  return nowMinutes>=start && nowMinutes<end;
+}
+
+function mapInfo(s){
+
+  if(s.ativa===false){
+    return {
+      className:'gray inactive',
+      text:'● Inativa',
+      availableNow:false,
+      occupiedNow:false
+    };
+  }
+
+  const release=activeReleaseForSpot(s);
+
+  if(!release){
+
+    if(s.status==='encerrada'){
+      return {
+        className:'gray',
+        text:'⚪ Encerrada',
+        availableNow:false,
+        occupiedNow:false
+      };
+    }
+
+    if(s.status==='indisponivel'){
+      return {
+        className:'unavailable',
+        text:'✕ Indisponível',
+        availableNow:false,
+        occupiedNow:false
+      };
+    }
+
+    if(s.status==='ocupada'){
+      return {
+        className:'orange',
+        text:'🟠 Em uso',
+        availableNow:false,
+        occupiedNow:true
+      };
+    }
+
+    return {
+      className:statusClass(s.status),
+      text:statusTextBase(s),
+      availableNow:false,
+      occupiedNow:false
+    };
+  }
+
+  const reservations=reservationsForSpot(s);
+
+  const agenda=calculateAgenda(
+    release,
+    reservations
+  );
+
+  const currentReservation=
+    reservations.find(reservationIsNow);
+
+  if(currentReservation){
+
+    return {
+      className:'orange',
+      text:'🟠 Em uso · Apto '+(currentReservation.apartamento||'—'),
+      availableNow:false,
+      occupiedNow:true,
+      agenda,
+      release
+    };
+  }
+
+  if(agenda.full){
+
+    return {
+      className:'red full',
+      text:'🔴 Vaga cheia · Todos os horários ocupados',
+      availableNow:false,
+      occupiedNow:false,
+      agenda,
+      release
+    };
+  }
+
+  if(agenda.hasReservations){
+
+    const parts=[];
+
+    reservations.forEach(r=>{
+      let periodo='';
+
+      if(r.data_inicio){
+        periodo=formatDate(r.data_inicio);
+
+        if(
+          r.data_fim &&
+          r.data_fim!==r.data_inicio
+        ){
+          periodo+=' a '+formatDate(r.data_fim);
+        }
+      }
+
+      if(r.qualquer_horario){
+        periodo+=' · Qualquer horário';
+      }else if(r.hora_inicio&&r.hora_fim){
+        periodo+=' · '+
+          formatTime(r.hora_inicio)+
+          ' às '+
+          formatTime(r.hora_fim);
+      }
+
+      parts.push(
+        '🔵 Apto '+(r.apartamento||'—')+
+        ' · '+periodo
+      );
+    });
+
+    if(agenda.freeIntervals.length){
+
+      const free=agenda.freeIntervals
+        .slice(0,2)
+        .map(i=>
+          '🟢 Livre '+
+          formatTime(minutesToTime(i.start))+
+          '–'+
+          formatTime(minutesToTime(i.end))
+        );
+
+      parts.push(...free);
+    }
+
+    return {
+      className:'green',
+      text:parts.join(' · '),
+      availableNow:
+        todayLocal()>=release.data_inicio &&
+        todayLocal()<=release.data_fim &&
+        agenda.freeMinutes>0,
+      occupiedNow:false,
+      agenda,
+      release
+    };
+  }
+
+  return {
+    className:'green',
+    text:
+      '🟢 Disponível'+
+      (
+        release.data_inicio
+          ? ' · '+formatDate(release.data_inicio)
+          : ''
+      ),
+    availableNow:
+      todayLocal()>=release.data_inicio &&
+      todayLocal()<=release.data_fim,
+    occupiedNow:false,
+    agenda,
+    release
+  };
+}
+
+function statusTextBase(s){
+  if(s.ativa===false){
     return '● Inativa';
   }
 
@@ -561,23 +930,20 @@ function statusText(s){
 
   let text=labels[s.status]||'✕ Indisponível';
 
-  if(
-    s.status!=='encerrada' &&
-    s.date
-  ){
+  if(s.date){
     text+=' · '+formatDate(s.date);
   }
 
-  if(
-    s.status!=='encerrada' &&
-    s.start &&
-    s.end
-  ){
+  if(s.start&&s.end){
     text+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
   }
 
   return text;
 }
+
+function statusText(s){
+  return mapInfo(s).text;
+        }
   
 function renderMyArea(){
   const box=document.getElementById('myArea');
