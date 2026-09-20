@@ -745,16 +745,16 @@ function renderMyReservations(){
   const {data,error}=await db
     .from('vagas')
     .update(
-  novaAtiva
-    ? {
-        ativa:true,
-        status:'disponivel',
-        disponivel:true
-      }
-    : {
-        ativa:false
-      }
-)
+      novaAtiva
+        ? {
+            ativa:true,
+            status:'disponivel',
+            disponivel:true
+          }
+        : {
+            ativa:false
+          }
+    )
     .eq('numero',num)
     .select('numero,subsolo,apartamento,status,disponivel,ativa,data_disponivel,hora_inicio,hora_fim')
     .single();
@@ -780,8 +780,9 @@ function renderMyReservations(){
     };
   }
 
+  await loadLiberacoes();
   render();
-}
+  }
 function openMySpot(num){
  const was=editMode; editMode=true; openSpot(num); editMode=was;
 }
@@ -1199,19 +1200,35 @@ document.getElementById('search').addEventListener('input',render);
 document.getElementById('level').addEventListener('change',render);
 
 db.channel('viverdi-vagas-realtime')
- .on('postgres_changes',{event:'*',schema:'public',table:'vagas'},payload=>{
+ .on('postgres_changes',{event:'*',schema:'public',table:'vagas'},async payload=>{
    if(payload.eventType==='DELETE'){
      spots=spots.filter(s=>s.number!==payload.old.numero);
    }else{
      const updated=normalize(payload.new);
      const i=spots.findIndex(s=>s.number===updated.number);
-     if(i>=0)spots[i]=updated; else spots.push(updated);
+
+     if(i>=0){
+       spots[i]={
+         ...spots[i],
+         ...updated
+       };
+     }else{
+       spots.push(updated);
+     }
    }
+
    spots.sort((a,b)=>a.number-b.number);
+
+   await loadLiberacoes();
    render();
  })
  .subscribe((status)=>{
-   if(status==='SUBSCRIBED') setConnection('🟢 Conectado ao Supabase · atualizações em tempo real ativas', true);
+   if(status==='SUBSCRIBED'){
+     setConnection(
+       '🟢 Conectado ao Supabase · atualizações em tempo real ativas',
+       true
+     );
+   }
  });
 
 db.channel('viverdi-liberacoes-realtime')
