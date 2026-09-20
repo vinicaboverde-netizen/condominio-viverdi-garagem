@@ -292,7 +292,7 @@ function renderMyArea(){
      if(s.anyTime) period+=' · Qualquer horário';
      else if(s.start&&s.end) period+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
    }
-   return '<div class="my-reservation-card"><div class="my-vaga-main">'<div class="my-vaga-main"><div><div class="my-vaga-name">Vaga '+s.number+'</div><div class="my-vaga-meta">Apartamento '+s.apartment+'</div><div class="my-vaga-status">'+st+'</div><div class="my-vaga-meta">'+period+'</div></div></div><div class="my-vaga-actions"><button onclick="openMySpot('+s.number+')">⚙️ Configurar minha vaga</button></div></div>';
+   return '<div class="my-reservation-card"><div class="my-vaga-main"><div><div class="my-vaga-name">Vaga '+s.number+'</div><div class="my-vaga-meta">Apartamento '+s.apartment+'</div><div class="my-vaga-status">'+st+'</div><div class="my-vaga-meta">'+period+'</div></div></div><div class="my-vaga-actions"><button onclick="openMySpot('+s.number+')">⚙️ Configurar minha vaga</button></div></div>';
  }).join('');
 }
 
