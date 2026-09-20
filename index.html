@@ -1108,53 +1108,77 @@ function mapInfo(s){
   if(agenda.hasReservations){
 
     const parts=[];
+    const htmlParts=[];
 
     reservations.forEach(r=>{
+
       let periodo='';
 
-      if(r.data_inicio){
-        periodo=formatDate(r.data_inicio);
-
-        if(
-          r.data_fim &&
-          r.data_fim!==r.data_inicio
-        ){
-          periodo+=' a '+formatDate(r.data_fim);
-        }
-      }
-
-      if(r.qualquer_horario){
-        periodo+=' · Qualquer horário';
-      }else if(r.hora_inicio&&r.hora_fim){
-        periodo+=' · '+
+      if(r.hora_inicio&&r.hora_fim){
+        periodo=
           formatTime(r.hora_inicio)+
           ' às '+
           formatTime(r.hora_fim);
+      }else{
+        periodo='Qualquer horário';
       }
 
       parts.push(
         '🔵 Apto '+(r.apartamento||'—')+
         ' · '+periodo
       );
+
+      htmlParts.push(
+        '<div class="map-reservation">'+
+          '<span>🔵</span>'+
+          '<div>'+
+            '<b>'+
+              formatTime(r.hora_inicio)+
+              '–'+
+              formatTime(r.hora_fim)+
+            '</b>'+
+            '<small>Apto '+(r.apartamento||'—')+'</small>'+
+          '</div>'+
+        '</div>'
+      );
     });
 
     if(agenda.freeIntervals.length){
 
       const free=agenda.freeIntervals
-        .slice(0,2)
-        .map(i=>
+        .slice(0,3);
+
+      free.forEach(i=>{
+
+        htmlParts.push(
+          '<div class="map-free">'+
+            '<span>🟢</span>'+
+            '<div>'+
+              '<b>'+
+                formatTime(minutesToTime(i.start))+
+                '–'+
+                formatTime(minutesToTime(i.end))+
+              '</b>'+
+              '<small>Livre</small>'+
+            '</div>'+
+          '</div>'
+        );
+      });
+
+      parts.push(
+        ...free.map(i=>
           '🟢 Livre '+
           formatTime(minutesToTime(i.start))+
           '–'+
           formatTime(minutesToTime(i.end))
-        );
-
-      parts.push(...free);
+        )
+      );
     }
 
     return {
       className:'green',
       text:parts.join(' · '),
+      html:htmlParts.join(''),
       availableNow:
         todayLocal()>=release.data_inicio &&
         todayLocal()<=release.data_fim &&
@@ -1164,7 +1188,6 @@ function mapInfo(s){
       release
     };
   }
-
   return {
     className:'green',
     text:
