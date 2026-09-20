@@ -731,7 +731,7 @@ function render(){
   const grid=document.createElement('div');grid.className='grid';
   blockSpots.filter(s=>s.level===lev).forEach(s=>{
    if(q && !String(s.number).includes(q) && !(s.apartment||'').includes(q))return;
-   const cls=s.ativa === false ? 'black' : statusClass(s.status);
+   const cls=s.ativa === false ? 'inactive' : statusClass(s.status);
    const b=document.createElement('button');b.className='spot '+cls+(!s.apartment?' unmapped':'');
    b.innerHTML='<span class="num">Vaga '+s.number+'</span><span class="apt">'+(s.apartment?'Apto '+s.apartment:'Não cadastrada')+'</span><span class="time">'+statusText(s)+'</span>';
    b.onclick=()=>openSpot(s.number);grid.appendChild(b);
