@@ -2137,18 +2137,22 @@ loadSpots();
   const sub=document.getElementById('availableNowSub');
 
   const available=spots
-    .filter(s =>
-      s.block===selectedBlock &&
-      s.status==='disponivel' &&
-      s.ativa !== false &&
-      s.apartment
-    )
+    .filter(s=>{
+      if(s.block!==selectedBlock) return false;
+      if(!s.apartment) return false;
+
+      const info=mapInfo(s);
+
+      return info.availableNow;
+    })
     .sort((a,b)=>Number(a.number)-Number(b.number));
 
   sub.textContent =
     'Bloco '+selectedBlock+
     ' · '+available.length+
-    (available.length===1?' vaga disponível':' vagas disponíveis');
+    (available.length===1
+      ? ' vaga disponível'
+      : ' vagas disponíveis');
 
   if(!available.length){
     list.innerHTML=`
@@ -2163,24 +2167,44 @@ loadSpots();
 
   list.innerHTML=available.map(s=>{
 
+    const info=mapInfo(s);
+
     let periodo='Disponível agora';
 
-    if(s.date){
-      periodo=formatDate(s.date);
+    if(info.release){
 
-      if(s.dateEnd && s.dateEnd!==s.dateStart){
-        periodo+=' a '+formatDate(s.dateEnd);
+      const release=info.release;
+
+      if(release.data_inicio){
+
+        periodo=formatDate(release.data_inicio);
+
+        if(
+          release.data_fim &&
+          release.data_fim!==release.data_inicio
+        ){
+          periodo+=' a '+formatDate(release.data_fim);
+        }
       }
 
-      if(s.anyTime){
+      if(release.qualquer_horario){
+
         periodo+=' · Qualquer horário';
-      }else if(s.start && s.end){
-        periodo+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
+
+      }else if(release.hora_inicio && release.hora_fim){
+
+        periodo+=' · '+
+          formatTime(release.hora_inicio)+
+          ' às '+
+          formatTime(release.hora_fim);
       }
     }
 
     return `
-      <button class="available-now-item" onclick="openAvailableSpot(${s.number})">
+      <button
+        class="available-now-item"
+        onclick="openAvailableSpot(${s.number})"
+      >
         <div>
           <strong>Vaga ${s.number}</strong>
           <span>Apto ${s.apartment}</span>
@@ -2194,7 +2218,7 @@ loadSpots();
   }).join('');
 
   document.getElementById('availableBackdrop').classList.add('show');
-}
+  }
 
 function closeAvailableNow(){
   document.getElementById('availableBackdrop').classList.remove('show');
