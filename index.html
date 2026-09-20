@@ -378,7 +378,8 @@ async function cancelarReserva(){
     return;
   }
 
-  await loadReservas();
+    await loadReservas();
+  await loadReservasPublicasTodas();
   render();
   closeModal();
   alert('↩️ Sua reserva foi liberada com sucesso!');
@@ -477,8 +478,9 @@ async function loadSpots(){
     alert('Não foi possível carregar as vagas.\n\n'+error.message);
     return;
   }
-  spots=data.map(normalize);
+    spots=data.map(normalize);
   await loadLiberacoes();
+  await loadReservasPublicasTodas();
   render();
   setConnection('🟢 Conectado ao Supabase · atualizações em tempo real ativas', true);
 }
@@ -1252,6 +1254,17 @@ db.channel('viverdi-vagas-realtime')
 db.channel('viverdi-liberacoes-realtime')
  .on('postgres_changes',{event:'*',schema:'public',table:'liberacoes_vaga'},async payload=>{
    await loadLiberacoes();
+   render();
+ })
+ .subscribe();
+  db.channel('viverdi-reservas-realtime')
+ .on('postgres_changes',{event:'*',schema:'public',table:'reservas_vaga'},async payload=>{
+   await loadReservasPublicasTodas();
+
+   if(currentUser){
+     await loadReservas();
+   }
+
    render();
  })
  .subscribe();
