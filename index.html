@@ -1240,19 +1240,22 @@ function mapInfo(s){
       );
 
       htmlParts.push(
-        '<div class="map-reservation">'+
-          '<span>🔵</span>'+
-          '<div>'+
-            '<b>'+
-              formatTime(r.hora_inicio)+
+  '<div class="map-reservation">'+
+    '<span>🔵</span>'+
+    '<div>'+
+      '<b>'+
+        (
+          r.qualquer_horario
+            ? 'Qualquer horário'
+            : formatTime(r.hora_inicio)+
               '–'+
-              formatTime(r.hora_fim)+
-            '</b>'+
-            '<small>Apto '+(r.apartamento||'—')+'</small>'+
-          '</div>'+
-        '</div>'
-      );
-    });
+              formatTime(r.hora_fim)
+        )+
+      '</b>'+
+      '<small>Apto '+(r.apartamento||'—')+'</small>'+
+    '</div>'+
+  '</div>'
+);
 
     if(agenda.freeIntervals.length){
 
