@@ -279,21 +279,117 @@ async function loadReservasPublicasTodas(){
   reservasPublicasTodas=data||[];
 }
 
-async function reservarVaga(){
+async function toggleReserveTimeFields(){
+  const any=document.getElementById('reserveAnyTime').checked;
+
+  document.getElementById('reserveTimeFields').style.display=
+    any ? 'none' : 'grid';
+}
+
+function prepareReservation(){
+
   if(!currentUser || !currentProfile){
     alert('Entre no VIVERDI para reservar uma vaga.');
     return;
   }
 
   const num=window.vagaModalNumero;
+
   if(!num){
     alert('Não foi possível identificar a vaga.');
     return;
   }
 
-  const spot=spots.find(s=>Number(s.number)===Number(num));
-  if(!spot){
-    alert('Vaga não encontrada.');
+  const release=liberacoes.find(l=>
+    Number(l.vaga_numero)===Number(num) &&
+    l.ativo &&
+    l.data_fim>=todayLocal()
+  );
+
+  if(!release){
+    alert(
+      'Esta vaga não possui uma liberação ativa para reserva.'
+    );
+    return;
+  }
+
+  if(
+    String(release.morador_id)===
+    String(currentUser.id)
+  ){
+    alert(
+      'Você não pode reservar a sua própria vaga liberada.'
+    );
+    return;
+  }
+
+  const reservations=reservasPublicasTodas.filter(r=>
+    Number(r.vaga_numero)===Number(num)
+  );
+
+  const agenda=calculateAgenda(
+    release,
+    reservations
+  );
+
+  if(agenda.full){
+    alert(
+      'Esta vaga está com todos os horários ocupados.'
+    );
+    return;
+  }
+
+  document.getElementById('reserveFields').style.display='block';
+  document.getElementById('reserveModal').style.display='none';
+  document.getElementById('confirmReserveModal').style.display='block';
+  document.getElementById('saveModal').style.display='none';
+
+  document.getElementById('reserveDateStart').value=
+    release.data_inicio;
+
+  document.getElementById('reserveDateEnd').value=
+    release.data_fim;
+
+  document.getElementById('reserveAnyTime').checked=
+    !!release.qualquer_horario;
+
+  document.getElementById('reserveStart').value=
+    release.hora_inicio || '';
+
+  document.getElementById('reserveEnd').value=
+    release.hora_fim || '';
+
+  const limite=
+    'Disponível de '+
+    formatDate(release.data_inicio)+
+    ' a '+
+    formatDate(release.data_fim)+
+    (
+      release.qualquer_horario
+        ? ' · Qualquer horário'
+        : ' · '+
+          formatTime(release.hora_inicio)+
+          ' às '+
+          formatTime(release.hora_fim)
+    );
+
+  document.getElementById('reserveLimit').textContent=
+    limite;
+
+  toggleReserveTimeFields();
+}
+
+async function reservarVaga(){
+
+  if(!currentUser || !currentProfile){
+    alert('Entre no VIVERDI para reservar uma vaga.');
+    return;
+  }
+
+  const num=window.vagaModalNumero;
+
+  if(!num){
+    alert('Não foi possível identificar a vaga.');
     return;
   }
 
@@ -304,48 +400,152 @@ async function reservarVaga(){
   );
 
   if(!liberacao){
-    alert('Esta vaga não possui uma liberação ativa para reserva.');
+    alert(
+      'Esta vaga não possui uma liberação ativa para reserva.'
+    );
     return;
   }
 
-  if(String(liberacao.morador_id)===String(currentUser.id)){
-    alert('Você não pode reservar a sua própria vaga liberada.');
+  if(
+    String(liberacao.morador_id)===
+    String(currentUser.id)
+  ){
+    alert(
+      'Você não pode reservar a sua própria vaga liberada.'
+    );
     return;
   }
-const criteria=(reservaCriteria && Number(reservaCriteria.vaga_numero)===Number(num))
-    ? reservaCriteria
-    : {
-        data_inicio:liberacao.data_inicio,
-        data_fim:liberacao.data_fim,
-        hora_inicio:liberacao.hora_inicio,
-        hora_fim:liberacao.hora_fim,
-        qualquer_horario:liberacao.qualquer_horario
-      };
+
+  const dataStart=
+    document.getElementById('reserveDateStart').value;
+
+  const dataEnd=
+    document.getElementById('reserveDateEnd').value;
+
+  const anyTime=
+    document.getElementById('reserveAnyTime').checked;
+
+  const startTime=
+    anyTime
+      ? null
+      : (
+        document.getElementById('reserveStart').value ||
+        null
+      );
+
+  const endTime=
+    anyTime
+      ? null
+      : (
+        document.getElementById('reserveEnd').value ||
+        null
+      );
+
+  if(!dataStart || !dataEnd){
+    alert(
+      'Informe a data inicial e a data final da reserva.'
+    );
+    return;
+  }
+
+  if(dataEnd<dataStart){
+    alert(
+      'A data final deve ser igual ou posterior à data inicial.'
+    );
+    return;
+  }
+
+  if(
+    dataStart<liberacao.data_inicio ||
+    dataEnd>liberacao.data_fim
+  ){
+    alert(
+      'O período escolhido precisa estar dentro do período liberado pelo proprietário.'
+    );
+    return;
+  }
+
+  if(
+    !anyTime &&
+    (!startTime || !endTime)
+  ){
+    alert(
+      'Informe a hora inicial e final ou marque "Qualquer horário".'
+    );
+    return;
+  }
+
+  if(
+    !anyTime &&
+    startTime>=endTime
+  ){
+    alert(
+      'A hora final deve ser posterior à hora inicial.'
+    );
+    return;
+  }
+
+  if(!anyTime){
+
+    if(
+      liberacao.hora_inicio &&
+      startTime<liberacao.hora_inicio
+    ){
+      alert(
+        'A hora inicial está antes do horário liberado.'
+      );
+      return;
+    }
+
+    if(
+      liberacao.hora_fim &&
+      endTime>liberacao.hora_fim
+    ){
+      alert(
+        'A hora final está depois do horário liberado.'
+      );
+      return;
+    }
+  }
+
   const {error}=await db
     .from('reservas_vaga')
     .insert({
       vaga_numero:num,
       liberacao_id:liberacao.id,
       morador_id:currentUser.id,
-      data_inicio:criteria.data_inicio,
-data_fim:criteria.data_fim,
-hora_inicio:criteria.hora_inicio,
-hora_fim:criteria.hora_fim,
-qualquer_horario:criteria.qualquer_horario,
+      data_inicio:dataStart,
+      data_fim:dataEnd,
+      hora_inicio:startTime,
+      hora_fim:endTime,
+      qualquer_horario:anyTime,
       status:'ativa'
     });
 
   if(error){
     console.error(error);
-    alert('Não foi possível reservar a vaga.\n\n'+error.message);
+
+    alert(
+      'Não foi possível reservar a vaga.\n\n'+
+      error.message
+    );
+
     return;
   }
 
   await loadReservas();
-reservaCriteria=null;
-closeModal();
-alert('🔵 Vaga reservada com sucesso!');
-     }
+  await loadReservasPublicasTodas();
+
+  reservaCriteria=null;
+
+  render();
+
+  closeModal();
+
+  alert(
+    '🔵 Vaga reservada com sucesso!'
+  );
+  }
 async function cancelarReserva(){
   if(!currentUser){
     alert('Entre no VIVERDI para gerenciar sua reserva.');
@@ -1778,9 +1978,70 @@ loadSpots();
     </div>
    </div>
   </div>
+     <div id="reserveFields" style="display:none">
+    <div class="view-details" style="margin-top:14px">
+      <b>🔵 Escolha o período da sua reserva</b>
+      <div id="reserveLimit" class="small" style="margin-top:5px"></div>
+    </div>
+
+    <div class="formgrid">
+      <div class="field">
+        <label>DATA INICIAL</label>
+        <input id="reserveDateStart" type="date">
+      </div>
+
+      <div class="field">
+        <label>DATA FINAL</label>
+        <input id="reserveDateEnd" type="date">
+      </div>
+
+      <div class="field full">
+        <label class="modal-check">
+          <input
+            id="reserveAnyTime"
+            type="checkbox"
+            onchange="toggleReserveTimeFields()"
+          >
+          Qualquer horário
+        </label>
+      </div>
+
+      <div
+        id="reserveTimeFields"
+        class="formgrid"
+        style="grid-column:1/-1;margin:0"
+      >
+        <div class="field">
+          <label>HORA INICIAL</label>
+          <input id="reserveStart" type="time">
+        </div>
+
+        <div class="field">
+          <label>HORA FINAL</label>
+          <input id="reserveEnd" type="time">
+        </div>
+      </div>
+    </div>
+     </div>
   <div class="modal-actions">
    <button id="cancelModal" onclick="closeModal()">Cancelar</button>
-    <button id="reserveModal" class="primary" style="display:none" onclick="reservarVaga()">🔵 Reservar</button>
+    <button
+  id="reserveModal"
+  class="primary"
+  style="display:none"
+  onclick="prepareReservation()"
+>
+  🔵 Reservar
+</button>
+
+<button
+  id="confirmReserveModal"
+  class="primary"
+  style="display:none"
+  onclick="reservarVaga()"
+>
+  ✅ Confirmar reserva
+</button>
     <button id="cancelReservationModal" style="display:none" onclick="cancelarReserva()">↩️ Liberar minha reserva</button>
    <button id="saveModal" class="primary" onclick="saveSpot()">Salvar no VIVERDI</button>
   </div>
