@@ -59,7 +59,39 @@ button.primary{background:var(--blue);color:#fff}input,select{border:1px solid v
 }
 .section{margin:18px 0 8px;font-weight:800;font-size:16px}.grid{display:grid;grid-template-columns:repeat(7,minmax(42px,1fr));gap:7px}
 .spot{min-height:76px;border:2px solid;border-radius:12px;padding:7px;display:flex;flex-direction:column;justify-content:space-between;text-align:left}
-.spot .num{font-size:18px;font-weight:850}.spot .apt{font-size:11px;font-weight:650}.spot .time{font-size:10px;color:#374151}
+.spot .time{
+  font-size:10px;
+  color:#374151;
+  line-height:1.25;
+  white-space:normal;
+}
+
+.map-reservation,
+.map-free{
+  display:flex;
+  align-items:flex-start;
+  gap:5px;
+  margin-top:3px;
+  line-height:1.15;
+}
+
+.map-reservation div,
+.map-free div{
+  min-width:0;
+}
+
+.map-reservation small,
+.map-free small{
+  display:block;
+  font-size:9px;
+  color:#4b5563;
+  margin-top:1px;
+}
+
+.map-reservation b,
+.map-free b{
+  font-size:10px;
+}
 .spot.unmapped{opacity:.65}.block-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.block-btn{background:#fff;border:2px solid var(--border);border-radius:12px;padding:11px 12px;font-weight:800}.block-btn.active{background:#111827;color:#fff;border-color:#111827}.block-sub{display:block;font-size:11px;font-weight:500;opacity:.75;margin-top:2px}
 .note{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:11px;margin:12px 0;font-size:12px}
 .status{font-size:12px;color:var(--muted);margin:8px 0 12px}
