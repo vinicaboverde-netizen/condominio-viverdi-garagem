@@ -917,13 +917,13 @@ renderMyReservations();
 }
 
  function statusClass(st){
- return ({
-   disponivel:'green',
-   reservada:'blue',
-   ocupada:'red',
-   indisponivel:'unavailable',
-encerrada:'unavailable'
- }[st]||'gray');
+  return ({
+    disponivel:'green',
+    reservada:'blue',
+    ocupada:'red',
+    indisponivel:'unavailable',
+    encerrada:'gray'
+  }[st]||'gray');
  }
 
 function selectBlock(block){
@@ -1074,6 +1074,7 @@ if(ownerEditing){
    else if(s.start&&s.end) details+='<div class="detail-row"><span class="detail-label">Horário</span><span class="detail-value">'+formatTime(s.start)+' às '+formatTime(s.end)+'</span></div>';
  }
  if(!s.dateStart && s.status==='indisponivel') details+='<div class="detail-row"><span class="detail-label">Informação</span><span class="detail-value">Não disponível pelo VIVERDI</span></div>';
+  if(!s.dateStart && s.status==='encerrada') details+='<div class="detail-row"><span class="detail-label">Informação</span><span class="detail-value">O período de disponibilidade terminou.</span></div>';
  document.getElementById('viewDetails').innerHTML=details;
  document.getElementById('viewDetails').style.display='block';
  document.querySelectorAll('.status-option').forEach(b=>b.classList.toggle('selected',b.dataset.status===document.getElementById('modalStatus').value));
