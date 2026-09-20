@@ -1271,36 +1271,123 @@ function render(){
  const q=document.getElementById('search').value.trim().toLowerCase();
  const level=document.getElementById('level').value;
  const maps=document.getElementById('maps');
+
  maps.innerHTML='';
- const blockSpots=spots.filter(s=>s.block===selectedBlock);
- const visibleLevels=selectedBlock==='01'?['-1']:['-2'];
+
+ const blockSpots=spots.filter(
+   s=>s.block===selectedBlock
+ );
+
+ const visibleLevels=
+   selectedBlock==='01'
+     ? ['-1']
+     : ['-2'];
+
+ let availableNowCount=0;
+ let occupiedNowCount=0;
+
  for(const lev of visibleLevels){
+
   if(level!=='all'&&level!==lev)continue;
-  const title=document.createElement('div');title.className='section';title.textContent=lev==='-1'?'Subsolo -1':'Subsolo -2';maps.appendChild(title);
-  const grid=document.createElement('div');grid.className='grid';
-  blockSpots.filter(s=>s.level===lev).forEach(s=>{
-   if(q && !String(s.number).includes(q) && !(s.apartment||'').includes(q))return;
-   const cls=statusClass(s.status)+(s.ativa === false && s.status !== 'indisponivel' ? ' inactive' : '');
-   const b=document.createElement('button');b.className='spot '+cls+(!s.apartment?' unmapped':'');
-   b.innerHTML='<span class="num">Vaga '+s.number+'</span><span class="apt">'+(s.apartment?'Apto '+s.apartment:'Não cadastrada')+'</span><span class="time">'+statusText(s)+'</span>';
-   b.onclick=()=>openSpot(s.number);grid.appendChild(b);
-  });
+
+  const title=document.createElement('div');
+  title.className='section';
+  title.textContent=
+    lev==='-1'
+      ? 'Subsolo -1'
+      : 'Subsolo -2';
+
+  maps.appendChild(title);
+
+  const grid=document.createElement('div');
+  grid.className='grid';
+
+  blockSpots
+    .filter(s=>s.level===lev)
+    .forEach(s=>{
+
+      if(
+        q &&
+        !String(s.number).includes(q) &&
+        !(s.apartment||'').includes(q)
+      ){
+        return;
+      }
+
+      const info=mapInfo(s);
+
+      if(info.availableNow){
+        availableNowCount++;
+      }
+
+      if(info.occupiedNow){
+        occupiedNowCount++;
+      }
+
+      const b=document.createElement('button');
+
+      b.className=
+        'spot '+
+        info.className+
+        (!s.apartment?' unmapped':'');
+
+      b.innerHTML=
+        '<span class="num">Vaga '+s.number+'</span>'+
+        '<span class="apt">'+
+          (s.apartment
+            ? 'Apto '+s.apartment
+            : 'Não cadastrada')+
+        '</span>'+
+        '<span class="time">'+
+          info.text+
+        '</span>';
+
+      b.onclick=()=>openSpot(s.number);
+
+      grid.appendChild(b);
+    });
+
   maps.appendChild(grid);
  }
- const mapped=blockSpots.filter(s=>s.apartment);
- document.getElementById('mappedCount').textContent=mapped.length;
+
+ const mapped=blockSpots.filter(
+   s=>s.apartment
+ );
+
+ document.getElementById('mappedCount').textContent=
+   mapped.length;
+
  document.getElementById('availableCount').textContent=
-  blockSpots.filter(
-    s=>s.status==='disponivel' && s.ativa !== false
-  ).length;
- document.getElementById('occupiedCount').textContent=blockSpots.filter(s=>s.status==='ocupada').length;
- const tbody=document.getElementById('mappingTable');tbody.innerHTML='';
- mapped.slice().sort((a,b)=>a.apartment.localeCompare(b.apartment)).forEach(s=>{
-   const tr=document.createElement('tr');tr.innerHTML='<td>'+s.apartment+'</td><td>'+s.number+'</td>';tbody.appendChild(tr)
- });
- document.getElementById('headerBlock').textContent='Bloco '+selectedBlock+' · Supabase + Realtime';
-renderMyArea();
-renderMyReservations();
+   availableNowCount;
+
+ document.getElementById('occupiedCount').textContent=
+   occupiedNowCount;
+
+ const tbody=document.getElementById('mappingTable');
+
+ tbody.innerHTML='';
+
+ mapped
+   .slice()
+   .sort((a,b)=>
+     a.apartment.localeCompare(b.apartment)
+   )
+   .forEach(s=>{
+     const tr=document.createElement('tr');
+
+     tr.innerHTML=
+       '<td>'+s.apartment+'</td>'+
+       '<td>'+s.number+'</td>';
+
+     tbody.appendChild(tr);
+   });
+
+ document.getElementById('headerBlock').textContent=
+   'Bloco '+selectedBlock+
+   ' · Supabase + Realtime';
+
+ renderMyArea();
+ renderMyReservations();
 }
 
  function statusClass(st){
