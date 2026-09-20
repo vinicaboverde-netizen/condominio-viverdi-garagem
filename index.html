@@ -1716,8 +1716,12 @@ window.vagaModalNumero=s.number;
     reserveFields.style.display='none';
   }
 
-    reserveBtn.style.display=canReserve?'block':'none';
+    if(reserveFields){
+    reserveFields.style.display='none';
   }
+
+  if(cancelReservationBtn){
+  
   if(cancelReservationBtn){
   cancelReservationBtn.style.display=(!editing && !!myReservation)?'block':'none';
   }
