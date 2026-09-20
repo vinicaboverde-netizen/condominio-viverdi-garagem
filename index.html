@@ -197,7 +197,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
 @media(max-width:600px){.grid{grid-template-columns:repeat(4,1fr)}.stat{padding:9px}.stat b{font-size:20px}}
 
 .my-area{background:#fff;border:2px solid #bfdbfe;border-radius:16px;padding:14px;margin:10px 0 12px;box-shadow:0 2px 8px #0000000b}.my-area-title{font-size:13px;font-weight:850;color:#2563eb;letter-spacing:.3px;margin-bottom:6px}.my-vaga-main{display:flex;justify-content:space-between;gap:12px;align-items:center}.my-vaga-name{font-size:22px;font-weight:850}.my-vaga-meta{color:#6b7280;font-size:13px;margin-top:2px}.my-vaga-status{font-weight:800;margin-top:6px}.my-vaga-actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}.future-search{padding:18px}.future-search h2{margin:0 0 6px;font-size:20px}.future-search .hint{color:#6b7280;margin-bottom:14px}.future-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.future-grid .full{grid-column:1/-1}.future-search label{display:block;font-size:12px;font-weight:800;margin-bottom:5px}.future-search input,.future-search select{width:100%;padding:12px;border:1px solid #d7dce2;border-radius:10px;font-size:16px;background:#fff}.check-row{display:flex;align-items:center;gap:8px;font-weight:700;margin-top:10px}.check-row input{width:18px;height:18px}.future-results{margin-top:15px}.result-item{border:1px solid #d7dce2;border-radius:12px;padding:11px;margin-top:8px;background:#fff}.result-item b{font-size:17px}.result-item small{display:block;color:#6b7280;margin-top:3px}.empty-result{color:#6b7280;padding:10px 0}.modal-actions .primary{display:block}.
-  .my-reservations{
+.my-reservation-card{
   background:#fff;
   border:2px solid #bfdbfe;
   border-radius:16px;
@@ -1570,6 +1570,24 @@ function renderMyReservations(){
       ...updated
     };
   }
+function renderMyArea(){
+ const box=document.getElementById('myArea'), content=document.getElementById('myAreaContent');
+ if(!currentProfile || !currentProfile.apartamento){box.style.display='none';return}
+ const mine=spots.filter(s=>String(s.apartment)===String(currentProfile.apartamento));
+ box.style.display='block';
+ if(!mine.length){content.innerHTML='<div class="my-vaga-meta">Nenhuma vaga vinculada ao seu apartamento foi encontrada.</div>';return}
+ content.innerHTML=mine.map(s=>{
+   const st=statusLabel(s.status);
+   let period='Sem período de disponibilidade';
+   if(s.dateStart){
+     period=formatDate(s.dateStart);
+     if(s.dateEnd && s.dateEnd!==s.dateStart) period+=' a '+formatDate(s.dateEnd);
+     if(s.anyTime) period+=' · Qualquer horário';
+     else if(s.start&&s.end) period+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
+   }
+   return '<div class="my-reservation-card"><div class="my-vaga-main"><div><div class="my-vaga-name">Vaga '+s.number+'</div><div class="my-vaga-meta">Apartamento '+s.apartment+'</div><div class="my-vaga-status">'+st+'</div><div class="my-vaga-meta">'+period+'</div></div></div><div class="my-vaga-actions"><button onclick="openMySpot('+s.number+')">⚙️ Configurar minha vaga</button></div></div>';
+ }).join('');
+}
 
   await loadLiberacoes();
   render();
