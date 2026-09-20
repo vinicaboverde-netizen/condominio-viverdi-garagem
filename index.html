@@ -424,18 +424,24 @@ function applyLiberations(){
 }
 
 function statusText(s){
- const labels={
-   disponivel:'🟢 Disponível',
-   reservada:'🔵 Reservada',
-   ocupada:'🔴 Ocupada',
-   indisponivel:'✕ Indisponível',
-   encerrada:'⚪ Encerrada'
- };
- let text=labels[s.status]||'✕ Indisponível';
- if(s.ativa === false) text+=' · Inativa';
- if(s.date) text+=' · '+formatDate(s.date);
- if(s.start&&s.end) text+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
- return text;
+  if(s.ativa === false){
+    return '● Inativa';
+  }
+
+  const labels={
+    disponivel:'🟢 Disponível',
+    reservada:'🔵 Reservada',
+    ocupada:'🔴 Ocupada',
+    indisponivel:'✕ Indisponível',
+    encerrada:'⚪ Encerrada'
+  };
+
+  let text=labels[s.status]||'✕ Indisponível';
+
+  if(s.date) text+=' · '+formatDate(s.date);
+  if(s.start&&s.end) text+=' · '+formatTime(s.start)+' às '+formatTime(s.end);
+
+  return text;
 }
   
 function renderMyArea(){
@@ -762,7 +768,7 @@ function render(){
   const grid=document.createElement('div');grid.className='grid';
   blockSpots.filter(s=>s.level===lev).forEach(s=>{
    if(q && !String(s.number).includes(q) && !(s.apartment||'').includes(q))return;
-   const cls=statusClass(s.status)+(s.ativa === false ? ' inactive' : '');
+   const cls=statusClass(s.status)+(s.ativa === false && s.status !== 'indisponivel' ? ' inactive' : '');
    const b=document.createElement('button');b.className='spot '+cls+(!s.apartment?' unmapped':'');
    b.innerHTML='<span class="num">Vaga '+s.number+'</span><span class="apt">'+(s.apartment?'Apto '+s.apartment:'Não cadastrada')+'</span><span class="time">'+statusText(s)+'</span>';
    b.onclick=()=>openSpot(s.number);grid.appendChild(b);
