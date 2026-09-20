@@ -20,6 +20,33 @@ button.primary{background:var(--blue);color:#fff}input,select{border:1px solid v
 .legend{background:white;border:1px solid var(--border);border-radius:14px;padding:11px;margin-bottom:14px;font-size:13px;display:flex;gap:18px;flex-wrap:wrap}
 .dot{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:5px}
 .green{background:var(--greenbg);border-color:#16a34a}.red{background:var(--redbg);border-color:#dc2626}.blue{background:var(--reservedbg);border-color:#2563eb}.black{background:var(--unavailablebg);border-color:#9ca3af}.gray{background:var(--endedbg);border-color:#d1d5db}
+
+.spot.unavailable{
+  position:relative;
+  overflow:hidden;
+  background:#f1f3f5;
+  border-color:#d1d5db;
+  color:#6b7280;
+}
+
+.spot.unavailable::after{
+  content:'';
+  position:absolute;
+  inset:7px;
+  pointer-events:none;
+  opacity:.42;
+  background:
+    linear-gradient(45deg,transparent 47%,#6b7280 48%,#6b7280 52%,transparent 53%),
+    linear-gradient(-45deg,transparent 47%,#6b7280 48%,#6b7280 52%,transparent 53%);
+  border-radius:8px;
+}
+
+.spot.unavailable > *{
+  position:relative;
+  z-index:2;
+}
+
+.spot.green.inactive{border-color:#86efac}.spot.red.inactive{border-color:#fca5a5}.spot.blue.inactive{border-color:#93c5fd}.spot.gray.inactive{border-color:#d1d5db}
 .spot.green.inactive{border-color:#86efac}.spot.red.inactive{border-color:#fca5a5}.spot.blue.inactive{border-color:#93c5fd}.spot.black.inactive,.spot.gray.inactive{border-color:#d1d5db}
 .section{margin:18px 0 8px;font-weight:800;font-size:16px}.grid{display:grid;grid-template-columns:repeat(7,minmax(42px,1fr));gap:7px}
 .spot{min-height:76px;border:2px solid;border-radius:12px;padding:7px;display:flex;flex-direction:column;justify-content:space-between;text-align:left}
@@ -105,7 +132,9 @@ function setConnection(text, ok=false){
 }
 
 function normalize(row){
-  const status = row.status || (row.disponivel ? 'disponivel' : 'indisponivel');
+  const status = (row.status === 'indisponivel' && row.disponivel === true)
+    ? 'disponivel'
+    : (row.status || (row.disponivel ? 'disponivel' : 'indisponivel'));
   return {
     number: row.numero,
     block: row.numero <= 34 ? '01' : '02',
