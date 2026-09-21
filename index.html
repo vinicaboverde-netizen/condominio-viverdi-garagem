@@ -933,9 +933,7 @@ function applyLiberations(){
       l.ativo
     );
 
-    const atual=ls
-      .filter(l=>l.data_fim>=today)
-      .sort((a,b)=>a.data_inicio.localeCompare(b.data_inicio))[0];
+    const atual=activeReleaseForSpot(s);
 
     if(atual){
       s.date=atual.data_inicio||'';
@@ -954,8 +952,43 @@ function applyLiberations(){
     }
 
     const vencida=ls
-      .filter(l=>l.data_fim<today)
-      .sort((a,b)=>b.data_fim.localeCompare(a.data_fim))[0];
+  .filter(l=>l.data_fim<today)
+  .sort((a,b)=>b.data_fim.localeCompare(a.data_fim))[0];
+
+const encerradaHoje=ls.some(l=>{
+  if(l.data_fim!==today){
+    return false;
+  }
+
+  if(l.qualquer_horario){
+    return false;
+  }
+
+  const end=timeToMinutes(l.hora_fim);
+
+  if(end===null){
+    return false;
+  }
+
+  const now=new Date();
+  const nowMinutes=
+    now.getHours()*60+
+    now.getMinutes();
+
+  return nowMinutes>=end;
+});
+
+if(vencida || encerradaHoje){
+  s.date='';
+  s.dateStart='';
+  s.dateEnd='';
+  s.start='';
+  s.end='';
+  s.anyTime=false;
+
+  s.status='encerrada';
+  s.available=false;
+}
 
     if(vencida){
       s.date='';
@@ -2034,11 +2067,7 @@ window.vagaModalNumero=s.number;
     r.status==='ativa' &&
     reservationTemporalStatus(r)!=='encerrada'
   );
-  const release=liberacoes.find(l=>
-    Number(l.vaga_numero)===Number(s.number) &&
-    l.ativo &&
-  l.data_fim>=todayLocal()
-  );
+  const release=activeReleaseForSpot(s);
 
   if(reserveBtn){
 
