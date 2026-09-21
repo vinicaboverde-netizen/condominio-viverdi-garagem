@@ -1069,8 +1069,48 @@ function activeReleaseForSpot(s){
 
       return true;
     })
+  
     .sort((a,b)=>a.data_inicio.localeCompare(b.data_inicio))[0] || null;
 }
+  function releaseForReservation(s){
+  const today=todayLocal();
+
+  return liberacoes
+    .filter(l=>{
+      if(
+        Number(l.vaga_numero)!==Number(s.number) ||
+        !l.ativo
+      ){
+        return false;
+      }
+
+      /*
+       * A liberação já terminou em uma data anterior.
+       */
+      if(l.data_fim<today){
+        return false;
+      }
+
+      /*
+       * Se começa hoje, ainda pode ser reservada mesmo
+       * que o horário inicial ainda não tenha chegado.
+       *
+       * Se começa em uma data futura, também pode ser reservada.
+       */
+      return true;
+    })
+    .sort((a,b)=>{
+      if(a.data_inicio!==b.data_inicio){
+        return a.data_inicio.localeCompare(b.data_inicio);
+      }
+
+      const aStart=timeToMinutes(a.hora_inicio);
+      const bStart=timeToMinutes(b.hora_inicio);
+
+      return (aStart===null?0:aStart) -
+             (bStart===null?0:bStart);
+    })[0] || null;
+  }
 
 function reservationsForSpot(s){
   return reservasPublicasTodas.filter(r=>
