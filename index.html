@@ -2181,53 +2181,8 @@ if(ownerEditing){
     }
   }
 
-  if(
-    !editing &&
-    reservaCriteria &&
-    Number(reservaCriteria.vaga_numero)===Number(s.number)
-  ){
-
-    let periodoReserva='';
-
-    if(reservaCriteria.data_inicio){
-
-      periodoReserva=
-        formatDate(reservaCriteria.data_inicio);
-
-      if(
-        reservaCriteria.data_fim &&
-        reservaCriteria.data_fim!==reservaCriteria.data_inicio
-      ){
-        periodoReserva+=
-          ' a '+
-          formatDate(reservaCriteria.data_fim);
-      }
-    }
-
-    if(reservaCriteria.qualquer_horario){
-
-      periodoReserva+=' · Qualquer horário';
-
-    }else if(
-      reservaCriteria.hora_inicio &&
-      reservaCriteria.hora_fim
-    ){
-
-      periodoReserva+=
-        ' · '+
-        formatTime(reservaCriteria.hora_inicio)+
-        ' às '+
-        formatTime(reservaCriteria.hora_fim);
-    }
-
-    details+=
-      '<div class="reservation-section">'+
-        '<div class="reservation-section-title">🟢 SEU PERÍODO DE RESERVA</div>'+
-        '<div class="reservation-item">'+
-          periodoReserva+
-        '</div>'+
-      '</div>';
-  }
+  
+  
  document.getElementById('viewDetails').innerHTML=details;
   document.getElementById('viewDetails').style.display='block';
  document.querySelectorAll('.status-option').forEach(b=>b.classList.toggle('selected',b.dataset.status===document.getElementById('modalStatus').value));
