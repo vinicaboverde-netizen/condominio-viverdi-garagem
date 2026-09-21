@@ -1155,22 +1155,26 @@ function calculateAgenda(release,reservations){
   };
 }
 
-function reservationIsNow(r){
+function reservationTemporalStatus(r){
   const today=todayLocal();
 
-  if(today<r.data_inicio || today>r.data_fim){
-    return false;
+  if(today<r.data_inicio){
+    return 'futura';
+  }
+
+  if(today>r.data_fim){
+    return 'encerrada';
   }
 
   if(r.qualquer_horario){
-    return true;
+    return 'em_uso';
   }
 
   const start=timeToMinutes(r.hora_inicio);
   const end=timeToMinutes(r.hora_fim);
 
   if(start===null || end===null){
-    return true;
+    return 'em_uso';
   }
 
   const now=new Date();
@@ -1179,7 +1183,23 @@ function reservationIsNow(r){
     now.getHours()*60+
     now.getMinutes();
 
-  return nowMinutes>=start && nowMinutes<end;
+  /*
+   * Em reservas de mais de um dia, o horário inicial vale no
+   * primeiro dia e o horário final vale no último dia.
+   */
+  if(today===r.data_inicio && nowMinutes<start){
+    return 'futura';
+  }
+
+  if(today===r.data_fim && nowMinutes>=end){
+    return 'encerrada';
+  }
+
+  return 'em_uso';
+}
+
+function reservationIsNow(r){
+  return reservationTemporalStatus(r)==='em_uso';
 }
 
 function mapInfo(s){
@@ -1479,9 +1499,15 @@ function renderMyReservations(){
     return;
   }
 
-  const active = reservas.filter(r => r.status === 'ativa');
+  /*
+   * A reserva pode continuar com status="ativa" no banco mesmo
+   * depois do horário final. O estado visual, porém, é temporal.
+   */
+  const visible = reservas.filter(r =>
+    r.data_fim >= todayLocal()
+  );
 
-  if(!active.length){
+  if(!visible.length){
     box.style.display = 'none';
     content.innerHTML = '';
     return;
@@ -1489,8 +1515,20 @@ function renderMyReservations(){
 
   box.style.display = 'block';
 
-  content.innerHTML = active.map(r => {
-    const spot = spots.find(s => Number(s.number) === Number(r.vaga_numero));
+  content.innerHTML = visible.map(r => {
+    const spot = spots.find(
+      s => Number(s.number) === Number(r.vaga_numero)
+    );
+
+    const temporalStatus = reservationTemporalStatus(r);
+
+    let statusHtml = '🔵 Reserva agendada';
+
+    if(temporalStatus === 'em_uso'){
+      statusHtml = '🟠 Em uso';
+    }else if(temporalStatus === 'encerrada'){
+      statusHtml = '⚪ Reserva encerrada';
+    }
 
     let periodo = formatDate(r.data_inicio);
 
@@ -1501,7 +1539,10 @@ function renderMyReservations(){
     if(r.qualquer_horario){
       periodo += ' · Qualquer horário';
     }else if(r.hora_inicio && r.hora_fim){
-      periodo += ' · ' + formatTime(r.hora_inicio) + ' às ' + formatTime(r.hora_fim);
+      periodo += ' · ' +
+        formatTime(r.hora_inicio) +
+        ' às ' +
+        formatTime(r.hora_fim);
     }
 
     return `
@@ -1512,7 +1553,7 @@ function renderMyReservations(){
             <div class="my-vaga-meta">
               Apto proprietário ${spot?.apartment || '—'}
             </div>
-            <div class="my-vaga-status">🔵 Reserva ativa</div>
+            <div class="my-vaga-status">${statusHtml}</div>
             <div class="my-vaga-meta">${periodo}</div>
           </div>
         </div>
@@ -1525,7 +1566,8 @@ function renderMyReservations(){
       </div>
     `;
   }).join('');
-                            }
+}
+                            
   function openReservationDetails(num){
   const spot = spots.find(s => Number(s.number) === Number(num));
 
@@ -1937,7 +1979,8 @@ window.vagaModalNumero=s.number;
   const cancelReservationBtn=document.getElementById('cancelReservationModal');
   const myReservation=reservas.find(r=>
     Number(r.vaga_numero)===Number(s.number) &&
-    r.status==='ativa'
+    r.status==='ativa' &&
+    reservationTemporalStatus(r)!=='encerrada'
   );
   const release=liberacoes.find(l=>
     Number(l.vaga_numero)===Number(s.number) &&
@@ -2330,7 +2373,30 @@ function formatDate(value){
  const p=value.split('-');
  return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:value;
 }
+/*
+ * Atualização temporal local.
+ * O Realtime continua responsável pelas alterações do banco.
+ * Este relógio apenas faz a interface perceber a passagem de
+ * minutos, sem consultar o Supabase a cada segundo.
+ */
+let lastTemporalRenderKey='';
 
+function refreshTemporalState(force=false){
+  const now=new Date();
+
+  const key=
+    todayLocal()+'|'+
+    now.getHours()+'|'+
+    now.getMinutes();
+
+  if(force || key!==lastTemporalRenderKey){
+    lastTemporalRenderKey=key;
+    render();
+  }
+}
+
+setInterval(refreshTemporalState,1000);
+refreshTemporalState(true);
 document.getElementById('search').addEventListener('input',render);
 document.getElementById('level').addEventListener('change',render);
 
