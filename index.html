@@ -620,11 +620,9 @@ async function reservarVaga(){
     return;
   }
 
-  const liberacao=liberacoes.find(l=>
-    Number(l.vaga_numero)===Number(num) &&
-    l.ativo &&
-    l.data_fim>=todayLocal()
-  );
+  const liberacao=activeReleaseForSpot(
+  spots.find(s=>Number(s.number)===Number(num))
+);
 
   if(!liberacao){
     alert(
