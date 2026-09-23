@@ -1389,9 +1389,10 @@ function mapInfo(s){
   const reservations=reservationsForSpot(s);
 
   const agenda=calculateAgenda(
-    release,
-    reservations
-  );
+  release,
+  reservations,
+  false
+);
 
   const currentReservation=
     reservations.find(reservationIsNow);
