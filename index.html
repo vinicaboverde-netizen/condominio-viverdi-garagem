@@ -2135,12 +2135,14 @@ window.vagaModalNumero=s.number;
         Number(r.vaga_numero)===Number(s.number)
     );
 
-    const releaseAgenda=release
-      ? calculateAgenda(
-          release,
-          releaseReservations
-        )
-      : null;
+    const releaseAgenda=
+  release
+    ? calculateAgenda(
+        release,
+        releaseReservations,
+        false
+      )
+    : null;
 
     const canReserve=
       !editing &&
@@ -2245,6 +2247,8 @@ if(ownerEditing){
           '<div class="reservation-section-title">🔵 RESERVAS EXISTENTES</div>';
 
       reservasPublicas.forEach(r=>{
+        const encerrada=
+  reservationTemporalStatus(r)==='encerrada';
 
         let periodo=
           formatDate(r.data_inicio);
@@ -2266,7 +2270,10 @@ if(ownerEditing){
         details+=
           '<div class="reservation-item">'+
             '<div class="reservation-item-head">'+
-              '<b>Apto '+(r.apartamento||'—')+'</b>'+
+              '<b>'+
+  (encerrada?'⚪ ENCERRADA · ':'')+
+  'Apto '+(r.apartamento||'—')+
+'</b>'+
             '</div>'+
             '<div class="reservation-item-date">'+
               periodo+
