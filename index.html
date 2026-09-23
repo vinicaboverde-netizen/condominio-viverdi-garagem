@@ -555,9 +555,10 @@ function prepareReservation(){
   );
 
   const agenda=calculateAgenda(
-    release,
-    reservations
-  );
+  release,
+  reservations,
+  false
+);
 
   if(agenda.full){
     alert(
@@ -1419,12 +1420,15 @@ function mapInfo(s){
     };
   }
 
-  if(agenda.hasReservations){
+  if(agenda.hasReservations || reservations.length){
 
     const parts=[];
     const htmlParts=[];
 
     reservations.forEach(r=>{
+
+      const encerrada=
+        reservationTemporalStatus(r)==='encerrada';
 
       let periodo='';
 
@@ -1438,13 +1442,16 @@ function mapInfo(s){
       }
 
       parts.push(
-        '🔵 Apto '+(r.apartamento||'—')+
-        ' · '+periodo
-      );
+  encerrada
+    ? '⚪ ENCERRADA · Apto '+(r.apartamento||'—')+
+      ' · '+periodo
+    : '🔵 Apto '+(r.apartamento||'—')+
+      ' · '+periodo
+);
 
       htmlParts.push(
   '<div class="map-reservation">'+
-    '<span>🔵</span>'+
+    '<span>'+(encerrada?'⚪':'🔵')+'</span>'+
     '<div>'+
       '<b>'+
         (
@@ -1455,7 +1462,10 @@ function mapInfo(s){
               formatTime(r.hora_fim)
         )+
       '</b>'+
-      '<small>Apto '+(r.apartamento||'—')+'</small>'+
+      '<small>'+
+  (encerrada?'ENCERRADA · ':'')+
+  'Apto '+(r.apartamento||'—')+
+'</small>'+
     '</div>'+
   '</div>'
 );
