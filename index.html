@@ -2082,10 +2082,54 @@ async function loadReservasPublicas(vagaNumero){
 
   const today=todayLocal();
 
-  reservasPublicas=(data||[]).filter(r =>
-    r.data_fim >= today
-  );
-}
+reservasPublicas=(data||[]).filter(r=>{
+  /*
+   * Reserva em uma data futura.
+   */
+  if(r.data_inicio>today){
+    return true;
+  }
+
+  /*
+   * Reserva que termina em uma data futura.
+   */
+  if(r.data_fim>today){
+    return true;
+  }
+
+  /*
+   * Reserva que terminou em uma data anterior.
+   */
+  if(r.data_fim<today){
+    return false;
+  }
+
+  /*
+   * A reserva termina hoje.
+   * Agora precisamos considerar também o horário.
+   */
+  if(r.qualquer_horario){
+    return true;
+  }
+
+  const end=timeToMinutes(r.hora_fim);
+
+  /*
+   * Sem horário final definido:
+   * mantém como válida durante o dia.
+   */
+  if(end===null){
+    return true;
+  }
+
+  const now=new Date();
+
+  const nowMinutes=
+    now.getHours()*60+
+    now.getMinutes();
+
+  return nowMinutes<end;
+});
 
 async function showModal(s, editing){
   await loadReservasPublicas(s.number);
