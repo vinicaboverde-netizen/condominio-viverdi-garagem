@@ -1006,72 +1006,24 @@ if(vencida || encerradaHoje){
 }
 
 function activeReleaseForSpot(s){
-  const today=todayLocal();
-  const now=new Date();
-
-  const nowMinutes=
-    now.getHours()*60+
-    now.getMinutes();
 
   return liberacoes
-    .filter(l=>{
-      if(
-        Number(l.vaga_numero)!==Number(s.number) ||
-        !l.ativo
-      ){
-        return false;
+    .filter(l=>
+      Number(l.vaga_numero)===Number(s.number) &&
+      l.ativo &&
+      releaseTemporalStatus(l)==='ativa'
+    )
+    .sort((a,b)=>{
+
+      if(a.data_inicio!==b.data_inicio){
+        return a.data_inicio.localeCompare(b.data_inicio);
       }
 
-      /*
-       * A liberação ainda não começou.
-       */
-      if(today<l.data_inicio){
-        return false;
-      }
+      return String(a.hora_inicio||'')
+        .localeCompare(String(b.hora_inicio||''));
 
-      /*
-       * A liberação já terminou em uma data anterior.
-       */
-      if(today>l.data_fim){
-        return false;
-      }
-
-      /*
-       * "Qualquer horário" vale durante todo o dia.
-       */
-      if(l.qualquer_horario){
-        return true;
-      }
-
-      const start=timeToMinutes(l.hora_inicio);
-      const end=timeToMinutes(l.hora_fim);
-
-      /*
-       * Sem horário definido: mantém o comportamento
-       * de considerar a liberação válida durante o dia.
-       */
-      if(start===null || end===null){
-        return true;
-      }
-
-      /*
-       * Primeiro dia: ainda não chegou o horário inicial.
-       */
-      if(today===l.data_inicio && nowMinutes<start){
-        return false;
-      }
-
-      /*
-       * Último dia: já passou o horário final.
-       */
-      if(today===l.data_fim && nowMinutes>=end){
-        return false;
-      }
-
-      return true;
-    })
-  
-    .sort((a,b)=>a.data_inicio.localeCompare(b.data_inicio))[0] || null;
+    })[0] || null;
+}
 }
   function releaseForReservation(s){
   const today=todayLocal();
@@ -1128,7 +1080,63 @@ function timeToMinutes(value){
 
   return Number(parts[0])*60+Number(parts[1]);
 }
+function releaseTemporalStatus(l){
 
+  const now=new Date();
+
+  if(!l.data_inicio || !l.data_fim){
+    return 'indefinida';
+  }
+
+  if(l.qualquer_horario){
+
+    const inicio=
+      new Date(l.data_inicio+'T00:00:00');
+
+    const fim=
+      new Date(l.data_fim+'T23:59:59');
+
+    if(now<inicio){
+      return 'futura';
+    }
+
+    if(now>fim){
+      return 'encerrada';
+    }
+
+    return 'ativa';
+  }
+
+  if(!l.hora_inicio || !l.hora_fim){
+    return 'ativa';
+  }
+
+  const inicio=
+    new Date(
+      l.data_inicio+
+      'T'+
+      String(l.hora_inicio).slice(0,5)+
+      ':00'
+    );
+
+  const fim=
+    new Date(
+      l.data_fim+
+      'T'+
+      String(l.hora_fim).slice(0,5)+
+      ':00'
+    );
+
+  if(now<inicio){
+    return 'futura';
+  }
+
+  if(now>=fim){
+    return 'encerrada';
+  }
+
+  return 'ativa';
+}
 function minutesToTime(value){
   const h=Math.floor(value/60);
   const m=value%60;
