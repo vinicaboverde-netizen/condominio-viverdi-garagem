@@ -59,10 +59,6 @@ button.primary{background:var(--blue);color:#fff}input,select{border:1px solid v
 }
 .section{margin:18px 0 8px;font-weight:800;font-size:16px}.grid{display:grid;grid-template-columns:repeat(7,minmax(42px,1fr));gap:7px}
 .spot{min-height:76px;border:2px solid;border-radius:12px;padding:7px;display:flex;flex-direction:column;justify-content:space-between;text-align:left}
-  .spot.green{
-  border-color:#86efac;
-  box-shadow:0 0 0 1px #dcfce7;
-  }
 .spot .time{
   font-size:10px;
   color:#374151;
@@ -78,59 +74,7 @@ button.primary{background:var(--blue);color:#fff}input,select{border:1px solid v
   margin-top:3px;
   line-height:1.15;
 }
-.my-vaga{
-  background:#fff;
-  border:2px solid #bfdbfe;
-  border-radius:16px;
-  padding:14px;
-  margin:10px 0 12px;
-  box-shadow:0 2px 8px #0000000b;
-}
 
-.my-vaga-main{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  align-items:flex-start;
-}
-
-.my-vaga-name{
-  font-size:22px;
-  font-weight:850;
-  color:#111827;
-  line-height:1.15;
-}
-
-.my-vaga-meta{
-  color:#64748b;
-  font-size:14px;
-  margin-top:4px;
-  line-height:1.25;
-}
-
-.my-vaga-status{
-  font-size:16px;
-  font-weight:800;
-  color:#15803d;
-  margin-top:7px;
-  line-height:1.25;
-}
-
-.my-vaga-actions{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-top:12px;
-}
-
-.my-vaga-actions button{
-  flex:1;
-  min-width:130px;
-}
-
-.my-reservations .my-vaga-status{
-  color:#2563eb;
-}
 .map-reservation div,
 .map-free div{
   min-width:0;
@@ -206,29 +150,27 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
 
 .reservation-item{
   background:#fff;
-  border:2px solid #bfdbfe;
-  border-radius:16px;
-  padding:14px;
-  margin-top:10px;
-  box-shadow:0 2px 8px #0000000b;
+  border:1px solid #dbe3ec;
+  border-radius:11px;
+  padding:9px 10px;
+  margin-top:7px;
 }
 
 .reservation-item-head{
-  font-size:22px;
-  font-weight:850;
+  font-size:14px;
 }
 
 .reservation-item-date{
   color:#64748b;
-  font-size:13px;
-  margin-top:4px;
+  font-size:12px;
+  margin-top:2px;
 }
 
 .reservation-item-time{
-  font-size:16px;
+  font-size:14px;
   font-weight:800;
-  margin-top:6px;
-  }
+  margin-top:3px;
+}
 
 .free-section{
   background:#f0fdf4;
@@ -254,6 +196,15 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
 
 @media(max-width:600px){.grid{grid-template-columns:repeat(4,1fr)}.stat{padding:9px}.stat b{font-size:20px}}
 
+.my-area{background:#fff;border:2px solid #bfdbfe;border-radius:16px;padding:14px;margin:10px 0 12px;box-shadow:0 2px 8px #0000000b}.my-area-title{font-size:13px;font-weight:850;color:#2563eb;letter-spacing:.3px;margin-bottom:6px}.my-vaga-main{display:flex;justify-content:space-between;gap:12px;align-items:center}.my-vaga-name{font-size:22px;font-weight:850}.my-vaga-meta{color:#6b7280;font-size:13px;margin-top:2px}.my-vaga-status{font-weight:800;margin-top:6px}.my-vaga-actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}.future-search{padding:18px}.future-search h2{margin:0 0 6px;font-size:20px}.future-search .hint{color:#6b7280;margin-bottom:14px}.future-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.future-grid .full{grid-column:1/-1}.future-search label{display:block;font-size:12px;font-weight:800;margin-bottom:5px}.future-search input,.future-search select{width:100%;padding:12px;border:1px solid #d7dce2;border-radius:10px;font-size:16px;background:#fff}.check-row{display:flex;align-items:center;gap:8px;font-weight:700;margin-top:10px}.check-row input{width:18px;height:18px}.future-results{margin-top:15px}.result-item{border:1px solid #d7dce2;border-radius:12px;padding:11px;margin-top:8px;background:#fff}.result-item b{font-size:17px}.result-item small{display:block;color:#6b7280;margin-top:3px}.empty-result{color:#6b7280;padding:10px 0}.modal-actions .primary{display:block}.
+.my-reservation-card{
+  background:#fff;
+  border:2px solid #bfdbfe;
+  border-radius:16px;
+  padding:14px;
+  margin:10px 0 12px;
+  box-shadow:0 2px 8px #0000000b;
+}
 
 .my-reservations-title{
   font-size:13px;
@@ -264,12 +215,11 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
 }
 
 .my-reservation-card{
-  background:#fff;
-  border:2px solid #bfdbfe;
-  border-radius:16px;
-  padding:14px;
-  margin:10px 0 12px;
-  box-shadow:0 2px 8px #0000000b;
+  background:#f8fafc;
+  border:1px solid #dbe3ec;
+  border-radius:13px;
+  padding:12px;
+  margin-bottom:9px;
 }
 
 .my-reservation-card:last-child{
@@ -529,9 +479,11 @@ function prepareReservation(){
     return;
   }
 
-  const release=activeReleaseForSpot(
-  spots.find(s=>Number(s.number)===Number(num))
-);
+  const release=liberacoes.find(l=>
+    Number(l.vaga_numero)===Number(num) &&
+    l.ativo &&
+    l.data_fim>=todayLocal()
+  );
 
   if(!release){
     alert(
@@ -555,10 +507,9 @@ function prepareReservation(){
   );
 
   const agenda=calculateAgenda(
-  release,
-  reservations,
-  false
-);
+    release,
+    reservations
+  );
 
   if(agenda.full){
     alert(
@@ -621,9 +572,11 @@ async function reservarVaga(){
     return;
   }
 
-  const liberacao=activeReleaseForSpot(
-  spots.find(s=>Number(s.number)===Number(num))
-);
+  const liberacao=liberacoes.find(l=>
+    Number(l.vaga_numero)===Number(num) &&
+    l.ativo &&
+    l.data_fim>=todayLocal()
+  );
 
   if(!liberacao){
     alert(
@@ -934,7 +887,9 @@ function applyLiberations(){
       l.ativo
     );
 
-    const atual=activeReleaseForSpot(s);
+    const atual=ls
+      .filter(l=>l.data_fim>=today)
+      .sort((a,b)=>a.data_inicio.localeCompare(b.data_inicio))[0];
 
     if(atual){
       s.date=atual.data_inicio||'';
@@ -953,43 +908,8 @@ function applyLiberations(){
     }
 
     const vencida=ls
-  .filter(l=>l.data_fim<today)
-  .sort((a,b)=>b.data_fim.localeCompare(a.data_fim))[0];
-
-const encerradaHoje=ls.some(l=>{
-  if(l.data_fim!==today){
-    return false;
-  }
-
-  if(l.qualquer_horario){
-    return false;
-  }
-
-  const end=timeToMinutes(l.hora_fim);
-
-  if(end===null){
-    return false;
-  }
-
-  const now=new Date();
-  const nowMinutes=
-    now.getHours()*60+
-    now.getMinutes();
-
-  return nowMinutes>=end;
-});
-
-if(vencida || encerradaHoje){
-  s.date='';
-  s.dateStart='';
-  s.dateEnd='';
-  s.start='';
-  s.end='';
-  s.anyTime=false;
-
-  s.status='encerrada';
-  s.available=false;
-}
+      .filter(l=>l.data_fim<today)
+      .sort((a,b)=>b.data_fim.localeCompare(a.data_fim))[0];
 
     if(vencida){
       s.date='';
@@ -1006,64 +926,16 @@ if(vencida || encerradaHoje){
 }
 
 function activeReleaseForSpot(s){
+  const today=todayLocal();
 
   return liberacoes
     .filter(l=>
       Number(l.vaga_numero)===Number(s.number) &&
       l.ativo &&
-      releaseTemporalStatus(l)==='ativa'
+      l.data_fim>=today
     )
-    .sort((a,b)=>{
-
-      if(a.data_inicio!==b.data_inicio){
-        return a.data_inicio.localeCompare(b.data_inicio);
-      }
-
-      return String(a.hora_inicio||'')
-        .localeCompare(String(b.hora_inicio||''));
-
-    })[0] || null;
+    .sort((a,b)=>a.data_inicio.localeCompare(b.data_inicio))[0] || null;
 }
-
-  function releaseForReservation(s){
-  const today=todayLocal();
-
-  return liberacoes
-    .filter(l=>{
-      if(
-        Number(l.vaga_numero)!==Number(s.number) ||
-        !l.ativo
-      ){
-        return false;
-      }
-
-      /*
-       * A liberação já terminou em uma data anterior.
-       */
-      if(l.data_fim<today){
-        return false;
-      }
-
-      /*
-       * Se começa hoje, ainda pode ser reservada mesmo
-       * que o horário inicial ainda não tenha chegado.
-       *
-       * Se começa em uma data futura, também pode ser reservada.
-       */
-      return true;
-    })
-    .sort((a,b)=>{
-      if(a.data_inicio!==b.data_inicio){
-        return a.data_inicio.localeCompare(b.data_inicio);
-      }
-
-      const aStart=timeToMinutes(a.hora_inicio);
-      const bStart=timeToMinutes(b.hora_inicio);
-
-      return (aStart===null?0:aStart) -
-             (bStart===null?0:bStart);
-    })[0] || null;
-  }
 
 function reservationsForSpot(s){
   return reservasPublicasTodas.filter(r=>
@@ -1080,63 +952,7 @@ function timeToMinutes(value){
 
   return Number(parts[0])*60+Number(parts[1]);
 }
-function releaseTemporalStatus(l){
 
-  const now=new Date();
-
-  if(!l.data_inicio || !l.data_fim){
-    return 'indefinida';
-  }
-
-  if(l.qualquer_horario){
-
-    const inicio=
-      new Date(l.data_inicio+'T00:00:00');
-
-    const fim=
-      new Date(l.data_fim+'T23:59:59');
-
-    if(now<inicio){
-      return 'futura';
-    }
-
-    if(now>fim){
-      return 'encerrada';
-    }
-
-    return 'ativa';
-  }
-
-  if(!l.hora_inicio || !l.hora_fim){
-    return 'ativa';
-  }
-
-  const inicio=
-    new Date(
-      l.data_inicio+
-      'T'+
-      String(l.hora_inicio).slice(0,5)+
-      ':00'
-    );
-
-  const fim=
-    new Date(
-      l.data_fim+
-      'T'+
-      String(l.hora_fim).slice(0,5)+
-      ':00'
-    );
-
-  if(now<inicio){
-    return 'futura';
-  }
-
-  if(now>=fim){
-    return 'encerrada';
-  }
-
-  return 'ativa';
-}
 function minutesToTime(value){
   const h=Math.floor(value/60);
   const m=value%60;
@@ -1184,15 +1000,7 @@ function reservationIntervalForDate(r,date){
   return [start,end];
 }
 
-function calculateAgenda(release,reservations,includeEnded=true){
-
-  const agendaReservations=
-    includeEnded
-      ? reservations
-      : reservations.filter(r=>
-          reservationTemporalStatus(r)!=='encerrada'
-        );
-
+function calculateAgenda(release,reservations){
   const freeIntervals=[];
   let totalMinutes=0;
   let reservedMinutes=0;
@@ -1223,7 +1031,7 @@ function calculateAgenda(release,reservations,includeEnded=true){
       totalMinutes+=end-start;
 
       const intervals=reservationsCoveringDate(
-        agendaReservations,
+        reservations,
         date
       )
       .map(r=>{
@@ -1297,26 +1105,22 @@ function calculateAgenda(release,reservations,includeEnded=true){
   };
 }
 
-function reservationTemporalStatus(r){
+function reservationIsNow(r){
   const today=todayLocal();
 
-  if(today<r.data_inicio){
-    return 'futura';
-  }
-
-  if(today>r.data_fim){
-    return 'encerrada';
+  if(today<r.data_inicio || today>r.data_fim){
+    return false;
   }
 
   if(r.qualquer_horario){
-    return 'em_uso';
+    return true;
   }
 
   const start=timeToMinutes(r.hora_inicio);
   const end=timeToMinutes(r.hora_fim);
 
   if(start===null || end===null){
-    return 'em_uso';
+    return true;
   }
 
   const now=new Date();
@@ -1325,23 +1129,7 @@ function reservationTemporalStatus(r){
     now.getHours()*60+
     now.getMinutes();
 
-  /*
-   * Em reservas de mais de um dia, o horário inicial vale no
-   * primeiro dia e o horário final vale no último dia.
-   */
-  if(today===r.data_inicio && nowMinutes<start){
-    return 'futura';
-  }
-
-  if(today===r.data_fim && nowMinutes>=end){
-    return 'encerrada';
-  }
-
-  return 'em_uso';
-}
-
-function reservationIsNow(r){
-  return reservationTemporalStatus(r)==='em_uso';
+  return nowMinutes>=start && nowMinutes<end;
 }
 
 function mapInfo(s){
@@ -1397,10 +1185,9 @@ function mapInfo(s){
   const reservations=reservationsForSpot(s);
 
   const agenda=calculateAgenda(
-  release,
-  reservations,
-  false
-);
+    release,
+    reservations
+  );
 
   const currentReservation=
     reservations.find(reservationIsNow);
@@ -1429,15 +1216,12 @@ function mapInfo(s){
     };
   }
 
-  if(agenda.hasReservations || reservations.length){
+  if(agenda.hasReservations){
 
     const parts=[];
     const htmlParts=[];
 
     reservations.forEach(r=>{
-
-      const encerrada=
-        reservationTemporalStatus(r)==='encerrada';
 
       let periodo='';
 
@@ -1451,16 +1235,13 @@ function mapInfo(s){
       }
 
       parts.push(
-  encerrada
-    ? '⚪ ENCERRADA · Apto '+(r.apartamento||'—')+
-      ' · '+periodo
-    : '🔵 Apto '+(r.apartamento||'—')+
-      ' · '+periodo
-);
+        '🔵 Apto '+(r.apartamento||'—')+
+        ' · '+periodo
+      );
 
       htmlParts.push(
   '<div class="map-reservation">'+
-    '<span>'+(encerrada?'⚪':'🔵')+'</span>'+
+    '<span>🔵</span>'+
     '<div>'+
       '<b>'+
         (
@@ -1471,10 +1252,7 @@ function mapInfo(s){
               formatTime(r.hora_fim)
         )+
       '</b>'+
-      '<small>'+
-  (encerrada?'ENCERRADA · ':'')+
-  'Apto '+(r.apartamento||'—')+
-'</small>'+
+      '<small>Apto '+(r.apartamento||'—')+'</small>'+
     '</div>'+
   '</div>'
 );
@@ -1651,15 +1429,9 @@ function renderMyReservations(){
     return;
   }
 
-  /*
-   * A reserva pode continuar com status="ativa" no banco mesmo
-   * depois do horário final. O estado visual, porém, é temporal.
-   */
-  const visible = reservas.filter(r =>
-    r.data_fim >= todayLocal()
-  );
+  const active = reservas.filter(r => r.status === 'ativa');
 
-  if(!visible.length){
+  if(!active.length){
     box.style.display = 'none';
     content.innerHTML = '';
     return;
@@ -1667,20 +1439,8 @@ function renderMyReservations(){
 
   box.style.display = 'block';
 
-  content.innerHTML = visible.map(r => {
-    const spot = spots.find(
-      s => Number(s.number) === Number(r.vaga_numero)
-    );
-
-    const temporalStatus = reservationTemporalStatus(r);
-
-    let statusHtml = '🔵 Reserva agendada';
-
-    if(temporalStatus === 'em_uso'){
-      statusHtml = '🟠 Em uso';
-    }else if(temporalStatus === 'encerrada'){
-      statusHtml = '⚪ Reserva encerrada';
-    }
+  content.innerHTML = active.map(r => {
+    const spot = spots.find(s => Number(s.number) === Number(r.vaga_numero));
 
     let periodo = formatDate(r.data_inicio);
 
@@ -1691,10 +1451,7 @@ function renderMyReservations(){
     if(r.qualquer_horario){
       periodo += ' · Qualquer horário';
     }else if(r.hora_inicio && r.hora_fim){
-      periodo += ' · ' +
-        formatTime(r.hora_inicio) +
-        ' às ' +
-        formatTime(r.hora_fim);
+      periodo += ' · ' + formatTime(r.hora_inicio) + ' às ' + formatTime(r.hora_fim);
     }
 
     return `
@@ -1705,7 +1462,7 @@ function renderMyReservations(){
             <div class="my-vaga-meta">
               Apto proprietário ${spot?.apartment || '—'}
             </div>
-            <div class="my-vaga-status">${statusHtml}</div>
+            <div class="my-vaga-status">🔵 Reserva ativa</div>
             <div class="my-vaga-meta">${periodo}</div>
           </div>
         </div>
@@ -1718,8 +1475,7 @@ function renderMyReservations(){
       </div>
     `;
   }).join('');
-}
-                            
+                            }
   function openReservationDetails(num){
   const spot = spots.find(s => Number(s.number) === Number(num));
 
@@ -1932,10 +1688,9 @@ async function searchFutureAvailability(){
    console.error(err);
    box.innerHTML='<div class="empty-result">Não foi possível consultar as vagas futuras.\n\n'+err.message+'</div>';
  }
+}
 
-  function render(){
- applyLiberations();
-
+function render(){
  const q=document.getElementById('search').value.trim().toLowerCase();
  const level=document.getElementById('level').value;
  const maps=document.getElementById('maps');
@@ -2110,9 +1865,10 @@ async function loadReservasPublicas(vagaNumero){
 
   const today=todayLocal();
 
-reservasPublicas=(data||[]).filter(r=>
-  r.data_fim>=today
-);
+  reservasPublicas=(data||[]).filter(r =>
+    r.data_fim >= today
+  );
+}
 
 async function showModal(s, editing){
   await loadReservasPublicas(s.number);
@@ -2131,10 +1887,13 @@ window.vagaModalNumero=s.number;
   const cancelReservationBtn=document.getElementById('cancelReservationModal');
   const myReservation=reservas.find(r=>
     Number(r.vaga_numero)===Number(s.number) &&
-    r.status==='ativa' &&
-    reservationTemporalStatus(r)!=='encerrada'
+    r.status==='ativa'
   );
-  const release=activeReleaseForSpot(s);
+  const release=liberacoes.find(l=>
+    Number(l.vaga_numero)===Number(s.number) &&
+    l.ativo &&
+  l.data_fim>=todayLocal()
+  );
 
   if(reserveBtn){
 
@@ -2143,14 +1902,12 @@ window.vagaModalNumero=s.number;
         Number(r.vaga_numero)===Number(s.number)
     );
 
-    const releaseAgenda=
-  release
-    ? calculateAgenda(
-        release,
-        releaseReservations,
-        false
-      )
-    : null;
+    const releaseAgenda=release
+      ? calculateAgenda(
+          release,
+          releaseReservations
+        )
+      : null;
 
     const canReserve=
       !editing &&
@@ -2255,8 +2012,6 @@ if(ownerEditing){
           '<div class="reservation-section-title">🔵 RESERVAS EXISTENTES</div>';
 
       reservasPublicas.forEach(r=>{
-        const encerrada=
-  reservationTemporalStatus(r)==='encerrada';
 
         let periodo=
           formatDate(r.data_inicio);
@@ -2278,10 +2033,7 @@ if(ownerEditing){
         details+=
           '<div class="reservation-item">'+
             '<div class="reservation-item-head">'+
-              '<b>'+
-  (encerrada?'⚪ ENCERRADA · ':'')+
-  'Apto '+(r.apartamento||'—')+
-'</b>'+
+              '<b>Apto '+(r.apartamento||'—')+'</b>'+
             '</div>'+
             '<div class="reservation-item-date">'+
               periodo+
@@ -2379,8 +2131,53 @@ if(ownerEditing){
     }
   }
 
-  
-  
+  if(
+    !editing &&
+    reservaCriteria &&
+    Number(reservaCriteria.vaga_numero)===Number(s.number)
+  ){
+
+    let periodoReserva='';
+
+    if(reservaCriteria.data_inicio){
+
+      periodoReserva=
+        formatDate(reservaCriteria.data_inicio);
+
+      if(
+        reservaCriteria.data_fim &&
+        reservaCriteria.data_fim!==reservaCriteria.data_inicio
+      ){
+        periodoReserva+=
+          ' a '+
+          formatDate(reservaCriteria.data_fim);
+      }
+    }
+
+    if(reservaCriteria.qualquer_horario){
+
+      periodoReserva+=' · Qualquer horário';
+
+    }else if(
+      reservaCriteria.hora_inicio &&
+      reservaCriteria.hora_fim
+    ){
+
+      periodoReserva+=
+        ' · '+
+        formatTime(reservaCriteria.hora_inicio)+
+        ' às '+
+        formatTime(reservaCriteria.hora_fim);
+    }
+
+    details+=
+      '<div class="reservation-section">'+
+        '<div class="reservation-section-title">🟢 SEU PERÍODO DE RESERVA</div>'+
+        '<div class="reservation-item">'+
+          periodoReserva+
+        '</div>'+
+      '</div>';
+  }
  document.getElementById('viewDetails').innerHTML=details;
   document.getElementById('viewDetails').style.display='block';
  document.querySelectorAll('.status-option').forEach(b=>b.classList.toggle('selected',b.dataset.status===document.getElementById('modalStatus').value));
@@ -2528,30 +2325,7 @@ function formatDate(value){
  const p=value.split('-');
  return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:value;
 }
-/*
- * Atualização temporal local.
- * O Realtime continua responsável pelas alterações do banco.
- * Este relógio apenas faz a interface perceber a passagem de
- * minutos, sem consultar o Supabase a cada segundo.
- */
-let lastTemporalRenderKey='';
 
-function refreshTemporalState(force=false){
-  const now=new Date();
-
-  const key=
-    todayLocal()+'|'+
-    now.getHours()+'|'+
-    now.getMinutes();
-
-  if(force || key!==lastTemporalRenderKey){
-    lastTemporalRenderKey=key;
-    render();
-  }
-}
-
-setInterval(refreshTemporalState,1000);
-refreshTemporalState(true);
 document.getElementById('search').addEventListener('input',render);
 document.getElementById('level').addEventListener('change',render);
 
