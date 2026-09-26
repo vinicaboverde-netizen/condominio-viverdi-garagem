@@ -1918,16 +1918,29 @@ function render(){
         info.className+
         (!s.apartment?' unmapped':'');
 
-      b.innerHTML=
-  '<span class="num">Vaga '+s.number+'</span>'+
-  '<span class="apt">'+
-    (s.apartment
-      ? 'Apto '+s.apartment
-      : 'Não cadastrada')+
-  '</span>'+
-  '<span class="time">'+
-    (info.html || info.text)+
-  '</span>';
+      if(info.className==='active'){
+
+  b.innerHTML=
+    '<span class="num">Vaga '+s.number+'</span>'+
+    '<span class="apt">'+
+      (s.apartment
+        ? 'Apto '+s.apartment
+        : 'Não cadastrada')+
+    '</span>';
+
+}else{
+
+  b.innerHTML=
+    '<span class="num">Vaga '+s.number+'</span>'+
+    '<span class="apt">'+
+      (s.apartment
+        ? 'Apto '+s.apartment
+        : 'Não cadastrada')+
+    '</span>'+
+    '<span class="time">'+
+      (info.html || info.text)+
+    '</span>';
+      }
 
       b.onclick=()=>openSpot(s.number);
 
