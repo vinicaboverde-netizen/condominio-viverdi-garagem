@@ -513,8 +513,36 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
 <div class="panel"><b>🔎 Consulta por apartamento</b>
 <div class="toolbar" style="margin-top:10px;margin-bottom:0"><input id="aptSearch" placeholder="Ex.: 2401" style="flex:1"><button onclick="findApartment()">Localizar vaga</button></div>
 <div id="aptResult" class="small" style="margin-top:9px"></div></div>
-<div class="panel"><b>📋 Relação apartamento → vaga cadastrada</b>
-<div class="tablewrap" style="margin-top:8px"><table><thead><tr><th>Apartamento</th><th>Vaga</th></tr></thead><tbody id="mappingTable"></tbody></table></div></div>
+<div class="panel mapping-panel">
+
+  <button
+    type="button"
+    class="mapping-toggle"
+    onclick="toggleMappingTable()"
+  >
+    <span>📋 Relação apartamento → vaga cadastrada</span>
+    <span id="mappingArrow">▸</span>
+  </button>
+
+  <div
+    id="mappingContent"
+    class="mapping-content"
+  >
+    <div class="tablewrap" style="margin-top:8px">
+      <table>
+        <thead>
+          <tr>
+            <th>Apartamento</th>
+            <th>Vaga</th>
+          </tr>
+        </thead>
+
+        <tbody id="mappingTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
