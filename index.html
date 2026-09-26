@@ -435,11 +435,9 @@ let reservaCriteria = null;
     return;
   }
 
-  reservas=(data||[]).filter(r =>
-    r.data_fim >= today
-  );
+  reservas=data||[];
 
-  renderMyReservations();
+renderMyReservations();
 }
 
 async function loadReservasPublicasTodas(){
