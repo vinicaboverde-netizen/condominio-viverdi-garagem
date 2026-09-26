@@ -1950,44 +1950,44 @@ function render(){
         occupiedNowCount++;
       }
 
-      const b=document.createElement('button');
+     const cell=document.createElement('div');
+cell.className='spot-cell';
 
-      b.className=
-        'spot '+
-        info.className+
-        (!s.apartment?' unmapped':'');
+const b=document.createElement('button');
 
-    if(info.className==='active'){
+b.className=
+  'spot '+
+  info.className+
+  (!s.apartment?' unmapped':'');
 
-  b.innerHTML=
-    '<span class="active-label">🟢 Ativo</span>'+
-    '<span class="num">Vaga '+s.number+'</span>'+
-    '<span class="apt">'+
-      (s.apartment
-        ? 'Apto '+s.apartment
-        : 'Não cadastrada')+
-    '</span>';
+if(info.className==='active'){
 
-}else{
+  const label=document.createElement('div');
+  label.className='active-label';
+  label.textContent='🟢 Ativo';
 
-  b.innerHTML=
-    '<span class="num">Vaga '+s.number+'</span>'+
-    '<span class="apt">'+
-      (s.apartment
-        ? 'Apto '+s.apartment
-        : 'Não cadastrada')+
-    '</span>'+
-    '<span class="time">'+
-      (info.html || info.text)+
-    '</span>';
-      }
+  cell.appendChild(label);
+}
 
-      b.onclick=()=>openSpot(s.number);
+b.innerHTML=
+  '<span class="num">Vaga '+s.number+'</span>'+
+  '<span class="apt">'+
+    (s.apartment
+      ? 'Apto '+s.apartment
+      : 'Não cadastrada')+
+  '</span>'+
+  (
+    info.className==='active'
+      ? ''
+      : '<span class="time">'+
+          (info.html || info.text)+
+        '</span>'
+  );
 
-      grid.appendChild(b);
-    });
+b.onclick=()=>openSpot(s.number);
 
-  maps.appendChild(grid);
+cell.appendChild(b);
+grid.appendChild(cell); 
  }
 
  const mapped=blockSpots.filter(
