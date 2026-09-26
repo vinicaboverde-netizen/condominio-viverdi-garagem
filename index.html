@@ -1703,6 +1703,129 @@ function renderMyArea(){
     `;
   }).join('');
 }
+let reservationHistoryMonth = todayLocal().slice(0,7);
+let reservationHistoryDate = todayLocal();
+
+function reservationIsFutureOrNow(r){
+
+  if(reservationIsNow(r)){
+    return true;
+  }
+
+  const today=todayLocal();
+
+  if(r.data_inicio>today){
+    return true;
+  }
+
+  if(r.data_fim<today){
+    return false;
+  }
+
+  if(r.qualquer_horario){
+    return true;
+  }
+
+  const start=timeToMinutes(r.hora_inicio);
+
+  if(start===null){
+    return true;
+  }
+
+  const now=new Date();
+
+  const nowMinutes=
+    now.getHours()*60+
+    now.getMinutes();
+
+  return r.data_inicio===today &&
+         start>nowMinutes;
+}
+
+function reservationHistoryDates(r){
+
+  const dates=[];
+
+  if(!r.data_inicio){
+    return dates;
+  }
+
+  let date=r.data_inicio;
+  const end=r.data_fim || r.data_inicio;
+
+  while(date<=end){
+
+    dates.push(date);
+
+    if(date===end){
+      break;
+    }
+
+    date=nextDateLocal(date);
+  }
+
+  return dates;
+}
+
+function reservationHistoryHasDate(r,date){
+
+  if(reservationIsFutureOrNow(r)){
+    return false;
+  }
+
+  return reservationHistoryDates(r).includes(date);
+}
+
+function changeReservationHistoryMonth(value){
+
+  if(!value) return;
+
+  reservationHistoryMonth=value;
+
+  const today=todayLocal();
+
+  if(today.startsWith(value)){
+    reservationHistoryDate=today;
+  }else{
+    reservationHistoryDate=value+'-01';
+  }
+
+  renderMyReservations();
+}
+
+function changeReservationHistoryWeek(offset){
+
+  const current=new Date(
+    reservationHistoryDate+'T12:00:00'
+  );
+
+  current.setDate(
+    current.getDate()+(offset*7)
+  );
+
+  const y=current.getFullYear();
+  const m=String(current.getMonth()+1).padStart(2,'0');
+  const d=String(current.getDate()).padStart(2,'0');
+
+  const date=`${y}-${m}-${d}`;
+
+  if(date.slice(0,7)!==reservationHistoryMonth){
+    return;
+  }
+
+  reservationHistoryDate=date;
+
+  renderMyReservations();
+}
+
+function selectReservationHistoryDate(date){
+
+  if(!date) return;
+
+  reservationHistoryDate=date;
+  renderMyReservations();
+}
+
 function renderMyReservations(){
 
   const box=document.getElementById('myReservationsArea');
@@ -1716,14 +1839,200 @@ function renderMyReservations(){
     return;
   }
 
-  const active=reservas
-    .filter(r=>r.status==='ativa')
+  const all=reservas
+    .filter(r=>r.status==='ativa');
+
+  if(!all.length){
+    box.style.display='none';
+    content.innerHTML='';
+    return;
+  }
+
+  box.style.display='block';
+
+  const active=all
+    .filter(reservationIsFutureOrNow)
     .slice()
     .sort((a,b)=>{
 
       if(a.data_inicio!==b.data_inicio){
-        return b.data_inicio.localeCompare(a.data_inicio);
+        return a.data_inicio.localeCompare(b.data_inicio);
       }
+
+      const aStart=timeToMinutes(a.hora_inicio);
+      const bStart=timeToMinutes(b.hora_inicio);
+
+      return (aStart===null?0:aStart) -
+             (bStart===null?0:bStart);
+    });
+
+  const history=all
+    .filter(r=>!reservationIsFutureOrNow(r));
+
+  const activeCards=active.map(r=>{
+
+    const spot=spots.find(
+      s=>Number(s.number)===Number(r.vaga_numero)
+    );
+
+    let periodo=formatDate(r.data_inicio);
+
+    if(
+      r.data_fim &&
+      r.data_fim!==r.data_inicio
+    ){
+      periodo+=' a '+formatDate(r.data_fim);
+    }
+
+    if(r.qualquer_horario){
+
+      periodo+=' · Qualquer horário';
+
+    }else if(r.hora_inicio && r.hora_fim){
+
+      periodo+=' · '+
+        formatTime(r.hora_inicio)+
+        ' às '+
+        formatTime(r.hora_fim);
+    }
+
+    const emUso=reservationIsNow(r);
+
+    return `
+      <div class="my-vaga" style="margin-bottom:10px">
+
+        <div class="my-vaga-main">
+
+          <div>
+
+            <div class="my-vaga-name">
+              Vaga ${r.vaga_numero}
+            </div>
+
+            <div class="my-vaga-meta">
+              Apto proprietário ${spot?.apartment || '—'}
+            </div>
+
+            <div class="my-vaga-status">
+              ${
+                emUso
+                  ? '🟠 Em uso no momento'
+                  : '🔵 Reserva ativa'
+              }
+            </div>
+
+            <div class="my-vaga-meta">
+              ${periodo}
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="my-vaga-actions">
+          <button onclick="openReservationDetails(${r.vaga_numero})">
+            Ver detalhes
+          </button>
+        </div>
+
+      </div>
+    `;
+
+  }).join('');
+
+  const monthDate=
+    reservationHistoryMonth+'-01T12:00:00';
+
+  const monthLabel=
+    new Date(monthDate)
+      .toLocaleDateString(
+        'pt-BR',
+        {
+          month:'long',
+          year:'numeric'
+        }
+      );
+
+  const selectedDate=
+    new Date(
+      reservationHistoryDate+'T12:00:00'
+    );
+
+  const dayOfWeek=
+    (selectedDate.getDay()+6)%7;
+
+  const weekStart=new Date(selectedDate);
+
+  weekStart.setDate(
+    selectedDate.getDate()-dayOfWeek
+  );
+
+  const days=[];
+
+  const dayNames=[
+    'SEG',
+    'TER',
+    'QUA',
+    'QUI',
+    'SEX',
+    'SÁB',
+    'DOM'
+  ];
+
+  for(let i=0;i<7;i++){
+
+    const d=new Date(weekStart);
+
+    d.setDate(
+      weekStart.getDate()+i
+    );
+
+    const y=d.getFullYear();
+    const m=String(d.getMonth()+1).padStart(2,'0');
+    const n=String(d.getDate()).padStart(2,'0');
+
+    const iso=`${y}-${m}-${n}`;
+
+    if(iso.slice(0,7)!==reservationHistoryMonth){
+      days.push('');
+      continue;
+    }
+
+    const hasHistory=
+      history.some(r=>
+        reservationHistoryHasDate(r,iso)
+      );
+
+    const selected=
+      iso===reservationHistoryDate;
+
+    days.push(`
+      <button
+        class="reservation-day
+          ${hasHistory?'has-history':''}
+          ${selected?'selected':''}"
+        onclick="selectReservationHistoryDate('${iso}')"
+      >
+        <span class="reservation-day-name">
+          ${dayNames[i]}
+        </span>
+
+        <span class="reservation-day-number">
+          ${d.getDate()}
+        </span>
+      </button>
+    `);
+  }
+
+  const selectedHistory=history
+    .filter(r=>
+      reservationHistoryHasDate(
+        r,
+        reservationHistoryDate
+      )
+    )
+    .slice()
+    .sort((a,b)=>{
 
       const aStart=timeToMinutes(a.hora_inicio);
       const bStart=timeToMinutes(b.hora_inicio);
@@ -1732,154 +2041,131 @@ function renderMyReservations(){
              (aStart===null?0:aStart);
     });
 
-  if(!active.length){
-    box.style.display='none';
-    content.innerHTML='';
-    return;
-  }
+  const historyCards=selectedHistory.map(r=>{
 
-  box.style.display='block';
+    const spot=spots.find(
+      s=>Number(s.number)===Number(r.vaga_numero)
+    );
 
-  const grupos={};
+    let periodo=formatDate(r.data_inicio);
 
-  active.forEach(r=>{
-    const data=r.data_inicio||'sem-data';
-
-    if(!grupos[data]){
-      grupos[data]=[];
+    if(
+      r.data_fim &&
+      r.data_fim!==r.data_inicio
+    ){
+      periodo+=' a '+formatDate(r.data_fim);
     }
 
-    grupos[data].push(r);
-  });
+    if(r.qualquer_horario){
 
-  content.innerHTML=
-    Object.keys(grupos)
-      .sort((a,b)=>b.localeCompare(a))
-      .map(data=>{
+      periodo+=' · Qualquer horário';
 
-        const reservasDoDia=grupos[data];
+    }else if(r.hora_inicio && r.hora_fim){
 
-        const tituloData=
-          data==='sem-data'
-            ? 'Data não informada'
-            : formatDate(data);
+      periodo+=' · '+
+        formatTime(r.hora_inicio)+
+        ' às '+
+        formatTime(r.hora_fim);
+    }
 
-        const cards=reservasDoDia.map(r=>{
+    return `
+      <div class="my-vaga" style="margin-bottom:10px">
 
-          const spot=spots.find(
-            s=>Number(s.number)===Number(r.vaga_numero)
-          );
+        <div class="my-vaga-main">
 
-          let periodo=formatDate(r.data_inicio);
+          <div>
 
-          if(
-            r.data_fim &&
-            r.data_fim!==r.data_inicio
-          ){
-            periodo+=' a '+formatDate(r.data_fim);
-          }
-
-          if(r.qualquer_horario){
-
-            periodo+=' · Qualquer horário';
-
-          }else if(r.hora_inicio && r.hora_fim){
-
-            periodo+=' · '+
-              formatTime(r.hora_inicio)+
-              ' às '+
-              formatTime(r.hora_fim);
-
-          }
-
-          const agora=new Date();
-
-          const agoraMinutos=
-            agora.getHours()*60+
-            agora.getMinutes();
-
-          const inicio=timeToMinutes(r.hora_inicio);
-
-          const futura=
-            todayLocal()<r.data_inicio ||
-            (
-              todayLocal()===r.data_inicio &&
-              !r.qualquer_horario &&
-              inicio!==null &&
-              inicio>agoraMinutos
-            );
-
-          const emUso=reservationIsNow(r);
-
-          const status=emUso
-            ? '🟠 Em uso no momento'
-            : futura
-              ? '🔵 Reserva ativa'
-              : '⚪ Reserva encerrada';
-
-          const podeVerDetalhes=
-            emUso || futura;
-
-          return `
-            <div class="my-vaga" style="margin-bottom:10px">
-
-              <div class="my-vaga-main">
-
-                <div>
-
-                  <div class="my-vaga-name">
-                    Vaga ${r.vaga_numero}
-                  </div>
-
-                  <div class="my-vaga-meta">
-                    Apto proprietário ${spot?.apartment || '—'}
-                  </div>
-
-                  <div class="my-vaga-status">
-                    ${status}
-                  </div>
-
-                  <div class="my-vaga-meta">
-                    ${periodo}
-                  </div>
-
-                </div>
-
-              </div>
-
-              ${
-                podeVerDetalhes
-                  ? `
-                    <div class="my-vaga-actions">
-                      <button onclick="openReservationDetails(${r.vaga_numero})">
-                        Ver detalhes
-                      </button>
-                    </div>
-                  `
-                  : ''
-              }
-
+            <div class="my-vaga-name">
+              Vaga ${r.vaga_numero}
             </div>
-          `;
 
-        }).join('');
+            <div class="my-vaga-meta">
+              Apto proprietário ${spot?.apartment || '—'}
+            </div>
 
-        return `
-          <div style="
-            margin:16px 0 8px;
-            padding-bottom:5px;
-            border-bottom:2px solid #e5e7eb;
-            font-size:15px;
-            font-weight:850;
-          ">
-            ${tituloData}
+            <div class="my-vaga-status">
+              ⚪ Reserva encerrada
+            </div>
+
+            <div class="my-vaga-meta">
+              ${periodo}
+            </div>
+
           </div>
 
-          ${cards}
-        `;
+        </div>
 
-      })
-      .join('');
+      </div>
+    `;
+
+  }).join('');
+
+  content.innerHTML=`
+
+    ${
+      active.length
+        ? `
+          <div class="reservation-history-title">
+            RESERVAS ATIVAS
+          </div>
+
+          ${activeCards}
+        `
+        : ''
+    }
+
+    <div class="reservation-calendar">
+
+      <div class="reservation-calendar-head">
+
+        <button
+          class="reservation-week-nav"
+          onclick="changeReservationHistoryWeek(-1)"
+        >
+          ‹
+        </button>
+
+        <div class="reservation-month">
+
+          <input
+            class="reservation-month-input"
+            type="month"
+            value="${reservationHistoryMonth}"
+            onchange="changeReservationHistoryMonth(this.value)"
+          >
+
+        </div>
+
+        <button
+          class="reservation-week-nav"
+          onclick="changeReservationHistoryWeek(1)"
+        >
+          ›
+        </button>
+
+      </div>
+
+      <div class="reservation-week">
+        ${days.join('')}
+      </div>
+
+      <div class="reservation-history-title">
+        HISTÓRICO ·
+        ${formatDate(reservationHistoryDate)}
+      </div>
+
+      ${
+        historyCards
+          ? historyCards
+          : `
+            <div class="reservation-empty">
+              Nenhuma reserva encerrada neste dia.
+            </div>
+          `
+      }
+
+    </div>
+  `;
   }
   function openReservationDetails(num){
   const spot = spots.find(s => Number(s.number) === Number(num));
