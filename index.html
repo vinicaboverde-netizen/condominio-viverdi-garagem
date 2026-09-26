@@ -1576,11 +1576,29 @@ function renderMyReservations(){
         </div>
 
         <div class="my-vaga-actions">
-          <button onclick="openReservationDetails(${r.vaga_numero})">
-            Ver detalhes
-          </button>
-        </div>
-      </div>
+  ${
+    reservationIsNow(r) ||
+    todayLocal() < r.data_inicio ||
+    (
+      todayLocal() === r.data_inicio &&
+      (
+        r.qualquer_horario ||
+        (
+          timeToMinutes(r.hora_inicio)!==null &&
+          timeToMinutes(r.hora_inicio) >
+          (
+            new Date().getHours()*60 +
+            new Date().getMinutes()
+          )
+        )
+      )
+    )
+      ? `<button onclick="openReservationDetails(${r.vaga_numero})">
+           Ver detalhes
+         </button>`
+      : ''
+  }
+</div>
     `;
   }).join('');
                             }
