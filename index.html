@@ -472,6 +472,38 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
   font-size:28px;
   color:#16a34a;
   }
+  .mapping-toggle{
+  width:100%;
+  border:0;
+  background:transparent;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  text-align:left;
+  font:inherit;
+  font-weight:800;
+  color:#111827;
+  cursor:pointer;
+}
+
+#mappingArrow{
+  font-size:20px;
+  line-height:1;
+  transition:transform .2s ease;
+}
+
+.mapping-content{
+  display:none;
+}
+
+.mapping-content.show{
+  display:block;
+}
+
+.mapping-toggle.open #mappingArrow{
+  transform:rotate(90deg);
+}
 </style>
 </head>
 <body>
