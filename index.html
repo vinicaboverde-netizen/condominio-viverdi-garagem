@@ -3131,14 +3131,30 @@ function toggleEdit(){
 function statusLabel(st){return ({disponivel:'Disponível',reservada:'Reservada',ocupada:'Ocupada',indisponivel:'Indisponível',encerrada:'Encerrada'}[st]||'Indisponível');}
 
 function findApartment(){
- const apt=document.getElementById('aptSearch').value.trim(),s=spots.find(x=>x.apartment===apt && x.block===selectedBlock);
- document.getElementById('aptResult').textContent=s?
-   'Apartamento '+apt+' → Vaga '+s.number+' · '+statusLabel(s.status)+
-   (s.date?' · '+formatDate(s.date):'')+
-   (s.start&&s.end?' · '+formatTime(s.start)+' às '+formatTime(s.end):''):
-   'Apartamento não encontrado no cadastro.';
-}
 
+  const apt=
+    document.getElementById('aptSearch')
+      .value
+      .trim();
+
+  const s=spots.find(
+    x=>String(x.apartment||'')===apt
+  );
+
+  document.getElementById('aptResult').textContent=s
+    ? 'Apartamento '+apt+
+      ' → Vaga '+s.number+
+      ' · Bloco '+s.block+
+      ' · '+statusLabel(s.status)+
+      (s.date
+        ? ' · '+formatDate(s.date)
+        : '')+
+      (s.start&&s.end
+        ? ' · '+formatTime(s.start)+
+          ' às '+formatTime(s.end)
+        : '')
+    : 'Apartamento não encontrado no cadastro.';
+}
   function toggleMappingTable(){
 
   const content=document.getElementById('mappingContent');
