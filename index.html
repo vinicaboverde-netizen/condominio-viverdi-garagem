@@ -1918,9 +1918,10 @@ function render(){
         info.className+
         (!s.apartment?' unmapped':'');
 
-      if(info.className==='active'){
+    if(info.className==='active'){
 
   b.innerHTML=
+    '<span class="active-label">🟢 Ativo</span>'+
     '<span class="num">Vaga '+s.number+'</span>'+
     '<span class="apt">'+
       (s.apartment
