@@ -879,19 +879,31 @@ async function loadLiberacoes(){
 }
 
 function applyLiberations(){
-  const today=todayLocal();
 
   spots.forEach(s=>{
+
     const ls=liberacoes.filter(l=>
       Number(l.vaga_numero)===Number(s.number) &&
       l.ativo
     );
 
     const atual=ls
-      .filter(l=>l.data_fim>=today)
-      .sort((a,b)=>a.data_inicio.localeCompare(b.data_inicio))[0];
+      .filter(releaseIsActiveNow)
+      .sort((a,b)=>{
+
+        if(a.data_inicio!==b.data_inicio){
+          return a.data_inicio.localeCompare(b.data_inicio);
+        }
+
+        const aStart=timeToMinutes(a.hora_inicio);
+        const bStart=timeToMinutes(b.hora_inicio);
+
+        return (aStart===null?0:aStart) -
+               (bStart===null?0:bStart);
+      })[0];
 
     if(atual){
+
       s.date=atual.data_inicio||'';
       s.dateStart=atual.data_inicio||'';
       s.dateEnd=atual.data_fim||atual.data_inicio||'';
@@ -899,29 +911,44 @@ function applyLiberations(){
       s.end=atual.hora_fim||'';
       s.anyTime=!!atual.qualquer_horario;
 
-      if(s.status==='indisponivel' || s.status==='encerrada'){
+      if(
+        s.status==='indisponivel' ||
+        s.status==='encerrada'
+      ){
         s.status='disponivel';
       }
 
       s.available=s.status==='disponivel';
+
       return;
     }
 
-    const vencida=ls
-      .filter(l=>l.data_fim<today)
-      .sort((a,b)=>b.data_fim.localeCompare(a.data_fim))[0];
+    /*
+     * Não existe liberação vigente.
+     *
+     * A vaga continua ativa no sistema.
+     * Os dados temporários da antiga liberação
+     * são retirados do estado visual da vaga.
+     */
+    s.date='';
+    s.dateStart='';
+    s.dateEnd='';
+    s.start='';
+    s.end='';
+    s.anyTime=false;
 
-    if(vencida){
-      s.date='';
-      s.dateStart='';
-      s.dateEnd='';
-      s.start='';
-      s.end='';
-      s.anyTime=false;
-
-      s.status='encerrada';
-      s.available=false;
+    if(s.ativa===false){
+      return;
     }
+
+    if(
+      s.status==='disponivel' ||
+      s.status==='encerrada'
+    ){
+      s.status='ativo';
+    }
+
+    s.available=false;
   });
 }
 
@@ -2434,6 +2461,12 @@ db.auth.onAuthStateChange((_event, session)=>{
 
 updateAuthUI();
 loadSpots();
+  setInterval(()=>{
+  if(!spots.length) return;
+
+  applyLiberations();
+  render();
+},30000);
 </script>
 
 <div id="futureBackdrop" class="modal-backdrop" onclick="if(event.target===this)closeFutureSearch()">
