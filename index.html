@@ -2548,12 +2548,25 @@ function statusClass(st){
  }
 
 function selectBlock(block){
- selectedBlock=block;
- document.getElementById('block01').classList.toggle('active',block==='01');
- document.getElementById('block02').classList.toggle('active',block==='02');
- document.getElementById('level').value='all';
- document.getElementById('search').value='';
- render();
+
+  selectedBlock=block;
+
+  document.getElementById('block01')
+    .classList.toggle('active',block==='01');
+
+  document.getElementById('block02')
+    .classList.toggle('active',block==='02');
+
+  const target=document.getElementById(
+    'map-block-'+block
+  );
+
+  if(target){
+    target.scrollIntoView({
+      behavior:'smooth',
+      block:'start'
+    });
+  }
 }
 
 function openSpot(num,fromFuture=false){
