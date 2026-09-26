@@ -2382,145 +2382,160 @@ async function searchFutureAvailability(){
 }
 
 function render(){
- const q=document.getElementById('search').value.trim().toLowerCase();
- const level=document.getElementById('level').value;
- const maps=document.getElementById('maps');
 
- maps.innerHTML='';
+  const q=document.getElementById('search').value.trim().toLowerCase();
+  const level=document.getElementById('level').value;
+  const maps=document.getElementById('maps');
 
- const blockSpots=spots.filter(
-   s=>s.block===selectedBlock
- );
+  maps.innerHTML='';
 
- const visibleLevels=
-   selectedBlock==='01'
-     ? ['-1']
-     : ['-2'];
+  let availableNowCount=0;
+  let occupiedNowCount=0;
 
- let availableNowCount=0;
- let occupiedNowCount=0;
+  const blocks=['01','02'];
 
- for(const lev of visibleLevels){
+  blocks.forEach(block=>{
 
-  if(level!=='all'&&level!==lev)continue;
+    const blockSpots=spots.filter(
+      s=>s.block===block
+    );
 
-  const title=document.createElement('div');
-  title.className='section';
-  title.textContent=
-    lev==='-1'
-      ? 'Subsolo -1'
-      : 'Subsolo -2';
+    const visibleLevels=
+      block==='01'
+        ? ['-1']
+        : ['-2'];
 
-  maps.appendChild(title);
+    visibleLevels.forEach(lev=>{
 
-  const grid=document.createElement('div');
-  grid.className='grid';
-
-  blockSpots
-    .filter(s=>s.level===lev)
-    .forEach(s=>{
-
-      if(
-        q &&
-        !String(s.number).includes(q) &&
-        !(s.apartment||'').includes(q)
-      ){
+      if(level!=='all' && level!==lev){
         return;
       }
 
-      const info=mapInfo(s);
+      const blockTitle=document.createElement('div');
 
-      if(info.availableNow){
-        availableNowCount++;
-      }
+      blockTitle.className='section';
+      blockTitle.id='map-block-'+block;
+      blockTitle.textContent=
+        block==='01'
+          ? 'Bloco 01 · Subsolo -1'
+          : 'Bloco 02 · Subsolo -2';
 
-      if(info.occupiedNow){
-        occupiedNowCount++;
-      }
+      maps.appendChild(blockTitle);
 
-     const cell=document.createElement('div');
-cell.className='spot-cell';
+      const grid=document.createElement('div');
+      grid.className='grid';
 
-const b=document.createElement('button');
+      blockSpots
+        .filter(s=>s.level===lev)
+        .forEach(s=>{
 
-b.className=
-  'spot '+
-  info.className+
-  (!s.apartment?' unmapped':'');
+          if(
+            q &&
+            !String(s.number).includes(q) &&
+            !(s.apartment||'').includes(q)
+          ){
+            return;
+          }
 
-if(info.className==='active'){
+          const info=mapInfo(s);
 
-  const label=document.createElement('div');
-  label.className='active-label';
-  label.textContent='🟢 Ativo';
+          if(info.availableNow){
+            availableNowCount++;
+          }
 
-  cell.appendChild(label);
-}
+          if(info.occupiedNow){
+            occupiedNowCount++;
+          }
 
-b.innerHTML=
-  '<span class="num">Vaga '+s.number+'</span>'+
-  '<span class="apt">'+
-    (s.apartment
-      ? 'Apto '+s.apartment
-      : 'Não cadastrada')+
-  '</span>'+
-  (
-    info.className==='active'
-      ? ''
-      : '<span class="time">'+
-          (info.html || info.text)+
-        '</span>'
+          const cell=document.createElement('div');
+          cell.className='spot-cell';
+
+          const b=document.createElement('button');
+
+          b.className=
+            'spot '+
+            info.className+
+            (!s.apartment?' unmapped':'');
+
+          if(info.className==='active'){
+
+            const label=document.createElement('div');
+            label.className='active-label';
+            label.textContent='🟢 Ativo';
+
+            cell.appendChild(label);
+          }
+
+          b.innerHTML=
+            '<span class="num">Vaga '+s.number+'</span>'+
+            '<span class="apt">'+
+              (
+                s.apartment
+                  ? 'Apto '+s.apartment
+                  : 'Não cadastrada'
+              )+
+            '</span>'+
+            (
+              info.className==='active'
+                ? ''
+                : '<span class="time">'+
+                    (info.html || info.text)+
+                  '</span>'
+            );
+
+          b.onclick=()=>openSpot(s.number);
+
+          cell.appendChild(b);
+          grid.appendChild(cell);
+
+        });
+
+      maps.appendChild(grid);
+
+    });
+
+  });
+
+  const mapped=spots.filter(
+    s=>s.apartment
   );
 
-b.onclick=()=>openSpot(s.number);
+  document.getElementById('mappedCount').textContent=
+    mapped.length;
 
-cell.appendChild(b);
-grid.appendChild(cell);
-});
+  document.getElementById('availableCount').textContent=
+    availableNowCount;
 
-maps.appendChild(grid);
+  document.getElementById('occupiedCount').textContent=
+    occupiedNowCount;
 
- const mapped=blockSpots.filter(
-   s=>s.apartment
- );
+  const tbody=document.getElementById('mappingTable');
 
- document.getElementById('mappedCount').textContent=
-   mapped.length;
+  tbody.innerHTML='';
 
- document.getElementById('availableCount').textContent=
-   availableNowCount;
+  mapped
+    .slice()
+    .sort((a,b)=>
+      a.apartment.localeCompare(b.apartment)
+    )
+    .forEach(s=>{
 
- document.getElementById('occupiedCount').textContent=
-   occupiedNowCount;
+      const tr=document.createElement('tr');
 
- const tbody=document.getElementById('mappingTable');
+      tr.innerHTML=
+        '<td>'+s.apartment+'</td>'+
+        '<td>'+s.number+'</td>';
 
- tbody.innerHTML='';
+      tbody.appendChild(tr);
 
- mapped
-   .slice()
-   .sort((a,b)=>
-     a.apartment.localeCompare(b.apartment)
-   )
-   .forEach(s=>{
-     const tr=document.createElement('tr');
+    });
 
-     tr.innerHTML=
-       '<td>'+s.apartment+'</td>'+
-       '<td>'+s.number+'</td>';
+  document.getElementById('headerBlock').textContent=
+    'Bloco 01 + Bloco 02 · Supabase + Realtime';
 
-     tbody.appendChild(tr);
-   });
-
- document.getElementById('headerBlock').textContent=
-   'Bloco '+selectedBlock+
-   ' · Supabase + Realtime';
-
- renderMyArea();
-renderMyReservations();
-}
-
-}
+  renderMyArea();
+  renderMyReservations();
+  }
 
 function statusClass(st){
   return ({
