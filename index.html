@@ -941,13 +941,8 @@ function applyLiberations(){
       return;
     }
 
-    if(
-      s.status==='disponivel' ||
-      s.status==='encerrada'
-    ){
       s.status='ativo';
     }
-
     s.available=false;
   });
 }
