@@ -1004,9 +1004,43 @@ function activeReleaseForSpot(s){
 }
 
 function reservationsForSpot(s){
-  return reservasPublicasTodas.filter(r=>
-    Number(r.vaga_numero)===Number(s.number)
-  );
+
+  const today=todayLocal();
+
+  const now=new Date();
+
+  const nowMinutes=
+    now.getHours()*60+
+    now.getMinutes();
+
+  return reservasPublicasTodas.filter(r=>{
+
+    if(
+      Number(r.vaga_numero)!==Number(s.number)
+    ){
+      return false;
+    }
+
+    if(r.data_fim<today){
+      return false;
+    }
+
+    if(r.data_fim>today){
+      return true;
+    }
+
+    if(r.qualquer_horario){
+      return true;
+    }
+
+    const end=timeToMinutes(r.hora_fim);
+
+    if(end===null){
+      return true;
+    }
+
+    return end>nowMinutes;
+  });
 }
 
 function timeToMinutes(value){
