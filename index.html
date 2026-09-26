@@ -3139,6 +3139,18 @@ function findApartment(){
    'Apartamento não encontrado no cadastro.';
 }
 
+  function toggleMappingTable(){
+
+  const content=document.getElementById('mappingContent');
+  const button=document.querySelector('.mapping-toggle');
+
+  if(!content || !button)return;
+
+  const isOpen=content.classList.toggle('show');
+
+  button.classList.toggle('open',isOpen);
+  }
+
 function formatTime(value){return value?value.slice(0,5):'';}
 
 function formatDate(value){
