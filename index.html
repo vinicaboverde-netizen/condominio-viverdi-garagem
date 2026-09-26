@@ -1957,11 +1957,7 @@ window.vagaModalNumero=s.number;
     Number(r.vaga_numero)===Number(s.number) &&
     r.status==='ativa'
   );
-  const release=liberacoes.find(l=>
-    Number(l.vaga_numero)===Number(s.number) &&
-    l.ativo &&
-  l.data_fim>=todayLocal()
-  );
+  const release=activeReleaseForSpot(s);
 
   if(reserveBtn){
 
