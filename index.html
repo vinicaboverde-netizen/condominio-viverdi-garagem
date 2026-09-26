@@ -2571,7 +2571,9 @@ function selectBlock(block){
 
 function openSpot(num,fromFuture=false){
 if(!fromFuture) reservaCriteria=null;
-const s=spots.find(x=>x.number===num && x.block===selectedBlock);
+const s=spots.find(
+  x=>Number(x.number)===Number(num)
+);
  if(!s)return;
  if(!editMode){
    showModal(s,false);
