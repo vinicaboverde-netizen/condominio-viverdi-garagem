@@ -929,12 +929,54 @@ function activeReleaseForSpot(s){
   const today=todayLocal();
 
   return liberacoes
-    .filter(l=>
-      Number(l.vaga_numero)===Number(s.number) &&
-      l.ativo &&
-      l.data_fim>=today
-    )
-    .sort((a,b)=>a.data_inicio.localeCompare(b.data_inicio))[0] || null;
+    .filter(l=>{
+      if(
+        Number(l.vaga_numero)!==Number(s.number) ||
+        !l.ativo
+      ){
+        return false;
+      }
+
+      if(l.data_fim<today){
+        return false;
+      }
+
+      /*
+       * Se a liberação termina hoje e possui
+       * horário final, verificar também o horário.
+       */
+      if(
+        l.data_fim===today &&
+        !l.qualquer_horario
+      ){
+        const end=timeToMinutes(l.hora_fim);
+
+        if(end!==null){
+          const now=new Date();
+
+          const nowMinutes=
+            now.getHours()*60+
+            now.getMinutes();
+
+          if(nowMinutes>=end){
+            return false;
+          }
+        }
+      }
+
+      return true;
+    })
+    .sort((a,b)=>{
+      if(a.data_inicio!==b.data_inicio){
+        return a.data_inicio.localeCompare(b.data_inicio);
+      }
+
+      const aStart=timeToMinutes(a.hora_inicio);
+      const bStart=timeToMinutes(b.hora_inicio);
+
+      return (aStart===null?0:aStart) -
+             (bStart===null?0:bStart);
+    })[0] || null;
 }
 
 function reservationsForSpot(s){
