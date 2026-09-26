@@ -232,7 +232,122 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
   font-weight:800;
 }
 .modal-actions{display:flex;gap:9px;margin-top:18px}.modal-actions button{flex:1;padding:12px}
+/* Histórico de reservas por semana */
+.reservation-calendar{
+  margin-top:14px;
+  padding:12px;
+  background:#f8fafc;
+  border:1px solid #dbe3ec;
+  border-radius:14px;
+}
 
+.reservation-calendar-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:10px;
+}
+
+.reservation-month{
+  flex:1;
+  text-align:center;
+  font-size:15px;
+  font-weight:850;
+}
+
+.reservation-month-input{
+  width:100%;
+  border:0;
+  background:transparent;
+  text-align:center;
+  font:inherit;
+  font-weight:850;
+  color:#17202a;
+  padding:4px;
+}
+
+.reservation-week-nav{
+  width:36px;
+  height:36px;
+  padding:0;
+  border-radius:10px;
+  font-size:20px;
+}
+
+.reservation-week{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:4px;
+}
+
+.reservation-day{
+  min-width:0;
+  padding:6px 2px;
+  border:1px solid #dbe3ec;
+  background:#fff;
+  border-radius:9px;
+  text-align:center;
+}
+
+.reservation-day-name{
+  display:block;
+  font-size:9px;
+  font-weight:750;
+  color:#64748b;
+  text-transform:uppercase;
+}
+
+.reservation-day-number{
+  display:block;
+  font-size:14px;
+  font-weight:850;
+  margin-top:2px;
+}
+
+.reservation-day.has-history{
+  border-color:#93c5fd;
+}
+
+.reservation-day.has-history .reservation-day-number::after{
+  content:'';
+  display:block;
+  width:5px;
+  height:5px;
+  margin:3px auto 0;
+  border-radius:50%;
+  background:#2563eb;
+}
+
+.reservation-day.selected{
+  background:#2563eb;
+  border-color:#2563eb;
+  color:#fff;
+}
+
+.reservation-day.selected .reservation-day-name{
+  color:#dbeafe;
+}
+
+.reservation-day.selected .reservation-day-number::after{
+  background:#fff;
+}
+
+.reservation-history-title{
+  margin:14px 0 8px;
+  font-size:13px;
+  font-weight:850;
+}
+
+.reservation-empty{
+  padding:12px;
+  background:#fff;
+  border:1px dashed #cbd5e1;
+  border-radius:10px;
+  color:#64748b;
+  font-size:13px;
+  text-align:center;
+  }
 @media(max-width:600px){.grid{grid-template-columns:repeat(4,1fr)}.stat{padding:9px}.stat b{font-size:20px}}
 
 .my-area{background:#fff;border:2px solid #bfdbfe;border-radius:16px;padding:14px;margin:10px 0 12px;box-shadow:0 2px 8px #0000000b}.my-area-title{font-size:13px;font-weight:850;color:#2563eb;letter-spacing:.3px;margin-bottom:6px}.my-vaga-main{display:flex;justify-content:space-between;gap:12px;align-items:center}.my-vaga-name{font-size:22px;font-weight:850}.my-vaga-meta{color:#6b7280;font-size:13px;margin-top:2px}.my-vaga-status{font-weight:800;margin-top:6px}.my-vaga-actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}.future-search{padding:18px}.future-search h2{margin:0 0 6px;font-size:20px}.future-search .hint{color:#6b7280;margin-bottom:14px}.future-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.future-grid .full{grid-column:1/-1}.future-search label{display:block;font-size:12px;font-weight:800;margin-bottom:5px}.future-search input,.future-search select{width:100%;padding:12px;border:1px solid #d7dce2;border-radius:10px;font-size:16px;background:#fff}.check-row{display:flex;align-items:center;gap:8px;font-weight:700;margin-top:10px}.check-row input{width:18px;height:18px}.future-results{margin-top:15px}.result-item{border:1px solid #d7dce2;border-radius:12px;padding:11px;margin-top:8px;background:#fff}.result-item b{font-size:17px}.result-item small{display:block;color:#6b7280;margin-top:3px}.empty-result{color:#6b7280;padding:10px 0}.modal-actions .primary{display:block}.
