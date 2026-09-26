@@ -925,48 +925,52 @@ function applyLiberations(){
   });
 }
 
-function activeReleaseForSpot(s){
+function releaseIsActiveNow(l){
+  if(!l || !l.ativo){
+    return false;
+  }
+
   const today=todayLocal();
 
+  if(l.data_inicio>today){
+    return false;
+  }
+
+  if(l.data_fim<today){
+    return false;
+  }
+
+  if(
+    l.data_fim===today &&
+    !l.qualquer_horario
+  ){
+    const end=timeToMinutes(l.hora_fim);
+
+    if(end!==null){
+      const now=new Date();
+
+      const nowMinutes=
+        now.getHours()*60+
+        now.getMinutes();
+
+      if(nowMinutes>=end){
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+function activeReleaseForSpot(s){
+
   return liberacoes
-    .filter(l=>{
-      if(
-        Number(l.vaga_numero)!==Number(s.number) ||
-        !l.ativo
-      ){
-        return false;
-      }
-
-      if(l.data_fim<today){
-        return false;
-      }
-
-      /*
-       * Se a liberação termina hoje e possui
-       * horário final, verificar também o horário.
-       */
-      if(
-        l.data_fim===today &&
-        !l.qualquer_horario
-      ){
-        const end=timeToMinutes(l.hora_fim);
-
-        if(end!==null){
-          const now=new Date();
-
-          const nowMinutes=
-            now.getHours()*60+
-            now.getMinutes();
-
-          if(nowMinutes>=end){
-            return false;
-          }
-        }
-      }
-
-      return true;
-    })
+    .filter(l=>
+      Number(l.vaga_numero)===Number(s.number) &&
+      releaseIsActiveNow(l)
+    )
     .sort((a,b)=>{
+
       if(a.data_inicio!==b.data_inicio){
         return a.data_inicio.localeCompare(b.data_inicio);
       }
