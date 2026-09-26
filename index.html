@@ -1556,7 +1556,21 @@ function renderMyReservations(){
             <div class="my-vaga-meta">
               Apto proprietário ${spot?.apartment || '—'}
             </div>
-            <div class="my-vaga-status">🔵 Reserva ativa</div>
+            <div class="my-vaga-status">${
+  reservationIsNow(r)
+    ? '🟠 Em uso no momento'
+    : (
+        todayLocal() < r.data_inicio ||
+        (todayLocal() === r.data_inicio &&
+         !r.qualquer_horario &&
+         timeToMinutes(r.hora_inicio) > (
+           new Date().getHours()*60 +
+           new Date().getMinutes()
+         ))
+      )
+      ? '🔵 Reserva ativa'
+      : '⚪ Reserva encerrada'
+}</div>
             <div class="my-vaga-meta">${periodo}</div>
           </div>
         </div>
