@@ -939,8 +939,8 @@ function applyLiberations(){
       return;
     }
 
-      s.status='ativo';
-    s.available=false;
+      s.status=s.apartment ? 'ativo' : 'indisponivel';
+s.available=false;
   });
   
 }
