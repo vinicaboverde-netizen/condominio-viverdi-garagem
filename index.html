@@ -1982,9 +1982,10 @@ window.vagaModalNumero=s.number;
     const reserveBtn=document.getElementById('reserveModal');
   const cancelReservationBtn=document.getElementById('cancelReservationModal');
   const myReservation=reservas.find(r=>
-    Number(r.vaga_numero)===Number(s.number) &&
-    r.status==='ativa'
-  );
+  Number(r.vaga_numero)===Number(s.number) &&
+  r.status==='ativa' &&
+  reservationIsNow(r)
+);
   const release=activeReleaseForSpot(s);
 
   if(reserveBtn){
