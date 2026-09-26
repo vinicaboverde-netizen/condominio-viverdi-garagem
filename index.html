@@ -1161,6 +1161,35 @@ function calculateAgenda(release,reservations){
     date=nextDateLocal(date);
   }
 
+  const today=todayLocal();
+
+  const now=new Date();
+
+  const nowMinutes=
+    now.getHours()*60+
+    now.getMinutes();
+
+  const visibleFreeIntervals=
+    freeIntervals
+      .map(i=>{
+
+        if(i.date!==today){
+          return i;
+        }
+
+        if(i.end<=nowMinutes){
+          return null;
+        }
+
+        return {
+          ...i,
+          start:Math.max(i.start,nowMinutes)
+        };
+      })
+      .filter(i=>i && i.end>i.start);
+
+  return {
+
   return {
     totalMinutes,
     reservedMinutes,
@@ -1169,7 +1198,7 @@ function calculateAgenda(release,reservations){
       totalMinutes>0 &&
       reservedMinutes>=totalMinutes,
     hasReservations,
-    freeIntervals
+    freeIntervals:visibleFreeIntervals
   };
 }
 
