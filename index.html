@@ -3401,8 +3401,7 @@ function closeAvailableNow(){
 function openAvailableSpot(num){
 
   const s=spots.find(
-    x=>Number(x.number)===Number(num) &&
-       x.block===selectedBlock
+    x=>Number(x.number)===Number(num)
   );
 
   if(!s)return;
@@ -3410,6 +3409,7 @@ function openAvailableSpot(num){
   closeAvailableNow();
 
   const previousEditMode=editMode;
+
   editMode=false;
 
   showModal(s,false);
