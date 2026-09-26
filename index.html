@@ -3297,30 +3297,37 @@ loadSpots();
 
   const available=spots
     .filter(s=>{
-      if(s.block!==selectedBlock) return false;
       if(!s.apartment) return false;
 
       const info=mapInfo(s);
 
       return info.availableNow;
     })
-    .sort((a,b)=>Number(a.number)-Number(b.number));
+    .sort((a,b)=>
+      Number(a.number)-Number(b.number)
+    );
 
   sub.textContent =
-    'Bloco '+selectedBlock+
-    ' · '+available.length+
-    (available.length===1
-      ? ' vaga disponível'
-      : ' vagas disponíveis');
+    'Blocos 01 e 02 · '+
+    available.length+
+    (
+      available.length===1
+        ? ' vaga disponível'
+        : ' vagas disponíveis'
+    );
 
   if(!available.length){
+
     list.innerHTML=`
       <div class="empty-result">
         Nenhuma vaga disponível neste momento.
       </div>
     `;
 
-    document.getElementById('availableBackdrop').classList.add('show');
+    document
+      .getElementById('availableBackdrop')
+      .classList.add('show');
+
     return;
   }
 
@@ -3342,7 +3349,8 @@ loadSpots();
           release.data_fim &&
           release.data_fim!==release.data_inicio
         ){
-          periodo+=' a '+formatDate(release.data_fim);
+          periodo+=' a '+
+            formatDate(release.data_fim);
         }
       }
 
@@ -3350,7 +3358,10 @@ loadSpots();
 
         periodo+=' · Qualquer horário';
 
-      }else if(release.hora_inicio && release.hora_fim){
+      }else if(
+        release.hora_inicio &&
+        release.hora_fim
+      ){
 
         periodo+=' · '+
           formatTime(release.hora_inicio)+
@@ -3366,7 +3377,9 @@ loadSpots();
       >
         <div>
           <strong>Vaga ${s.number}</strong>
-          <span>Apto ${s.apartment}</span>
+          <span>
+            Apto ${s.apartment} · Bloco ${s.block}
+          </span>
           <small>${periodo}</small>
         </div>
 
@@ -3376,7 +3389,9 @@ loadSpots();
 
   }).join('');
 
-  document.getElementById('availableBackdrop').classList.add('show');
+  document
+    .getElementById('availableBackdrop')
+    .classList.add('show');
   }
 
 function closeAvailableNow(){
