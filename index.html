@@ -1303,11 +1303,15 @@ function mapInfo(s){
     }
 
     return {
-      className:statusClass(s.status),
-      text:statusTextBase(s),
-      availableNow:false,
-      occupiedNow:false
-    };
+  className:s.status==='ativo'
+    ? 'active'
+    : statusClass(s.status),
+  text:s.status==='ativo'
+    ? '🟢 Ativo'
+    : statusTextBase(s),
+  availableNow:false,
+  occupiedNow:false
+};
   }
 
   const reservations=reservationsForSpot(s);
