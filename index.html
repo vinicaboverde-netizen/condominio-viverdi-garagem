@@ -1991,9 +1991,34 @@ async function loadReservasPublicas(vagaNumero){
 
   const today=todayLocal();
 
-  reservasPublicas=(data||[]).filter(r =>
-    r.data_fim >= today
-  );
+const now=new Date();
+
+const nowMinutes=
+  now.getHours()*60+
+  now.getMinutes();
+
+reservasPublicas=(data||[]).filter(r=>{
+
+  if(r.data_fim<today){
+    return false;
+  }
+
+  if(r.data_fim>today){
+    return true;
+  }
+
+  if(r.qualquer_horario){
+    return true;
+  }
+
+  const end=timeToMinutes(r.hora_fim);
+
+  if(end===null){
+    return true;
+  }
+
+  return end>nowMinutes;
+});
 }
 
 async function showModal(s, editing){
